@@ -24,13 +24,12 @@
   --color-alert: #f14c2e;
   --color-success: #0c1d7c;
   --color-overlay: #121619bf;
+
+  /* Font Family */
+  --font-pretendard: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
 }
 
 @layer utilities {
-  .font-pretendard {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
-  }
-
   /* Heading */
   .text-heading-1 {
     font-size: 54px;
