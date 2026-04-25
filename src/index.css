@@ -1,1 +1,114 @@
 @import 'tailwindcss';
+
+@theme {
+  /* Primary */
+  --color-primary-30: #fffaf2;
+  --color-primary-60: #ff952b;
+  --color-primary-90: #ff7124;
+
+  /* Coolgray */
+  --color-coolgray-10: #f2f4f8;
+  --color-coolgray-20: #d9d9d9;
+  --color-coolgray-30: #c1c7cd;
+  --color-coolgray-60: #697077;
+  --color-coolgray-90: #21272a;
+
+  /* Chip */
+  --color-chip-green: #519c66;
+  --color-chip-green-bg: #32936f1f;
+  --color-chip-red: #cc5f5f;
+  --color-chip-red-bg: #f57e771f;
+
+  /* Default */
+  --color-white: #ffffff;
+  --color-alert: #f14c2e;
+  --color-success: #0c1d7c;
+  --color-overlay: #121619bf;
+}
+
+@layer utilities {
+  .font-pretendard {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+  }
+
+  /* Heading */
+  .text-heading-1 {
+    font-size: 54px;
+    font-weight: 700;
+    line-height: 59.4px;
+  }
+  .text-heading-2 {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 46.2px;
+  }
+  .text-heading-3 {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 35.2px;
+  }
+  .text-heading-4 {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 26.4px;
+  }
+  .text-heading-5 {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 19.8px;
+  }
+  .text-heading-6 {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 15.4px;
+  }
+
+  /* Button */
+  .text-button-s {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 16px;
+    letter-spacing: 0.5px;
+  }
+  .text-button-m {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 18px;
+    letter-spacing: 0.5px;
+  }
+  .text-button-l {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.5px;
+  }
+  .text-button-xl {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Body */
+  .text-body-xs {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 13.2px;
+  }
+  .text-body-s {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 19.6px;
+    letter-spacing: 0.5px;
+  }
+  .text-body-m {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22.4px;
+  }
+  .text-body-l {
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 25.2px;
+  }
+}
