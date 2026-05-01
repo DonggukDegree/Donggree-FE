@@ -24,7 +24,7 @@ export default function Footer() {
           <Github className="w-8 h-8" />
         </a>
       </div>
-      <div className="w-full flex items-center text-button-m text-coolgray-60 gap-5 border-t border-b border-coolgray-30 py-9 px-75">
+      <div className="w-full flex items-center justify-center text-button-m text-coolgray-60 gap-5 border-t border-b border-coolgray-30 py-9">
         {NAV_ITEMS.map((item) => (
           <Link key={item.name} to={item.path} className="px-2 py-3 hover:text-primary-60 hover:cursor-pointer">
             {item.name}

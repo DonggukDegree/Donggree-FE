@@ -20,7 +20,6 @@ export default function Home() {
       <p className="text-body-xs text-coolgray-90">text-body-xs</p>
 
       {/* Button */}
-      <p className="text-button-xl text-coolgray-90">text-button-xl</p>
       <p className="text-button-l text-coolgray-90">text-button-l</p>
       <p className="text-button-m text-coolgray-90">text-button-m</p>
       <p className="text-button-s text-coolgray-90">text-button-s</p>
