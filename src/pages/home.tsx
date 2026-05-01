@@ -42,13 +42,13 @@ export default function Home() {
       {/* Buttons */}
       <div className="w-full flex items-center justify-center gap-4">
         <Button className="w-40">primary</Button>
-        <Button type="alert" className="w-40">
+        <Button variant="alert" className="w-40">
           alert
         </Button>
-        <Button type="disabled" className="w-40">
+        <Button variant="disabled" className="w-40">
           disabled
         </Button>
-        <Button type="outlined" className="w-40">
+        <Button variant="outlined" className="w-40">
           outlined
         </Button>
       </div>

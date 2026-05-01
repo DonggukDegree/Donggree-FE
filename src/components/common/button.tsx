@@ -1,27 +1,23 @@
-type TButtonType = 'primary' | 'alert' | 'disabled' | 'outlined';
+type TButtonVariant = 'primary' | 'alert' | 'disabled' | 'outlined';
 
-interface IButtonProps {
-  children: React.ReactNode;
-  type?: TButtonType;
-  onClick?: () => void;
-  className?: string;
+interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: TButtonVariant;
 }
 
-const typeStyles: Record<TButtonType, string> = {
+const variantStyles: Record<TButtonVariant, string> = {
   primary: 'bg-primary-60 text-white hover:cursor-pointer hover:opacity-90',
   alert: 'bg-alert text-white hover:cursor-pointer hover:opacity-90',
   disabled: 'bg-coolgray-30 text-white cursor-not-allowed',
   outlined: 'bg-white border border-primary-60 text-primary-60 hover:cursor-pointer hover:opacity-90',
 };
 
-export default function Button({ children, type = 'primary', onClick, className = '' }: IButtonProps) {
+export default function Button({ children, variant = 'primary', className = '', disabled, ...props }: IButtonProps) {
   const baseStyles = 'p-4 rounded-sm text-button-s flex items-center justify-center';
-
   return (
     <button
-      onClick={onClick}
-      disabled={type === 'disabled'}
-      className={`${baseStyles} ${typeStyles[type]} ${className}`}
+      {...props}
+      disabled={disabled || variant === 'disabled'}
+      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
     >
       {children}
     </button>
