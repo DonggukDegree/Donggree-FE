@@ -15,16 +15,16 @@ const NAV_ITEMS = [
 
 export default function Footer() {
   return (
-    <footer className="w-full pt-6 pb-14 px-20 flex flex-col items-center gap-6">
+    <footer className="w-full pt-6 pb-14 px-16 flex flex-col items-center gap-6">
       <div className="w-full flex items-center justify-between">
         <Link to="/">
-          <Logo className="hover:cursor-pointer" />
+          <Logo className="hover:cursor-pointer w-40 h-auto" />
         </Link>
         <a href="https://github.com/DonggukDegree" target="_blank" rel="noreferrer" className="hover:cursor-pointer">
-          <Github />
+          <Github className="w-8 h-8" />
         </a>
       </div>
-      <div className="flex items-center text-button-m text-coolgray-60 gap-5">
+      <div className="w-full flex items-center justify-center text-button-m text-coolgray-60 gap-5 border-t border-b border-coolgray-30 py-9">
         {NAV_ITEMS.map((item) => (
           <Link key={item.name} to={item.path} className="px-2 py-3 hover:text-primary-60 hover:cursor-pointer">
             {item.name}
