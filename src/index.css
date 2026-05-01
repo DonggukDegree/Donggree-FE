@@ -32,82 +32,85 @@
 @layer utilities {
   /* Heading */
   .text-heading-1 {
-    font-size: 54px;
+    font-size: 40px;
     font-weight: 700;
-    line-height: 59.4px;
+    line-height: 48px;
   }
+
   .text-heading-2 {
-    font-size: 42px;
-    font-weight: 700;
-    line-height: 46.2px;
-  }
-  .text-heading-3 {
     font-size: 32px;
-    font-weight: 600;
-    line-height: 35.2px;
+    font-weight: 700;
+    line-height: 40px;
   }
+
+  .text-heading-3 {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 36px;
+  }
+
   .text-heading-4 {
     font-size: 24px;
     font-weight: 700;
-    line-height: 26.4px;
+    line-height: 32px;
   }
+
   .text-heading-5 {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
-    line-height: 19.8px;
+    line-height: 28px;
   }
+
   .text-heading-6 {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
-    line-height: 15.4px;
+    line-height: 24px;
   }
 
   /* Button */
   .text-button-s {
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 16px;
-    letter-spacing: 0.5px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 14px;
+    letter-spacing: 0.2px;
   }
+
   .text-button-m {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 16px;
+    letter-spacing: 0.2px;
+  }
+
+  .text-button-l {
     font-size: 18px;
     font-weight: 600;
     line-height: 18px;
-    letter-spacing: 0.5px;
-  }
-  .text-button-l {
-    font-size: 20px;
-    font-weight: 500;
-    line-height: 20px;
-    letter-spacing: 0.5px;
-  }
-  .text-button-xl {
-    font-size: 24px;
-    font-weight: 500;
-    line-height: 24px;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.2px;
   }
 
   /* Body */
   .text-body-xs {
     font-size: 12px;
     font-weight: 500;
-    line-height: 13.2px;
+    line-height: 16px;
   }
+
   .text-body-s {
     font-size: 14px;
     font-weight: 400;
-    line-height: 19.6px;
-    letter-spacing: 0.5px;
+    line-height: 20px;
   }
+
   .text-body-m {
     font-size: 16px;
     font-weight: 400;
-    line-height: 22.4px;
+    line-height: 24px;
   }
+
   .text-body-l {
     font-size: 18px;
     font-weight: 400;
-    line-height: 25.2px;
+    line-height: 28px;
   }
 }
