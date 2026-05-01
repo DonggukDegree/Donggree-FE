@@ -1,4 +1,5 @@
 import Icon from '@/assets/Icon.svg?react';
+import Button from '@/components/common/button';
 
 export default function Home() {
   return (
@@ -37,6 +38,20 @@ export default function Home() {
       <p className="text-heading-5 text-chip-red bg-chip-red-bg">text-chip-red</p>
       <p className="text-heading-5 text-alert">text-alert</p>
       <p className="text-heading-5 text-success">text-success</p>
+
+      {/* Buttons */}
+      <div className="w-full flex items-center justify-center gap-4">
+        <Button className="w-40">primary</Button>
+        <Button type="alert" className="w-40">
+          alert
+        </Button>
+        <Button type="disabled" className="w-40">
+          disabled
+        </Button>
+        <Button type="outlined" className="w-40">
+          outlined
+        </Button>
+      </div>
     </>
   );
 }
