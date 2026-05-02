@@ -1,9 +1,27 @@
 import Icon from '@/assets/Icon.svg?react';
 import Button from '@/components/common/button';
+import { useModalStore } from '@/stores/modalStore';
 
 export default function Home() {
+  const { openAlert } = useModalStore();
+  const handleOpenModal = () => {
+    openAlert({
+      icon: Icon,
+      title: '사용자 정보와 PDF 정보가 일치하지 않아요',
+      subtitle: '동그리는 타인의 PDF 업로드를 허용하지 않아요.',
+      description:
+        '사용자 정보를 잘못 입력했다면 마이페이지에서 수정해주세요.\n다른 문제가 있다면 고객지원에 문의해주세요.',
+      buttonText: '홈으로',
+      onConfirm: () => {},
+    });
+  };
   return (
     <>
+      {/* Modal 예제 */}
+      <Button className="w-40 m-4" onClick={handleOpenModal}>
+        모달 열기
+      </Button>
+
       <Icon />
       {/* Heading */}
       <h1 className="text-heading-1 text-coolgray-90">text-heading-1</h1>
