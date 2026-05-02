@@ -1,5 +1,6 @@
 import Icon from '@/assets/Icon.svg?react';
 import Button from '@/components/common/button';
+import TextField from '@/components/common/textField';
 import { useModalStore } from '@/stores/modalStore';
 
 export default function Home() {
@@ -55,6 +56,13 @@ export default function Home() {
       <p className="text-heading-5 text-chip-red bg-chip-red-bg">text-chip-red</p>
       <p className="text-heading-5 text-alert">text-alert</p>
       <p className="text-heading-5 text-success">text-success</p>
+
+      {/* TextField */}
+      <div className="flex flex-col gap-4 m-4">
+        <TextField placeholder="이름을 입력하세요" />
+        <TextField placeholder="너비 커스텀" className="w-100" />
+        <TextField placeholder="에러 상태" error="올바른 값을 입력해주세요." />
+      </div>
 
       {/* Buttons */}
       <div className="w-full flex items-center justify-center gap-4">
