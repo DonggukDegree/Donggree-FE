@@ -6,7 +6,7 @@ import Button from '@/components/common/button';
 export default function NotFound() {
   const navigate = useNavigate();
   return (
-    <div className="w-full flex flex-col items-center justify-center m-auto gap-12">
+    <div className="w-full flex-1 flex flex-col items-center justify-center gap-12">
       <Rocket className="w-20 h-20" />
       <div className="flex flex-col items-center gap-1">
         <p className="text-primary-60 text-heading-1">404</p>
