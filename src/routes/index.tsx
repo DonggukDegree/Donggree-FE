@@ -7,6 +7,7 @@ import Home from '@/pages/home';
 import Login from '@/pages/login';
 import MyPage from '@/pages/myPage';
 import NotFound from '@/pages/notFound';
+import OnBoarding from '@/pages/onBoarding';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <Login /> },
@@ -18,6 +19,7 @@ export const router = createBrowserRouter([
       { path: 'my-page', element: <MyPage /> },
       { path: 'curriculum', element: <Curriculum /> },
       { path: 'graduation', element: <Graduation /> },
+      { path: 'onboarding', element: <OnBoarding /> },
       { path: '*', element: <NotFound /> },
     ],
   },
