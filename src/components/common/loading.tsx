@@ -1,18 +1,8 @@
 export default function Loading() {
   return (
     <div className="w-full flex flex-col items-center justify-center m-auto gap-20">
-      <svg
-        className="w-20 h-20 animate-spin"
-        viewBox="0 0 80 80"
-        fill="none"
-      >
-        <circle
-          cx="40"
-          cy="40"
-          r="36"
-          stroke="var(--color-primary-30)"
-          strokeWidth="8"
-        />
+      <svg className="w-20 h-20 animate-spin" viewBox="0 0 80 80" fill="none">
+        <circle cx="40" cy="40" r="36" stroke="var(--color-primary-30)" strokeWidth="8" />
         <circle
           cx="40"
           cy="40"
