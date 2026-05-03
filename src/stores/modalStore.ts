@@ -1,7 +1,7 @@
 import type { ComponentType, SVGProps } from 'react';
 import { create } from 'zustand';
 
-type TModalType = 'alert' | 'feedback';
+type TModalType = 'alert' | 'onboarding';
 
 interface IAlertContent {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
@@ -19,7 +19,7 @@ interface IModalState {
 
 interface IModalActions {
   openAlert: (content: IAlertContent) => void;
-  openFeedback: () => void;
+  openOnboarding: () => void;
   closeModal: () => void;
 }
 
@@ -31,6 +31,6 @@ const initialState: IModalState = {
 export const useModalStore = create<IModalState & IModalActions>((set) => ({
   ...initialState,
   openAlert: (content) => set({ type: 'alert', alertContent: content }),
-  openFeedback: () => set({ type: 'feedback', alertContent: null }),
+  openOnboarding: () => set({ type: 'onboarding' }),
   closeModal: () => set(initialState),
 }));
