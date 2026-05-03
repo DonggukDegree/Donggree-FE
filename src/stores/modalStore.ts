@@ -31,6 +31,6 @@ const initialState: IModalState = {
 export const useModalStore = create<IModalState & IModalActions>((set) => ({
   ...initialState,
   openAlert: (content) => set({ type: 'alert', alertContent: content }),
-  openOnboarding: () => set({ type: 'onboarding' }),
+  openOnboarding: () => set({ type: 'onboarding', alertContent: null }),
   closeModal: () => set(initialState),
 }));

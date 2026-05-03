@@ -86,7 +86,11 @@ export default function OnBoardingModal() {
             </span>
           </label>
         </div>
-        <Button className="w-full text-body-l py-3" onClick={handleSubmit}>
+        <Button
+          className="w-full text-body-l py-3"
+          onClick={handleSubmit}
+          disabled={!name || !nickname || !studentId || !agreedAge || !agreedPrivacy || !agreedTerms}
+        >
           동그리 시작하기
         </Button>
       </div>
