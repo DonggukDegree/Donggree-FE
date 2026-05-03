@@ -9,12 +9,12 @@ import MyPage from '@/pages/myPage';
 import NotFound from '@/pages/notFound';
 
 export const router = createBrowserRouter([
+  { path: '/login', element: <Login /> },
   {
     path: '/',
     element: <Layout />,
     children: [
       { index: true, element: <Home /> },
-      { path: 'login', element: <Login /> },
       { path: 'my-page', element: <MyPage /> },
       { path: 'curriculum', element: <Curriculum /> },
       { path: 'graduation', element: <Graduation /> },
