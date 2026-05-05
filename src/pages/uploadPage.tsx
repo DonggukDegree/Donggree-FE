@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import Inbox from '@/assets/icons/inbox.svg?react';
 import Upload from '@/assets/icons/upload.svg?react';
@@ -9,6 +9,7 @@ import Button from '@/components/common/button';
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="w-full flex flex-col items-center justify-center gap-20 p-20 text-coolgray-90">
@@ -69,24 +70,25 @@ export default function UploadPage() {
               </>
             ) : (
               <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="application/pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    const selected = e.target.files?.[0];
+                    if (selected && selected.type === 'application/pdf') {
+                      setFile(selected);
+                    } else if (selected) {
+                      alert('PDF 파일만 업로드할 수 있습니다.');
+                    }
+                    e.target.value = '';
+                  }}
+                />
                 <button
                   type="button"
                   className="p-4 cursor-pointer hover:opacity-80"
-                  onClick={() => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'application/pdf';
-                    input.onchange = (e) => {
-                      const target = e.target as HTMLInputElement;
-                      const selected = target.files?.[0];
-                      if (selected && selected.type === 'application/pdf') {
-                        setFile(selected);
-                      } else if (selected) {
-                        alert('PDF 파일만 업로드할 수 있습니다.');
-                      }
-                    };
-                    input.click();
-                  }}
+                  onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload />
                 </button>
