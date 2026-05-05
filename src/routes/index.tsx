@@ -8,6 +8,7 @@ import Login from '@/pages/login';
 import MyPage from '@/pages/myPage';
 import NotFound from '@/pages/notFound';
 import OnBoarding from '@/pages/onBoarding';
+import UploadPage from '@/pages/uploadPage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <Login /> },
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
       { path: 'curriculum', element: <Curriculum /> },
       { path: 'graduation', element: <Graduation /> },
       { path: 'onboarding', element: <OnBoarding /> },
+      { path: 'upload', element: <UploadPage /> },
       { path: '*', element: <NotFound /> },
     ],
   },
