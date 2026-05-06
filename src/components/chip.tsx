@@ -1,4 +1,4 @@
-type TChipVariant = 'satisfied' | 'unsatisfied' | 'selected';
+export type TChipVariant = 'satisfied' | 'unsatisfied' | 'selected';
 
 interface IChipProps {
   variant: TChipVariant;
