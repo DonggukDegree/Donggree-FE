@@ -1,15 +1,23 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-interface IAreaSummaryCardProps {
-  areaName: string;
+type TCourseName = 'COMMON_GENERAL' | 'LIBERAL_ARTS' | 'ACADEMIC_FOUNDATION' | 'FIRST_MAJOR' | 'SECOND_MAJOR';
+
+const COURSE_LABEL: Record<TCourseName, string> = {
+  COMMON_GENERAL: '공통교양',
+  LIBERAL_ARTS: '일반교양',
+  ACADEMIC_FOUNDATION: '학문기초',
+  FIRST_MAJOR: '제1전공',
+  SECOND_MAJOR: '제2전공',
+};
+
+interface ICourseSummaryCardProps {
+  courseName: TCourseName;
   progress: number;
   remainingCredits: number;
   status: 'PASS' | 'FAIL';
 }
 
-export default function AreaSummaryCard({ areaName, progress, remainingCredits, status }: IAreaSummaryCardProps) {
-  const id = useId();
-  const gradientId = `highlight-${id}`;
+export default function CourseSummaryCard({ courseName, progress, remainingCredits, status }: ICourseSummaryCardProps) {
   const clampedProgress = Math.round(Math.min(100, Math.max(0, progress)));
   const [animatedProgress, setAnimatedProgress] = useState(0);
 
@@ -22,14 +30,15 @@ export default function AreaSummaryCard({ areaName, progress, remainingCredits, 
   const circumference = 2 * Math.PI * radius;
   const arcLength = circumference * 0.75;
   const filledLength = arcLength * (animatedProgress / 100);
+  const gradientId = `highlight-${courseName}`;
 
   return (
     <div className="border border-primary-60 p-4 flex flex-col gap-4 text-coolgray-90 rounded-sm">
-      <p className="text-heading-5">{areaName}</p>
+      <p className="text-heading-5">{COURSE_LABEL[courseName]}</p>
       <div className="flex flex-col items-center">
         <svg viewBox="0 0 100 100" className="w-50 h-50">
           <defs>
-            <linearGradient id={`${gradientId}`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="white" stopOpacity="0.6" />
               <stop offset="50%" stopColor="white" stopOpacity="0" />
               <stop offset="100%" stopColor="var(--color-primary-90)" stopOpacity="0.3" />
