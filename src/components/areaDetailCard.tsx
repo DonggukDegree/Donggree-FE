@@ -28,7 +28,7 @@ export default function AreaDetailCard({
         <div className="flex flex-col">
           <span className="text-body-s text-coolgray-60">이수 기준</span>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-heading-5 text-coolgray-90">{areaName}</span>
+            <span className="text-heading-5 text-coolgray-90 max-w-[5em] break-words">{areaName}</span>
             <Chip variant={chipVariant} />
           </div>
         </div>

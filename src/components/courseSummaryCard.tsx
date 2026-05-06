@@ -1,14 +1,6 @@
 import { useEffect, useState } from 'react';
 
-type TCourseName = 'COMMON_GENERAL' | 'LIBERAL_ARTS' | 'ACADEMIC_FOUNDATION' | 'FIRST_MAJOR' | 'SECOND_MAJOR';
-
-const COURSE_LABEL: Record<TCourseName, string> = {
-  COMMON_GENERAL: '공통교양',
-  LIBERAL_ARTS: '일반교양',
-  ACADEMIC_FOUNDATION: '학문기초',
-  FIRST_MAJOR: '제1전공',
-  SECOND_MAJOR: '제2전공',
-};
+import { COURSE_LABEL, type TCourseName } from '@/types/course';
 
 interface ICourseSummaryCardProps {
   courseName: TCourseName;
