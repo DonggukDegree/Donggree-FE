@@ -30,14 +30,15 @@ interface ICourseTabViewProps {
 }
 
 export default function CourseTabView({ data }: ICourseTabViewProps) {
-  const [activeTab, setActiveTab] = useState<TCourseName>('COMMON_GENERAL');
+  const availableCourses = COURSE_NAMES.filter((course) => course in data);
+  const [activeTab, setActiveTab] = useState<TCourseName>(availableCourses[0]);
   const tabData = data[activeTab];
 
   return (
     <div className="flex flex-col gap-7 px-8 py-4">
       <div className="w-full border-b border-coolgray-20">
         <div className="flex justify-center gap-8">
-          {COURSE_NAMES.map((course) => (
+          {availableCourses.map((course) => (
             <button
               key={course}
               type="button"
@@ -70,11 +71,15 @@ export default function CourseTabView({ data }: ICourseTabViewProps) {
           <div className="flex gap-10">
             <div className="flex-1 border border-coolgray-20 p-4 flex flex-col gap-2">
               <span className="text-heading-5 text-coolgray-90">미충족 사유</span>
-              {tabData.unsatisfiedReasons.map((reason, index) => (
-                <span key={index} className="text-button-m text-alert">
-                  {reason}
-                </span>
-              ))}
+              {tabData.unsatisfiedReasons.length > 0 ? (
+                tabData.unsatisfiedReasons.map((reason, index) => (
+                  <span key={index} className="text-button-m text-alert">
+                    {reason}
+                  </span>
+                ))
+              ) : (
+                <span className="text-button-m text-coolgray-90">해당사항 없음</span>
+              )}
             </div>
 
             <div className="flex-1 border border-coolgray-20 p-4 flex flex-col gap-2">
