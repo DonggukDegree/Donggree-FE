@@ -53,7 +53,7 @@ export default function CourseTabView({ data }: ICourseTabViewProps) {
       </div>
 
       {tabData && (
-        <>
+        <div key={activeTab} className="flex flex-col gap-7 animate-fade-in">
           <div className="flex gap-3 overflow-x-auto">
             {tabData.areaDetails.map((area, index) => (
               <AreaDetailCard
@@ -93,7 +93,7 @@ export default function CourseTabView({ data }: ICourseTabViewProps) {
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
