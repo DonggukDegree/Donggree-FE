@@ -7,16 +7,24 @@ interface ICourseSummaryCardProps {
   progress: number;
   remainingCredits: number;
   status: 'PASS' | 'FAIL';
+  isVisible?: boolean;
 }
 
-export default function CourseSummaryCard({ courseName, progress, remainingCredits, status }: ICourseSummaryCardProps) {
+export default function CourseSummaryCard({
+  courseName,
+  progress,
+  remainingCredits,
+  status,
+  isVisible = true,
+}: ICourseSummaryCardProps) {
   const clampedProgress = Math.round(Math.min(100, Math.max(0, progress)));
   const [animatedProgress, setAnimatedProgress] = useState(0);
 
   useEffect(() => {
+    if (!isVisible) return;
     const timer = setTimeout(() => setAnimatedProgress(clampedProgress), 100);
     return () => clearTimeout(timer);
-  }, [clampedProgress]);
+  }, [clampedProgress, isVisible]);
 
   const radius = 40;
   const circumference = 2 * Math.PI * radius;
