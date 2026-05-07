@@ -33,7 +33,7 @@ export default function Curriculum() {
   const [footerRef, footerInView] = useInView();
 
   return (
-    <div className="flex flex-col gap-12 px-80 py-20">
+    <div className="flex flex-col gap-12 px-6 xl:px-80 py-20">
       <div
         ref={headerRef}
         className={`flex flex-col items-center gap-12 ${headerInView ? 'animate-fade-in-up' : 'opacity-0'}`}
@@ -52,12 +52,12 @@ export default function Curriculum() {
         ))}
       </div>
 
-      <p
+      <div
         ref={footerRef}
         className={`text-body-l text-coolgray-60 ${footerInView ? 'animate-fade-in-up' : 'opacity-0'}`}
       >
         *현재 동그리에서 지원되는 학과의 커리큘럼만 조회 가능합니다.
-      </p>
+      </div>
     </div>
   );
 }
