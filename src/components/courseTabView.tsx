@@ -31,7 +31,7 @@ interface ICourseTabViewProps {
 
 export default function CourseTabView({ data }: ICourseTabViewProps) {
   const availableCourses = COURSE_NAMES.filter((course) => course in data);
-  const [activeTab, setActiveTab] = useState<TCourseName>(availableCourses[0]);
+  const [activeTab, setActiveTab] = useState<TCourseName>(availableCourses[0] ?? 'COMMON_GENERAL');
   const tabData = data[activeTab];
 
   return (
@@ -56,9 +56,9 @@ export default function CourseTabView({ data }: ICourseTabViewProps) {
       {tabData && (
         <div key={activeTab} className="flex flex-col gap-7 animate-fade-in">
           <div className="flex gap-3 overflow-x-auto">
-            {tabData.areaDetails.map((area, index) => (
+            {tabData.areaDetails.map((area) => (
               <AreaDetailCard
-                key={index}
+                key={area.areaName}
                 areaName={area.areaName}
                 chipVariant={area.chipVariant}
                 requiredCredits={area.requiredCredits}
@@ -72,8 +72,8 @@ export default function CourseTabView({ data }: ICourseTabViewProps) {
             <div className="flex-1 border border-coolgray-20 p-4 flex flex-col gap-2">
               <span className="text-heading-5 text-coolgray-90">미충족 사유</span>
               {tabData.unsatisfiedReasons.length > 0 ? (
-                tabData.unsatisfiedReasons.map((reason, index) => (
-                  <span key={index} className="text-button-m text-alert">
+                tabData.unsatisfiedReasons.map((reason) => (
+                  <span key={reason} className="text-button-m text-alert">
                     {reason}
                   </span>
                 ))

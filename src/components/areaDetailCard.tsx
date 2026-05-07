@@ -40,8 +40,8 @@ export default function AreaDetailCard({
       <div className="w-full p-4 flex flex-col gap-1">
         <span className="text-body-s text-coolgray-60">소영역 분석</span>
         <div className="w-full flex flex-col">
-          {subjects.map((subject, index) => (
-            <div key={index} className="w-full border-b border-coolgray-10 py-3 flex flex-col gap-2">
+          {subjects.map((subject) => (
+            <div key={subject.name} className="w-full border-b border-coolgray-10 py-3 flex flex-col gap-2">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-col gap-1">
                   <span className="text-heading-6 text-coolgray-90 max-w-[6em] break-words">{subject.name}</span>
@@ -51,8 +51,8 @@ export default function AreaDetailCard({
               </div>
               {subject.details && subject.details.length > 0 && (
                 <div className="flex flex-col gap-0.5">
-                  {subject.details.map((detail, idx) => (
-                    <span key={idx} className="text-body-xs text-primary-90 max-w-[8em] break-words">
+                  {subject.details.map((detail) => (
+                    <span key={detail} className="text-body-xs text-primary-90 max-w-[8em] break-words">
                       {detail}
                     </span>
                   ))}
