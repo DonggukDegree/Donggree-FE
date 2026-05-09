@@ -6,7 +6,7 @@ export default function Modal() {
 
   if (type !== 'alert' || !alertContent) return null;
 
-  const { icon: Icon, title, subtitle, description, buttonText, onConfirm } = alertContent;
+  const { icon: Icon, title, subtitle, description, buttonText, buttonVariant, onConfirm } = alertContent;
 
   const handleConfirm = () => {
     onConfirm?.();
@@ -22,7 +22,7 @@ export default function Modal() {
           <h4 className="text-heading-4">{subtitle}</h4>
           <p className="text-body-l whitespace-pre-line">{description}</p>
         </div>
-        <Button className="w-40" onClick={handleConfirm}>
+        <Button variant={buttonVariant} className="w-40" onClick={handleConfirm}>
           {buttonText ?? '닫기'}
         </Button>
       </div>
