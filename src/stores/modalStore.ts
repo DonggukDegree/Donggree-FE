@@ -9,6 +9,7 @@ interface IAlertContent {
   subtitle: string;
   description: string;
   buttonText?: string;
+  buttonVariant?: 'primary' | 'alert' | 'disabled' | 'outlined';
   onConfirm?: () => void;
 }
 

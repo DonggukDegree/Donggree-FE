@@ -2,10 +2,12 @@ import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import User from '@/assets/icons/user.svg?react';
+import Warning from '@/assets/icons/warning.svg?react';
 import ProfileImage from '@/assets/profileImage.svg?react';
 import Button from '@/components/common/button';
 import TextField from '@/components/common/textField';
 import useInView from '@/hooks/useInView';
+import { useModalStore } from '@/stores/modalStore';
 
 const PROFILE_FIELDS = [
   { label: '이름', placeholder: '이름을 입력해주세요' },
@@ -18,6 +20,18 @@ export default function Profile() {
   const [ref, isInView] = useInView();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { openAlert } = useModalStore();
+  const handleOpenModal = () => {
+    openAlert({
+      icon: Warning,
+      title: '정말 탈퇴하시겠습니까?',
+      subtitle: '회원 탈퇴 시 모든 정보가 폐기되어 되돌릴 수 없습니다.',
+      description: '회원 탈퇴는 신중하게 해주세요.\n다른 문제가 있다면 고객지원에 문의해주세요.',
+      buttonText: '탈퇴하기',
+      buttonVariant: 'alert',
+      onConfirm: () => {},
+    });
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -84,7 +98,7 @@ export default function Profile() {
         <Button className="w-40" onClick={() => navigate('/')}>
           수정하기
         </Button>
-        <Button variant="alert" className="w-40" onClick={() => navigate('/')}>
+        <Button variant="alert" className="w-40" onClick={handleOpenModal}>
           탈퇴하기
         </Button>
       </div>
