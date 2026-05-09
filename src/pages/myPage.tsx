@@ -18,10 +18,7 @@ export default function MyPage() {
         <p className="text-heading-2 text-coolgray-90">마이페이지</p>
       </div>
       <div className="w-full flex items-center justify-center">
-        <Link
-          className="flex-1 flex flex-col items-center gap-10 px-20 py-4 cursor-pointer"
-          to="/my-page/profile"
-        >
+        <Link className="flex-1 flex flex-col items-center gap-10 px-20 py-4 cursor-pointer" to="/my-page/profile">
           <User className="w-16 h-16" />
           <p className="text-heading-3 text-coolgray-90">프로필 관리</p>
         </Link>
