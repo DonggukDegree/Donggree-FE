@@ -31,7 +31,7 @@
   /* Animation */
   --animate-fade-in-up: fade-in-up 0.6s ease-out both;
   --animate-fade-in: fade-in 0.3s ease-out both;
-  --animate-glow-pulse: glow-pulse 2s ease-in-out infinite;
+  --animate-float: float 2s ease-in-out infinite;
 }
 
 @keyframes fade-in-up {
@@ -54,7 +54,7 @@
   }
 }
 
-@keyframes glow-pulse {
+@keyframes float {
   0%,
   100% {
     transform: translateY(0);

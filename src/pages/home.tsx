@@ -60,7 +60,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div
+      <section
         ref={heroRef}
         className={`w-full flex items-center justify-between bg-primary-30 p-20 ${heroInView ? 'animate-fade-in-up' : 'opacity-0'}`}
       >
@@ -74,23 +74,23 @@ export default function Home() {
             <p>더 이상 직접 계산할 필요 없이, 나에게 필요한 것만 바로 확인하세요.</p>
             <p>학업 이수 요건에 맞게 졸업 판정도 동그리로 한 번에!</p>
           </div>
-          <Button className="w-70 text-body-l animate-glow-pulse" onClick={() => navigate('/graduation')}>
+          <Button className="w-70 text-body-l animate-float" onClick={() => navigate('/graduation')}>
             졸업 판정 시작하기
           </Button>
         </div>
         <Icon />
-      </div>
+      </section>
 
-      <div ref={ctaRef} className={`${sectionStyles} gap-8 p-30 ${ctaInView ? 'animate-fade-in-up' : 'opacity-0'}`}>
+      <section ref={ctaRef} className={`${sectionStyles} gap-8 p-30 ${ctaInView ? 'animate-fade-in-up' : 'opacity-0'}`}>
         <p className="text-heading-2 text-coolgray-90">가장 쉽고 빠른 나만의 학업 로드맵, 동그리와 함께</p>
         <div className="flex flex-col items-center text-body-l text-coolgray-60">
           <p>1학년도, 4학년도. 지금 내가 어디쯤인지 알면 남은 학기가 달라져요.</p>
           <p>영역별 이수 현황을 확인하고 나만의 학업 로드맵을 그려보세요.</p>
           <p>동그리가 영역별 달성률부터 놓치기 쉬운 필수 과목까지 자동으로 정리해드려요.</p>
         </div>
-      </div>
+      </section>
 
-      <div
+      <section
         ref={stepsRef}
         className={`${sectionStyles} p-20 gap-15 ${stepsInView ? 'animate-fade-in-up' : 'opacity-0'}`}
       >
@@ -109,9 +109,9 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      <div
+      <section
         ref={featuresRef}
         className={`${sectionStyles} p-20 gap-15 ${featuresInView ? 'animate-fade-in-up' : 'opacity-0'}`}
       >
@@ -131,16 +131,16 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      <div
+      <section
         ref={bottomRef}
         className={`w-full flex justify-center pt-10 pb-30 ${bottomInView ? 'animate-fade-in-up' : 'opacity-0'}`}
       >
-        <Button className="w-80 text-body-l animate-glow-pulse" onClick={() => navigate('/graduation')}>
+        <Button className="w-80 text-body-l animate-float" onClick={() => navigate('/graduation')}>
           동그리를 지금 바로 사용해보세요!
         </Button>
-      </div>
+      </section>
     </div>
   );
 }
