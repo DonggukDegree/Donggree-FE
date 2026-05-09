@@ -50,7 +50,7 @@ const MOCK_SEMESTERS: ISemester[] = [
         credits: 3,
         grade: 'A+',
         area: '사고와표현',
-        retake: 'X',
+        retake: 'O',
       },
       {
         category: '공통교양',
@@ -162,12 +162,10 @@ export default function AcademicRecords() {
   };
 
   const handleNewCourseChange = (semester: string, id: number, field: keyof ICourse, value: string | number) => {
-    const normalized = field === 'retake' ? (value === 'O' ? 'O' : 'X') : value;
+    const parsed = field === 'credits' ? Number(value) || 0 : value;
     setAddedCourses((prev) => ({
       ...prev,
-      [semester]: (prev[semester] ?? []).map((course) =>
-        course.id === id ? { ...course, [field]: normalized } : course,
-      ),
+      [semester]: (prev[semester] ?? []).map((course) => (course.id === id ? { ...course, [field]: parsed } : course)),
     }));
   };
 
@@ -214,7 +212,16 @@ export default function AcademicRecords() {
               <div key={course.courseCode} className="flex w-full items-center border-b border-coolgray-10 py-3">
                 {COLUMNS.map((col) => (
                   <div key={col.key} className={`${col.width} text-center text-body-l text-coolgray-90`}>
-                    {course[col.key]}
+                    {col.key === 'retake' ? (
+                      <input
+                        type="checkbox"
+                        checked={course.retake === 'O'}
+                        disabled
+                        className="h-4 w-4 accent-primary-60"
+                      />
+                    ) : (
+                      course[col.key]
+                    )}
                   </div>
                 ))}
                 <div className="w-[4%]" />
@@ -226,14 +233,33 @@ export default function AcademicRecords() {
               <div key={newCourse.id} className="flex w-full items-center border-b border-coolgray-10 py-2">
                 {COLUMNS.map((col) => (
                   <div key={col.key} className={`${col.width} px-1`}>
-                    <TextField
-                      className="!w-full"
-                      placeholder={col.label}
-                      value={newCourse[col.key]}
-                      onChange={(e) =>
-                        handleNewCourseChange(semesterData.semester, newCourse.id, col.key, e.target.value)
-                      }
-                    />
+                    {col.key === 'retake' ? (
+                      <div className="flex justify-center">
+                        <input
+                          type="checkbox"
+                          checked={newCourse.retake === 'O'}
+                          onChange={(e) =>
+                            handleNewCourseChange(
+                              semesterData.semester,
+                              newCourse.id,
+                              'retake',
+                              e.target.checked ? 'O' : 'X',
+                            )
+                          }
+                          className="h-4 w-4 accent-primary-60"
+                        />
+                      </div>
+                    ) : (
+                      <TextField
+                        className="!w-full"
+                        placeholder={col.label}
+                        value={newCourse[col.key]}
+                        onChange={(e) =>
+                          handleNewCourseChange(semesterData.semester, newCourse.id, col.key, e.target.value)
+                        }
+                        {...(col.key === 'credits' && { type: 'number', min: 0 })}
+                      />
+                    )}
                   </div>
                 ))}
                 <div className="flex w-[4%] justify-center">
