@@ -278,7 +278,7 @@ export default function Graduation() {
 
       {/* 버튼 */}
       <div ref={buttonRef} className={`flex gap-4 justify-center ${buttonInView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-        <Button variant="outlined" className="w-60">
+        <Button variant="outlined" className="w-60" onClick={() => navigate('/academic-records')}>
           내 학업 정보 수정
         </Button>
         <Button className="w-60" onClick={() => navigate('/curriculum')}>

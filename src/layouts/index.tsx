@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, ScrollRestoration } from 'react-router-dom';
 
 import Footer from '@/components/common/footer';
 import Header from '@/components/common/header';
@@ -11,6 +11,7 @@ export default function Layout() {
       <Outlet />
       <Footer />
       <ModalProvider />
+      <ScrollRestoration />
     </div>
   );
 }
