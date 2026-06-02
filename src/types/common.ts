@@ -12,8 +12,10 @@ export type TResponseError = AxiosError<TCommonResponse<null>>;
 
 export type TUseMutationCustomOptions<TData = unknown, TVariables = unknown> = Omit<
   UseMutationOptions<TData, TResponseError, TVariables, unknown>,
-  'mutationFn'
->;
+  'mutationFn' | 'onError'
+> & {
+  onError?: (error: TResponseError) => void;
+};
 
 export type TUseQueryCustomOptions<TQueryFnData = unknown, TData = TQueryFnData> = Omit<
   UseQueryOptions<TQueryFnData, TResponseError, TData, QueryKey>,

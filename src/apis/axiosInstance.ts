@@ -7,17 +7,7 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-let isRefreshing = false;
-let refreshSubscribers: Array<(token: string) => void> = [];
-
-function subscribeTokenRefresh(cb: (token: string) => void) {
-  refreshSubscribers.push(cb);
-}
-
-function onRefreshed(token: string) {
-  refreshSubscribers.forEach((cb) => cb(token));
-  refreshSubscribers = [];
-}
+let refreshPromise: Promise<string> | null = null;
 
 axiosInstance.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
@@ -36,32 +26,32 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (isRefreshing) {
-      return new Promise((resolve) => {
-        subscribeTokenRefresh((token) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          resolve(axiosInstance(originalRequest));
+    if (!refreshPromise) {
+      originalRequest._retry = true;
+      refreshPromise = axios
+        .post(`${import.meta.env.VITE_API_URL}/auth/refresh`, {}, { withCredentials: true })
+        .then(({ data }) => {
+          const newToken: string = data.result.accessToken;
+          useAuthStore.getState().setAccessToken(newToken);
+          return newToken;
+        })
+        .catch(() => {
+          useAuthStore.getState().clearAuth();
+          window.location.href = '/login';
+          throw error;
+        })
+        .finally(() => {
+          refreshPromise = null;
         });
-      });
     }
 
-    originalRequest._retry = true;
-    isRefreshing = true;
-
-    try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/auth/refresh`, {}, { withCredentials: true });
-      const newToken: string = data.result.accessToken;
-      useAuthStore.getState().setAccessToken(newToken);
-      onRefreshed(newToken);
-      originalRequest.headers.Authorization = `Bearer ${newToken}`;
-      return axiosInstance(originalRequest);
-    } catch {
-      useAuthStore.getState().clearAuth();
-      window.location.href = '/login';
-      return Promise.reject(error);
-    } finally {
-      isRefreshing = false;
-    }
+    return refreshPromise.then(
+      (token) => {
+        originalRequest.headers.Authorization = `Bearer ${token}`;
+        return axiosInstance(originalRequest);
+      },
+      () => Promise.reject(error),
+    );
   },
 );
 
