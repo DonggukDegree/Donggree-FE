@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import Layout from '@/layouts';
 import AcademicRecords from '@/pages/academicRecords';
+import AuthCallback from '@/pages/authCallback';
 import Curriculum from '@/pages/curriculum';
 import Graduation from '@/pages/graduation';
 import Home from '@/pages/home';
@@ -11,26 +12,37 @@ import NotFound from '@/pages/notFound';
 import OnBoarding from '@/pages/onBoarding';
 import Profile from '@/pages/profile';
 import UploadPage from '@/pages/uploadPage';
+import ProtectedRoute from '@/routes/protectedRoute';
 
 export const router = createBrowserRouter([
+  // 인증 없이 접근 가능한 라우트 (로그인, OAuth 콜백)
   { path: '/login', element: <Login /> },
+  { path: '/auth/callback', element: <AuthCallback /> },
   {
     path: '/',
     element: <Layout />,
     children: [
+      // 홈(랜딩)은 인증 없이 접근 가능한 public 라우트.
       { index: true, element: <Home /> },
+      // 그 외 라우트는 ProtectedRoute(인증 → 온보딩 게이트)를 통과해야 한다.
       {
-        path: 'my-page',
+        element: <ProtectedRoute />,
         children: [
-          { index: true, element: <MyPage /> },
-          { path: 'profile', element: <Profile /> },
-          { path: 'academic-records', element: <AcademicRecords /> },
+          {
+            path: 'my-page',
+            children: [
+              { index: true, element: <MyPage /> },
+              { path: 'profile', element: <Profile /> },
+              { path: 'academic-records', element: <AcademicRecords /> },
+            ],
+          },
+          { path: 'curriculum', element: <Curriculum /> },
+          { path: 'graduation', element: <Graduation /> },
+          { path: 'onboarding', element: <OnBoarding /> },
+          { path: 'upload', element: <UploadPage /> },
         ],
       },
-      { path: 'curriculum', element: <Curriculum /> },
-      { path: 'graduation', element: <Graduation /> },
-      { path: 'onboarding', element: <OnBoarding /> },
-      { path: 'upload', element: <UploadPage /> },
+      // 정의되지 않은 경로는 인증과 무관하게 NotFound를 보여준다. (public)
       { path: '*', element: <NotFound /> },
     ],
   },
