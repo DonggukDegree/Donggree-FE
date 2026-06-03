@@ -47,27 +47,32 @@ export default function OnBoardingModal() {
   };
 
   // 포커스가 빠지는 순간 검증을 시작(touched=true)하고 에러를 표시한다.
-  const handleNameBlur = () => {
+  // 상태(name/studentId) 대신 이벤트의 최신 값을 직접 받아 stale 값으로 검증되는 것을 방지한다.
+  const handleNameBlur = (value: string) => {
     setTouched((prev) => ({ ...prev, name: true }));
-    setNameError(validateName(name));
+    setNameError(validateName(value));
   };
 
-  const handleStudentIdBlur = () => {
+  const handleStudentIdBlur = (value: string) => {
     setTouched((prev) => ({ ...prev, studentId: true }));
-    setStudentIdError(validateStudentId(studentId));
+    setStudentIdError(validateStudentId(value));
   };
 
   // 온보딩 정보 저장. 성공 시 홈 이동은 useOnboarding이 처리하고, 여기서는 모달만 닫는다.
   const handleSubmit = () => {
+    // 앞뒤 공백이 그대로 서버에 저장되지 않도록 trim 후 검증·전송한다.
+    const trimmedName = name.trim();
+    const trimmedStudentId = studentId.trim();
+
     // 제출 시점에 두 필드를 모두 검증하고, 하나라도 어긋나면 전송하지 않는다.
-    const nextNameError = validateName(name);
-    const nextStudentIdError = validateStudentId(studentId);
+    const nextNameError = validateName(trimmedName);
+    const nextStudentIdError = validateStudentId(trimmedStudentId);
     setNameError(nextNameError);
     setStudentIdError(nextStudentIdError);
     setTouched({ name: true, studentId: true });
     if (nextNameError || nextStudentIdError) return;
 
-    submitOnboarding({ studentId, name }, { onSuccess: () => closeModal() });
+    submitOnboarding({ studentId: trimmedStudentId, name: trimmedName }, { onSuccess: () => closeModal() });
   };
 
   return (
@@ -84,7 +89,7 @@ export default function OnBoardingModal() {
               placeholder="김동국"
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
-              onBlur={handleNameBlur}
+              onBlur={(e) => handleNameBlur(e.target.value)}
               error={nameError}
             />
           </label>
@@ -95,7 +100,7 @@ export default function OnBoardingModal() {
               value={studentId}
               inputMode="numeric"
               onChange={(e) => handleStudentIdChange(e.target.value)}
-              onBlur={handleStudentIdBlur}
+              onBlur={(e) => handleStudentIdBlur(e.target.value)}
               error={studentIdError}
             />
           </label>
