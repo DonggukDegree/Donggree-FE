@@ -7,7 +7,7 @@ export default function TextField({ className = '', error, ...props }: ITextFiel
     <div className={`w-80 ${className}`}>
       <input
         {...props}
-        className={`w-full px-4 py-3 rounded-lg bg-white border text-body-m placeholder:text-coolgray-60 outline-none ${
+        className={`w-full px-4 py-3 rounded-lg bg-white border text-body-m placeholder:text-coolgray-60 outline-none disabled:bg-coolgray-10 disabled:text-coolgray-60 disabled:cursor-not-allowed ${
           error ? 'border-alert' : 'border-coolgray-30'
         }`}
       />

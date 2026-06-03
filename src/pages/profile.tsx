@@ -1,26 +1,124 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import User from '@/assets/icons/user.svg?react';
 import Warning from '@/assets/icons/warning.svg?react';
 import ProfileImage from '@/assets/profileImage.svg?react';
+import Chip from '@/components/chip';
 import Button from '@/components/common/button';
+import Loading from '@/components/common/loading';
 import TextField from '@/components/common/textField';
 import useInView from '@/hooks/useInView';
+import useDeleteAccount from '@/hooks/user/useDeleteAccount';
+import useUpdateProfile from '@/hooks/user/useUpdateProfile';
+import useUserInfo from '@/hooks/user/useUserInfo';
+import NotFound from '@/pages/notFound';
 import { useModalStore } from '@/stores/modalStore';
 
-const PROFILE_FIELDS = [
-  { label: '이름', placeholder: '이름을 입력해주세요' },
-  { label: '닉네임', placeholder: '닉네임을 입력해주세요' },
-  { label: '학번', placeholder: '학번을 입력해주세요' },
-] as const;
+// 클라이언트 입력 검증 (서버 규칙과 동일). 이름 ≤5, 학번 숫자 10자리, 닉네임 ≤8
+const validateName = (value: string): string => {
+  if (!value.trim()) return '*이름을 입력해주세요.';
+  if (value.length > 5) return '*이름은 5자 이하로 입력해주세요.';
+  return '';
+};
+
+const validateStudentId = (value: string): string => {
+  if (!value) return '*학번을 입력해주세요.';
+  if (!/^\d{10}$/.test(value)) return '*학번은 숫자 10자리로 입력해주세요.';
+  return '';
+};
+
+const validateNickname = (value: string): string => {
+  if (!value.trim()) return '*닉네임을 입력해주세요.';
+  if (value.length > 8) return '*닉네임은 8자 이하로 입력해주세요.';
+  return '';
+};
 
 export default function Profile() {
-  const navigate = useNavigate();
   const [ref, isInView] = useInView();
+  const { openAlert } = useModalStore();
+  const { data, isPending, isError } = useUserInfo();
+  const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
+  const { mutate: deleteAccount } = useDeleteAccount();
+
+  // 본인 인증 완료 시 이름·학번은 잠금(수정 불가).
+  const identityVerified = data?.identityVerified ?? false;
+
+  // 폼 입력값 (조회 데이터로 초기화). 캐시가 비어 늦게 도착하는 경우를 대비해 seededRef로 한 번 더 채운다.
+  const [name, setName] = useState(data?.name ?? '');
+  const [nickname, setNickname] = useState(data?.nickname ?? '');
+  const [studentId, setStudentId] = useState(data?.studentId ?? '');
+  const seededRef = useRef(false);
+
+  const [nameError, setNameError] = useState('');
+  const [nicknameError, setNicknameError] = useState('');
+  const [studentIdError, setStudentIdError] = useState('');
+  const [touched, setTouched] = useState({ name: false, nickname: false, studentId: false });
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { openAlert } = useModalStore();
+
+  // 사용자 정보가 처음 도착하면 폼을 채운다. (이미 채웠으면 사용자의 편집을 덮어쓰지 않음)
+  useEffect(() => {
+    if (!data || seededRef.current) return;
+    seededRef.current = true;
+    setName(data.name ?? '');
+    setNickname(data.nickname ?? '');
+    setStudentId(data.studentId ?? '');
+  }, [data]);
+
+  // 프로필 이미지 미리보기 URL 정리 (메모리 누수 방지). 이미지 업로드는 별도 API가 없어 로컬 미리보기만 지원한다.
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  // 입력 변경: 이미 검증이 시작된 필드는 실시간으로 에러를 갱신한다.
+  const handleNameChange = (value: string) => {
+    setName(value);
+    if (touched.name) setNameError(validateName(value));
+  };
+  const handleNicknameChange = (value: string) => {
+    setNickname(value);
+    if (touched.nickname) setNicknameError(validateNickname(value));
+  };
+  const handleStudentIdChange = (value: string) => {
+    setStudentId(value);
+    if (touched.studentId) setStudentIdError(validateStudentId(value));
+  };
+
+  // 포커스가 빠지면 검증을 시작하고 에러를 표시한다. (stale 값 방지 위해 이벤트 값 직접 사용)
+  const handleNameBlur = (value: string) => {
+    setTouched((prev) => ({ ...prev, name: true }));
+    setNameError(validateName(value));
+  };
+  const handleNicknameBlur = (value: string) => {
+    setTouched((prev) => ({ ...prev, nickname: true }));
+    setNicknameError(validateNickname(value));
+  };
+  const handleStudentIdBlur = (value: string) => {
+    setTouched((prev) => ({ ...prev, studentId: true }));
+    setStudentIdError(validateStudentId(value));
+  };
+
+  const handleSubmit = () => {
+    const trimmedName = name.trim();
+    const trimmedNickname = nickname.trim();
+    const trimmedStudentId = studentId.trim();
+
+    // 본인 인증 시 이름·학번은 잠겨 서버 값 그대로 전송되므로 닉네임만 검증한다.
+    const nextNameError = identityVerified ? '' : validateName(trimmedName);
+    const nextStudentIdError = identityVerified ? '' : validateStudentId(trimmedStudentId);
+    const nextNicknameError = validateNickname(trimmedNickname);
+    setNameError(nextNameError);
+    setStudentIdError(nextStudentIdError);
+    setNicknameError(nextNicknameError);
+    setTouched({ name: true, nickname: true, studentId: true });
+    if (nextNameError || nextStudentIdError || nextNicknameError) return;
+
+    updateProfile({ studentId: trimmedStudentId, name: trimmedName, nickname: trimmedNickname });
+  };
+
   const handleOpenModal = () => {
     openAlert({
       icon: Warning,
@@ -29,15 +127,9 @@ export default function Profile() {
       description: '회원 탈퇴는 신중하게 해주세요.\n다른 문제가 있다면 고객지원에 문의해주세요.',
       buttonText: '탈퇴하기',
       buttonVariant: 'alert',
-      onConfirm: () => {},
+      onConfirm: () => deleteAccount(),
     });
   };
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -50,6 +142,14 @@ export default function Profile() {
   const handleImageDelete = () => {
     setPreviewUrl(null);
   };
+
+  // 사용자 정보 조회 상태 처리
+  if (isPending) {
+    return <Loading />;
+  }
+  if (isError || !data) {
+    return <NotFound />;
+  }
 
   return (
     <div
@@ -87,17 +187,52 @@ export default function Profile() {
           </div>
         </div>
         <div className="flex flex-1 flex-col items-start gap-6 p-4">
-          {PROFILE_FIELDS.map(({ label, placeholder }) => (
-            <div key={label} className="flex flex-col items-start gap-1">
-              <p className="text-body-m text-coolgray-90">{label}</p>
-              <TextField placeholder={placeholder} />
-            </div>
-          ))}
+          {/* 본인 인증 상태 칩 (맨 위, 왼쪽 정렬) */}
+          <Chip
+            variant={identityVerified ? 'satisfied' : 'unsatisfied'}
+            label={identityVerified ? '본인 인증 완료' : '본인 인증 미완료'}
+          />
+
+          <div className="flex flex-col items-start gap-1">
+            <p className="text-body-m text-coolgray-90">학번</p>
+            <TextField
+              placeholder="학번을 입력해주세요"
+              value={studentId}
+              inputMode="numeric"
+              disabled={identityVerified}
+              onChange={(e) => handleStudentIdChange(e.target.value)}
+              onBlur={(e) => handleStudentIdBlur(e.target.value)}
+              error={studentIdError}
+            />
+          </div>
+
+          <div className="flex flex-col items-start gap-1">
+            <p className="text-body-m text-coolgray-90">이름</p>
+            <TextField
+              placeholder="이름을 입력해주세요"
+              value={name}
+              disabled={identityVerified}
+              onChange={(e) => handleNameChange(e.target.value)}
+              onBlur={(e) => handleNameBlur(e.target.value)}
+              error={nameError}
+            />
+          </div>
+
+          <div className="flex flex-col items-start gap-1">
+            <p className="text-body-m text-coolgray-90">닉네임</p>
+            <TextField
+              placeholder="닉네임을 입력해주세요"
+              value={nickname}
+              onChange={(e) => handleNicknameChange(e.target.value)}
+              onBlur={(e) => handleNicknameBlur(e.target.value)}
+              error={nicknameError}
+            />
+          </div>
         </div>
       </div>
 
       <div className="flex items-center gap-4">
-        <Button className="w-40" onClick={() => navigate('/')}>
+        <Button className="w-40" onClick={handleSubmit} disabled={isUpdating}>
           수정하기
         </Button>
         <Button variant="alert" className="w-40" onClick={handleOpenModal}>
