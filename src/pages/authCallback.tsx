@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import { getUserInfo } from '@/apis/user/user';
 import Loading from '@/components/common/loading';
@@ -21,6 +22,14 @@ export default function AuthCallback() {
   useEffect(() => {
     if (handledRef.current) return;
     handledRef.current = true;
+
+    // 백엔드가 로그인 실패 시 ?error=... 를 붙여 리다이렉트한다. (예: error=login_failed)
+    // 이 경우 실패를 토스트로 안내하고 로그인 화면으로 되돌린다.
+    if (searchParams.get('error')) {
+      toast.error('로그인에 실패했어요. 다시 시도해주세요.');
+      navigate('/login', { replace: true });
+      return;
+    }
 
     const accessToken = searchParams.get('accessToken');
     // 토큰이 없으면 비정상 진입이므로 로그인 화면으로 되돌린다.
