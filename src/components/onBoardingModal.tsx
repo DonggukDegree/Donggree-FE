@@ -5,19 +5,68 @@ import TextField from '@/components/common/textField';
 import useOnboarding from '@/hooks/auth/useOnboarding';
 import { useModalStore } from '@/stores/modalStore';
 
+// 클라이언트 입력 검증 (서버 규칙과 동일하게 맞춘다)
+// 이름: 필수, 5자 이하 / 학번: 필수, 숫자 10자리
+const validateName = (value: string): string => {
+  if (!value.trim()) return '*이름을 입력해주세요.';
+  if (value.length > 5) return '*이름은 5자 이하로 입력해주세요.';
+  return '';
+};
+
+const validateStudentId = (value: string): string => {
+  if (!value) return '*학번을 입력해주세요.';
+  if (!/^\d{10}$/.test(value)) return '*학번은 숫자 10자리로 입력해주세요.';
+  return '';
+};
+
 export default function OnBoardingModal() {
   const { type, closeModal } = useModalStore();
   const { mutate: submitOnboarding, isPending } = useOnboarding();
   const [name, setName] = useState('');
   const [studentId, setStudentId] = useState('');
+  // 필드별 에러 메시지와, 한 번이라도 포커스가 빠진(=검증을 시작할) 필드 여부
+  const [nameError, setNameError] = useState('');
+  const [studentIdError, setStudentIdError] = useState('');
+  const [touched, setTouched] = useState({ name: false, studentId: false });
   const [agreedPrivacy, setAgreedPrivacy] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [agreedAge, setAgreedAge] = useState(false);
 
   if (type !== 'onboarding') return null;
 
+  // 이름 입력 변경: 이미 검증이 시작된 필드면 입력하는 즉시 에러를 다시 계산해 갱신한다.
+  const handleNameChange = (value: string) => {
+    setName(value);
+    if (touched.name) setNameError(validateName(value));
+  };
+
+  // 학번 입력 변경: 동일하게 검증이 시작된 경우에만 실시간 재검증한다.
+  const handleStudentIdChange = (value: string) => {
+    setStudentId(value);
+    if (touched.studentId) setStudentIdError(validateStudentId(value));
+  };
+
+  // 포커스가 빠지는 순간 검증을 시작(touched=true)하고 에러를 표시한다.
+  const handleNameBlur = () => {
+    setTouched((prev) => ({ ...prev, name: true }));
+    setNameError(validateName(name));
+  };
+
+  const handleStudentIdBlur = () => {
+    setTouched((prev) => ({ ...prev, studentId: true }));
+    setStudentIdError(validateStudentId(studentId));
+  };
+
   // 온보딩 정보 저장. 성공 시 홈 이동은 useOnboarding이 처리하고, 여기서는 모달만 닫는다.
   const handleSubmit = () => {
+    // 제출 시점에 두 필드를 모두 검증하고, 하나라도 어긋나면 전송하지 않는다.
+    const nextNameError = validateName(name);
+    const nextStudentIdError = validateStudentId(studentId);
+    setNameError(nextNameError);
+    setStudentIdError(nextStudentIdError);
+    setTouched({ name: true, studentId: true });
+    if (nextNameError || nextStudentIdError) return;
+
     submitOnboarding({ studentId, name }, { onSuccess: () => closeModal() });
   };
 
@@ -31,11 +80,24 @@ export default function OnBoardingModal() {
         <div className="flex flex-col gap-3">
           <label className="flex flex-col gap-1">
             <span className="text-body-m">이름</span>
-            <TextField placeholder="김동국" value={name} onChange={(e) => setName(e.target.value)} />
+            <TextField
+              placeholder="김동국"
+              value={name}
+              onChange={(e) => handleNameChange(e.target.value)}
+              onBlur={handleNameBlur}
+              error={nameError}
+            />
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-body-m">학번</span>
-            <TextField placeholder="2023123456" value={studentId} onChange={(e) => setStudentId(e.target.value)} />
+            <TextField
+              placeholder="2023123456"
+              value={studentId}
+              inputMode="numeric"
+              onChange={(e) => handleStudentIdChange(e.target.value)}
+              onBlur={handleStudentIdBlur}
+              error={studentIdError}
+            />
           </label>
         </div>
 
