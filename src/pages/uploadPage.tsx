@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import Inbox from '@/assets/icons/inbox.svg?react';
 import Upload from '@/assets/icons/upload.svg?react';
@@ -6,10 +7,22 @@ import UploadInfo1 from '@/assets/uploadInfo1.svg?react';
 import UploadInfo2 from '@/assets/uploadInfo2.svg?react';
 import UploadInfo3 from '@/assets/uploadInfo3.svg?react';
 import Button from '@/components/common/button';
+import useUploadTranscript from '@/hooks/report/useUploadTranscript';
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { mutate: uploadTranscript, isPending } = useUploadTranscript();
+
+  // '졸업 판정 시작' 클릭 핸들러.
+  // 파일 미선택은 프론트에서 막을 수 있는 에러이므로 요청을 보내지 않고 토스트로 안내한다. (서버 TRANSCRIPT400_5 선제 차단)
+  const handleSubmit = () => {
+    if (!file) {
+      toast.error('성적표 PDF를 먼저 업로드해주세요.');
+      return;
+    }
+    uploadTranscript(file);
+  };
 
   return (
     <div className="w-full flex flex-col items-center justify-center gap-20 p-20 text-coolgray-90">
@@ -100,8 +113,13 @@ export default function UploadPage() {
             동그리는 PDF에서 졸업 판정에 필요하지 않은 정보를 수집하지 않습니다.
           </p>
         </div>
-        <Button className="px-15 text-body-l" variant={file ? 'primary' : 'disabled'}>
-          졸업 판정 시작
+        <Button
+          className="px-15 text-body-l"
+          variant={file && !isPending ? 'primary' : 'disabled'}
+          disabled={!file || isPending}
+          onClick={handleSubmit}
+        >
+          {isPending ? '판정 중...' : '졸업 판정 시작'}
         </Button>
       </div>
     </div>
