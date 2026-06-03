@@ -1,4 +1,4 @@
-import type { ComponentType, SVGProps } from 'react';
+import type { ComponentType, ReactNode, SVGProps } from 'react';
 import { create } from 'zustand';
 
 type TModalType = 'alert' | 'onboarding';
@@ -6,7 +6,8 @@ type TModalType = 'alert' | 'onboarding';
 interface IAlertContent {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   title: string;
-  subtitle: string;
+  // 문구 일부에 색상 강조(span 등)를 넣을 수 있도록 문자열뿐 아니라 ReactNode를 허용한다.
+  subtitle: ReactNode;
   description: string;
   buttonText?: string;
   buttonVariant?: 'primary' | 'alert' | 'disabled' | 'outlined';
