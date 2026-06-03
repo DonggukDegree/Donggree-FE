@@ -1,15 +1,14 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import Button from '@/components/common/button';
 import TextField from '@/components/common/textField';
+import useOnboarding from '@/hooks/auth/useOnboarding';
 import { useModalStore } from '@/stores/modalStore';
 
 export default function OnBoardingModal() {
   const { type, closeModal } = useModalStore();
-  const navigate = useNavigate();
+  const { mutate: submitOnboarding, isPending } = useOnboarding();
   const [name, setName] = useState('');
-  const [nickname, setNickname] = useState('');
   const [studentId, setStudentId] = useState('');
   const [agreedPrivacy, setAgreedPrivacy] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
@@ -17,10 +16,9 @@ export default function OnBoardingModal() {
 
   if (type !== 'onboarding') return null;
 
+  // 온보딩 정보 저장. 성공 시 홈 이동은 useOnboarding이 처리하고, 여기서는 모달만 닫는다.
   const handleSubmit = () => {
-    // TODO: API 연결
-    closeModal();
-    navigate('/');
+    submitOnboarding({ studentId, name }, { onSuccess: () => closeModal() });
   };
 
   return (
@@ -34,10 +32,6 @@ export default function OnBoardingModal() {
           <label className="flex flex-col gap-1">
             <span className="text-body-m">이름</span>
             <TextField placeholder="김동국" value={name} onChange={(e) => setName(e.target.value)} />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span className="text-body-m">닉네임</span>
-            <TextField placeholder="동그리" value={nickname} onChange={(e) => setNickname(e.target.value)} />
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-body-m">학번</span>
@@ -89,7 +83,7 @@ export default function OnBoardingModal() {
         <Button
           className="w-full text-body-l py-3"
           onClick={handleSubmit}
-          disabled={!name || !nickname || !studentId || !agreedAge || !agreedPrivacy || !agreedTerms}
+          disabled={!name || !studentId || !agreedAge || !agreedPrivacy || !agreedTerms || isPending}
         >
           동그리 시작하기
         </Button>

@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom';
 import Edit from '@/assets/icons/edit.svg?react';
 import Setting from '@/assets/icons/setting.svg?react';
 import User from '@/assets/icons/user.svg?react';
+import Button from '@/components/common/button';
+import useLogout from '@/hooks/auth/useLogout';
 import useInView from '@/hooks/useInView';
 
 export default function MyPage() {
   const [ref, isInView] = useInView();
+  const { mutate: logout, isPending } = useLogout();
 
   return (
     <div
@@ -31,6 +34,10 @@ export default function MyPage() {
           <p className="text-heading-3 text-coolgray-90">내 학업 정보 관리</p>
         </Link>
       </div>
+      {/* 마이페이지 하단 중앙 로그아웃 버튼 (탈퇴하기 버튼과 동일한 양식) */}
+      <Button variant="alert" className="w-40" onClick={() => logout()} disabled={isPending}>
+        로그아웃
+      </Button>
     </div>
   );
 }

@@ -19,6 +19,12 @@ export function useCoreQuery<TQueryFnData, TData = TQueryFnData>(
     queryKey: keyName,
     queryFn: query,
     staleTime: 1000 * 60 * 5,
+    // 인증 실패(401)는 재시도해도 결과가 같아 backoff 지연만 늘어나므로 즉시 중단한다.
+    // 그 외 일시적 오류는 기존처럼 최대 3회까지 재시도한다.
+    retry: (failureCount, error) => {
+      if (error && (error as TResponseError).response?.status === 401) return false;
+      return failureCount < 3;
+    },
     ...options,
   });
 }
