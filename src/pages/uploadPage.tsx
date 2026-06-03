@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { toast } from 'sonner';
 
 import Inbox from '@/assets/icons/inbox.svg?react';
 import Upload from '@/assets/icons/upload.svg?react';
@@ -15,12 +14,10 @@ export default function UploadPage() {
   const { mutate: uploadTranscript, isPending } = useUploadTranscript();
 
   // '졸업 판정 시작' 클릭 핸들러.
-  // 파일 미선택은 프론트에서 막을 수 있는 에러이므로 요청을 보내지 않고 토스트로 안내한다. (서버 TRANSCRIPT400_5 선제 차단)
+  // 파일이 없으면 버튼이 비활성화되므로 이 핸들러는 파일이 있을 때만 호출된다.
+  // (아래 null 가드는 타입 안전을 위한 방어 코드)
   const handleSubmit = () => {
-    if (!file) {
-      toast.error('성적표 PDF를 먼저 업로드해주세요.');
-      return;
-    }
+    if (!file) return;
     uploadTranscript(file);
   };
 

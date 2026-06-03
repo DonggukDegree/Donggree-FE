@@ -36,9 +36,9 @@ export function useCoreMutation<T, U>(mutation: MutationFunction<T, U>, options?
     mutationFn: mutation,
     // either/or: 호출자가 onError를 직접 제공하면 그쪽에 위임하고(직접 토스트/모달 등 처리),
     // 없으면 공용 기본 토스트로 안내한다. (토스트와 커스텀 처리가 동시에 뜨지 않도록)
-    onError: (error: TResponseError) => {
+    onError: (error: TResponseError, variables: U, context: unknown) => {
       if (onError) {
-        onError(error);
+        onError(error, variables, context);
       } else {
         toast.error(error.response?.data?.message ?? '요청 처리 중 오류가 발생했습니다.');
       }
