@@ -6,10 +6,20 @@ import UploadInfo1 from '@/assets/uploadInfo1.svg?react';
 import UploadInfo2 from '@/assets/uploadInfo2.svg?react';
 import UploadInfo3 from '@/assets/uploadInfo3.svg?react';
 import Button from '@/components/common/button';
+import useUploadTranscript from '@/hooks/report/useUploadTranscript';
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { mutate: uploadTranscript, isPending } = useUploadTranscript();
+
+  // '졸업 판정 시작' 클릭 핸들러.
+  // 파일이 없으면 버튼이 비활성화되므로 이 핸들러는 파일이 있을 때만 호출된다.
+  // (아래 null 가드는 타입 안전을 위한 방어 코드)
+  const handleSubmit = () => {
+    if (!file) return;
+    uploadTranscript(file);
+  };
 
   return (
     <div className="w-full flex flex-col items-center justify-center gap-20 p-20 text-coolgray-90">
@@ -100,8 +110,13 @@ export default function UploadPage() {
             동그리는 PDF에서 졸업 판정에 필요하지 않은 정보를 수집하지 않습니다.
           </p>
         </div>
-        <Button className="px-15 text-body-l" variant={file ? 'primary' : 'disabled'}>
-          졸업 판정 시작
+        <Button
+          className="px-15 text-body-l"
+          variant={file && !isPending ? 'primary' : 'disabled'}
+          disabled={!file || isPending}
+          onClick={handleSubmit}
+        >
+          {isPending ? '판정 중...' : '졸업 판정 시작'}
         </Button>
       </div>
     </div>
