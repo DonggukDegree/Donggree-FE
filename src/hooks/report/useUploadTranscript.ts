@@ -25,6 +25,9 @@ export default function useUploadTranscript() {
       // 성적표가 새로 저장됐으므로 관련 조회 캐시를 먼저 무효화한다. (어느 분기든 공통)
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_REPORTS });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_REPORT_SUMMARY });
+      // 업로드한 PDF의 학번/이름이 일치하면 서버가 그 시점에 본인 인증(identityVerified)을 자동 처리하므로,
+      // 사용자 정보 캐시도 무효화해 최신 인증 상태가 반영되게 한다.
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_INFO });
 
       // creditGap = 총취득학점 - 과목 학점 합. 0이면 정합성 정상이므로 바로 졸업 판정으로 이동한다.
       const { creditGap } = data.result;

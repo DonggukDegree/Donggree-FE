@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { useAuthStore } from '@/stores/authStore';
+import { hasSessionHint, useAuthStore } from '@/stores/authStore';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -23,6 +23,13 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error);
+    }
+
+    // 한 번도 로그인한 적 없는(세션 힌트 없는) 사용자는 refreshToken 쿠키도 없으므로,
+    // refresh를 시도해봐야 400(쿠키 없음)으로 실패할 뿐이다. 불필요한 왕복을 막기 위해 바로 거절한다.
+    // (미인증 상태에서 보호 경로 진입 시 발생하던 refresh 호출 1회를 제거)
+    if (!hasSessionHint()) {
       return Promise.reject(error);
     }
 
