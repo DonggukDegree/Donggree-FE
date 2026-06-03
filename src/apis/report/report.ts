@@ -1,10 +1,25 @@
 import axiosInstance from '@/apis/axiosInstance';
+import type { TCourseName } from '@/types/course';
+import type { TGetReportDetailResponse } from '@/types/report/TGetReportDetail';
+import type { TGetReportSummaryResponse } from '@/types/report/TGetReportSummary';
 import type { TGetUserReportsResponse } from '@/types/report/TGetUserReports';
 import type { TPutTranscriptResponse } from '@/types/report/TPutTranscript';
 
 // 성적표(학업 리포트) 조회. 성적표가 없으면 404(TRANSCRIPT404_1)를 반환한다.
 export const getUserReports = async () => {
   const { data } = await axiosInstance.get<TGetUserReportsResponse>('/api/users/me/reports');
+  return data.result;
+};
+
+// 졸업 달성률 요약 조회. 리포트 없음(404 GRADUATION404_1)·요건 없음(404 GRADUATION404_2) 가능.
+export const getReportSummary = async () => {
+  const { data } = await axiosInstance.get<TGetReportSummaryResponse>('/api/reports/summary');
+  return data.result;
+};
+
+// courseType별 영역 상세 조회. 잘못된 courseType은 400(COMMON400_1).
+export const getReportDetail = async (courseType: TCourseName) => {
+  const { data } = await axiosInstance.get<TGetReportDetailResponse>('/api/reports', { params: { courseType } });
   return data.result;
 };
 
