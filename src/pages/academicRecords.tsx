@@ -1,10 +1,14 @@
 import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 import Edit from '@/assets/icons/edit.svg?react';
 import Button from '@/components/common/button';
+import Loading from '@/components/common/loading';
 import TextField from '@/components/common/textField';
+import useUserReports from '@/hooks/report/useUserReports';
 import useInView from '@/hooks/useInView';
+import NotFound from '@/pages/notFound';
+import type { TTranscriptRecord } from '@/types/report/TGetUserReports';
 
 interface ICourse {
   category: string;
@@ -20,100 +24,19 @@ interface IAddedCourse extends ICourse {
   id: number;
 }
 
-interface ISemester {
-  semester: string;
-  courses: ICourse[];
-}
-
-// TODO: API 연동 시 교체
-const MOCK_BASIC_INFO = {
-  curriculumYear: '2023',
-  program: '주간',
-  college: '소프트웨어융합대학',
-};
-
-const BASIC_INFO_ITEMS = [
-  { label: '교육과정 적용년도', value: MOCK_BASIC_INFO.curriculumYear },
-  { label: '과정', value: MOCK_BASIC_INFO.program },
-  { label: '단과대학', value: MOCK_BASIC_INFO.college },
-] as const;
-
-// TODO: API 연동 시 교체
-const MOCK_SEMESTERS: ISemester[] = [
-  {
-    semester: '2023-1',
-    courses: [
-      {
-        category: '공통교양',
-        courseCode: 'GED1001',
-        courseName: '글쓰기',
-        credits: 3,
-        grade: 'A+',
-        area: '사고와표현',
-        retake: 'O',
-      },
-      {
-        category: '공통교양',
-        courseCode: 'GED1002',
-        courseName: '채플',
-        credits: 1,
-        grade: 'P',
-        area: '채플',
-        retake: 'X',
-      },
-      {
-        category: '학문기초',
-        courseCode: 'CSE1001',
-        courseName: '컴퓨터공학입문',
-        credits: 3,
-        grade: 'A0',
-        area: '1전공',
-        retake: 'X',
-      },
-      {
-        category: '전공필수',
-        courseCode: 'CSE2001',
-        courseName: '자료구조',
-        credits: 3,
-        grade: 'B+',
-        area: '1전공',
-        retake: 'X',
-      },
-    ],
-  },
-  {
-    semester: '2023-2',
-    courses: [
-      {
-        category: '전공필수',
-        courseCode: 'CSE2002',
-        courseName: '운영체제',
-        credits: 3,
-        grade: 'A+',
-        area: '1전공',
-        retake: 'X',
-      },
-      {
-        category: '전공선택',
-        courseCode: 'CSE3010',
-        courseName: '데이터베이스',
-        credits: 3,
-        grade: 'A0',
-        area: '1전공',
-        retake: 'X',
-      },
-      {
-        category: '일반교양',
-        courseCode: 'GED2001',
-        courseName: '철학입문',
-        credits: 3,
-        grade: 'B+',
-        area: '인문',
-        retake: 'X',
-      },
-    ],
-  },
-];
+// API 수강 이력(TTranscriptRecord)을 화면 표시용(ICourse + id) 형태로 변환한다.
+// 기존 수강 표와 수동 추가 행이 공유하는 ICourse 구조에 맞춘다.
+// (이수영역 null → '-', 재수강 boolean → 'O'/'X')
+const toDisplayCourse = (record: TTranscriptRecord): IAddedCourse => ({
+  id: record.id,
+  category: record.courseType,
+  courseCode: record.courseCode,
+  courseName: record.courseName,
+  credits: record.credits,
+  grade: record.grade,
+  area: record.areaName ?? '-',
+  retake: record.retake ? 'O' : 'X',
+});
 
 type TCourseField = keyof ICourse;
 
@@ -144,6 +67,7 @@ export default function AcademicRecords() {
   const [ref, isInView] = useInView();
   const [addedCourses, setAddedCourses] = useState<Record<string, IAddedCourse[]>>({});
   const nextId = useRef(0);
+  const { data, isPending, isError, error } = useUserReports();
 
   const hasNewCourses = Object.values(addedCourses).some((courses) => courses.length > 0);
 
@@ -169,6 +93,29 @@ export default function AcademicRecords() {
     }));
   };
 
+  // 성적표 조회 상태 처리: 로딩 → 공용 Loading, 미업로드(404) → 업로드 유도, 그 외 에러 → NotFound
+  if (isPending) {
+    return <Loading />;
+  }
+  if (isError) {
+    if (error.response?.status === 404) {
+      return <Navigate to="/upload" replace />;
+    }
+    return <NotFound />;
+  }
+
+  const { meta, courses } = data;
+
+  // 상단 기본 정보 항목. 부전공/복수전공은 값이 있을 때만(null이면 숨김) 한 줄씩 추가한다.
+  const basicInfoItems: { label: string; value: string | number }[] = [
+    { label: '교육과정 적용년도', value: meta.admissionYear },
+    { label: '학과', value: meta.department },
+  ];
+  if (meta.subMajor1) basicInfoItems.push({ label: '부전공1', value: meta.subMajor1 });
+  if (meta.subMajor2) basicInfoItems.push({ label: '부전공2', value: meta.subMajor2 });
+  if (meta.dualMajor1) basicInfoItems.push({ label: '복수전공1', value: meta.dualMajor1 });
+  if (meta.dualMajor2) basicInfoItems.push({ label: '복수전공2', value: meta.dualMajor2 });
+
   return (
     <div
       ref={ref}
@@ -183,7 +130,7 @@ export default function AcademicRecords() {
       <div className={sectionStyles}>
         <p className="text-heading-3 text-coolgray-90">기본 정보</p>
         <div className="flex w-full flex-col gap-3 px-20">
-          {BASIC_INFO_ITEMS.map(({ label, value }) => (
+          {basicInfoItems.map(({ label, value }) => (
             <div key={label} className="flex justify-between">
               <span className="text-heading-5 text-coolgray-90">{label}</span>
               <span className="text-body-l text-coolgray-90">{value}</span>
@@ -193,7 +140,7 @@ export default function AcademicRecords() {
       </div>
 
       {/* 학기별 수강 내역 */}
-      {MOCK_SEMESTERS.map((semesterData) => (
+      {courses.map((semesterData) => (
         <div key={semesterData.semester} className={sectionStyles}>
           <p className="text-heading-3 text-coolgray-90">{semesterData.semester}</p>
           <div className="w-full">
@@ -207,9 +154,9 @@ export default function AcademicRecords() {
               <div className="w-[4%]" />
             </div>
 
-            {/* 기존 수강 행 */}
-            {semesterData.courses.map((course) => (
-              <div key={course.courseCode} className="flex w-full items-center border-b border-coolgray-10 py-3">
+            {/* 기존 수강 행 (API 데이터) */}
+            {semesterData.records.map(toDisplayCourse).map((course) => (
+              <div key={course.id} className="flex w-full items-center border-b border-coolgray-10 py-3">
                 {COLUMNS.map((col) => (
                   <div key={col.key} className={`${col.width} text-center text-body-l text-coolgray-90`}>
                     {col.key === 'retake' ? (
