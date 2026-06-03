@@ -13,6 +13,7 @@ import OnBoarding from '@/pages/onBoarding';
 import Profile from '@/pages/profile';
 import UploadPage from '@/pages/uploadPage';
 import ProtectedRoute from '@/routes/protectedRoute';
+import ReportGate from '@/routes/reportGate';
 
 export const router = createBrowserRouter([
   // 인증 없이 접근 가능한 라우트 (로그인, OAuth 콜백)
@@ -37,7 +38,11 @@ export const router = createBrowserRouter([
             ],
           },
           { path: 'curriculum', element: <Curriculum /> },
-          { path: 'graduation', element: <Graduation /> },
+          // 졸업 판정은 성적표가 있어야 의미가 있으므로 리포트 게이트를 한 번 더 통과시킨다.
+          {
+            element: <ReportGate />,
+            children: [{ path: 'graduation', element: <Graduation /> }],
+          },
           { path: 'onboarding', element: <OnBoarding /> },
           { path: 'upload', element: <UploadPage /> },
         ],
