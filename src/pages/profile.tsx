@@ -15,21 +15,25 @@ import NotFound from '@/pages/notFound';
 import { useModalStore } from '@/stores/modalStore';
 
 // 클라이언트 입력 검증 (서버 규칙과 동일). 이름 ≤5, 학번 숫자 10자리, 닉네임 ≤8
+// blur/입력 중과 제출 시 결과가 일치하도록 검증 함수 내부에서 먼저 trim한 뒤 검사한다.
 const validateName = (value: string): string => {
-  if (!value.trim()) return '*이름을 입력해주세요.';
-  if (value.length > 5) return '*이름은 5자 이하로 입력해주세요.';
+  const trimmed = value.trim();
+  if (!trimmed) return '*이름을 입력해주세요.';
+  if (trimmed.length > 5) return '*이름은 5자 이하로 입력해주세요.';
   return '';
 };
 
 const validateStudentId = (value: string): string => {
-  if (!value) return '*학번을 입력해주세요.';
-  if (!/^\d{10}$/.test(value)) return '*학번은 숫자 10자리로 입력해주세요.';
+  const trimmed = value.trim();
+  if (!trimmed) return '*학번을 입력해주세요.';
+  if (!/^\d{10}$/.test(trimmed)) return '*학번은 숫자 10자리로 입력해주세요.';
   return '';
 };
 
 const validateNickname = (value: string): string => {
-  if (!value.trim()) return '*닉네임을 입력해주세요.';
-  if (value.length > 8) return '*닉네임은 8자 이하로 입력해주세요.';
+  const trimmed = value.trim();
+  if (!trimmed) return '*닉네임을 입력해주세요.';
+  if (trimmed.length > 8) return '*닉네임은 8자 이하로 입력해주세요.';
   return '';
 };
 
@@ -116,7 +120,16 @@ export default function Profile() {
     setTouched({ name: true, nickname: true, studentId: true });
     if (nextNameError || nextStudentIdError || nextNicknameError) return;
 
-    updateProfile({ studentId: trimmedStudentId, name: trimmedName, nickname: trimmedNickname });
+    updateProfile(
+      { studentId: trimmedStudentId, name: trimmedName, nickname: trimmedNickname },
+      {
+        // 수정 성공 후 무효화로 다시 받아온 서버 데이터가 폼에 반영되도록 시드 플래그를 초기화한다.
+        // (서버 정규화·다중 기기 등으로 값이 달라진 경우 폼을 최신 상태로 동기화)
+        onSuccess: () => {
+          seededRef.current = false;
+        },
+      },
+    );
   };
 
   const handleOpenModal = () => {
