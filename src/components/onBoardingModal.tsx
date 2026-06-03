@@ -7,15 +7,18 @@ import { useModalStore } from '@/stores/modalStore';
 
 // 클라이언트 입력 검증 (서버 규칙과 동일하게 맞춘다)
 // 이름: 필수, 5자 이하 / 학번: 필수, 숫자 10자리
+// blur/입력 중과 제출 시 결과가 일치하도록 검증 함수 내부에서 먼저 trim한 뒤 검사한다.
 const validateName = (value: string): string => {
-  if (!value.trim()) return '*이름을 입력해주세요.';
-  if (value.length > 5) return '*이름은 5자 이하로 입력해주세요.';
+  const trimmed = value.trim();
+  if (!trimmed) return '*이름을 입력해주세요.';
+  if (trimmed.length > 5) return '*이름은 5자 이하로 입력해주세요.';
   return '';
 };
 
 const validateStudentId = (value: string): string => {
-  if (!value) return '*학번을 입력해주세요.';
-  if (!/^\d{10}$/.test(value)) return '*학번은 숫자 10자리로 입력해주세요.';
+  const trimmed = value.trim();
+  if (!trimmed) return '*학번을 입력해주세요.';
+  if (!/^\d{10}$/.test(trimmed)) return '*학번은 숫자 10자리로 입력해주세요.';
   return '';
 };
 
