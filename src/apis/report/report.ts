@@ -3,6 +3,7 @@ import type { TCourseName } from '@/types/course';
 import type { TGetReportDetailResponse } from '@/types/report/TGetReportDetail';
 import type { TGetReportSummaryResponse } from '@/types/report/TGetReportSummary';
 import type { TGetUserReportsResponse } from '@/types/report/TGetUserReports';
+import type { TPatchReportRequest, TPatchReportResponse } from '@/types/report/TPatchReport';
 import type { TPutTranscriptResponse } from '@/types/report/TPutTranscript';
 
 // 성적표(학업 리포트) 조회. 성적표가 없으면 404(TRANSCRIPT404_1)를 반환한다.
@@ -20,6 +21,12 @@ export const getReportSummary = async () => {
 // courseType별 영역 상세 조회. 잘못된 courseType은 400(COMMON400_1).
 export const getReportDetail = async (courseType: TCourseName) => {
   const { data } = await axiosInstance.get<TGetReportDetailResponse>('/api/reports', { params: { courseType } });
+  return data.result;
+};
+
+// 수강 이력 수동 추가. 성적표 없으면 404(TRANSCRIPT404_1), 허용되지 않은 성적 값은 400(TRANSCRIPT400_4).
+export const patchReportCourses = async (body: TPatchReportRequest) => {
+  const { data } = await axiosInstance.patch<TPatchReportResponse>('/api/users/me/reports', body);
   return data.result;
 };
 

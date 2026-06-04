@@ -1,14 +1,19 @@
 import { useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import Edit from '@/assets/icons/edit.svg?react';
 import Button from '@/components/common/button';
 import Loading from '@/components/common/loading';
 import TextField from '@/components/common/textField';
+import useAddCourses from '@/hooks/report/useAddCourses';
 import useUserReports from '@/hooks/report/useUserReports';
 import useInView from '@/hooks/useInView';
 import NotFound from '@/pages/notFound';
 import type { TTranscriptRecord } from '@/types/report/TGetUserReports';
+
+// 추가 수강 이력의 성적 허용값 (서버 enum과 동일)
+const ALLOWED_GRADES = ['A+', 'A0', 'B+', 'B0', 'C+', 'C0', 'D+', 'D0', 'F', 'P', 'NP'];
 
 interface ICourse {
   category: string;
@@ -68,6 +73,7 @@ export default function AcademicRecords() {
   const [addedCourses, setAddedCourses] = useState<Record<string, IAddedCourse[]>>({});
   const nextId = useRef(0);
   const { data, isPending, isError, error } = useUserReports();
+  const { mutate: addCourses, isPending: isAdding } = useAddCourses();
 
   const hasNewCourses = Object.values(addedCourses).some((courses) => courses.length > 0);
 
@@ -91,6 +97,44 @@ export default function AcademicRecords() {
       ...prev,
       [semester]: (prev[semester] ?? []).map((course) => (course.id === id ? { ...course, [field]: parsed } : course)),
     }));
+  };
+
+  // "수정하기": 학기별로 추가한 행을 검증한 뒤 한 번에 PATCH로 반영한다.
+  const handleSubmitCourses = () => {
+    // 학기별 추가행을 학기 정보와 함께 평탄화한다.
+    const flattened = Object.entries(addedCourses).flatMap(([semester, list]) =>
+      list.map((course) => ({ semester, course })),
+    );
+    if (flattened.length === 0) return;
+
+    // 클라이언트 검증: 필수항목(이수구분·학수번호·교과목명·성적) 채움, 학점 0 이상, 성적 enum (이수영역은 선택)
+    const isValid = flattened.every(({ course }) => {
+      const grade = course.grade.trim().toUpperCase();
+      const filled = course.category.trim() && course.courseCode.trim() && course.courseName.trim() && grade;
+      return filled && course.credits >= 0 && ALLOWED_GRADES.includes(grade);
+    });
+    if (!isValid) {
+      toast.error('추가한 과목의 모든 항목을 올바르게 입력해주세요. (성적은 A+·B0·P 등)');
+      return;
+    }
+
+    const courses = flattened.map(({ semester, course }) => {
+      // 기존 데이터의 빈 영역은 '-'로 표시되므로, 빈값과 '-' 모두 areaName에서 제외한다.
+      const trimmedArea = course.area.trim();
+      return {
+        semester,
+        courseType: course.category.trim(),
+        ...(trimmedArea && trimmedArea !== '-' ? { areaName: trimmedArea } : {}),
+        courseCode: course.courseCode.trim(),
+        courseName: course.courseName.trim(),
+        credits: course.credits,
+        grade: course.grade.trim().toUpperCase(),
+        retake: course.retake === 'O',
+      };
+    });
+
+    // 성공 시 추가행을 비운다. (무효화로 다시 받아온 데이터에서 기존 수강으로 합류)
+    addCourses({ courses }, { onSuccess: () => setAddedCourses({}) });
   };
 
   // 성적표 조회 상태 처리: 로딩 → 공용 Loading, 미업로드(404) → 업로드 유도, 그 외 에러 → NotFound
@@ -185,6 +229,7 @@ export default function AcademicRecords() {
                         <input
                           type="checkbox"
                           checked={newCourse.retake === 'O'}
+                          disabled={isAdding}
                           onChange={(e) =>
                             handleNewCourseChange(
                               semesterData.semester,
@@ -201,6 +246,7 @@ export default function AcademicRecords() {
                         className="!w-full"
                         placeholder={col.label}
                         value={newCourse[col.key]}
+                        disabled={isAdding}
                         onChange={(e) =>
                           handleNewCourseChange(semesterData.semester, newCourse.id, col.key, e.target.value)
                         }
@@ -212,7 +258,8 @@ export default function AcademicRecords() {
                 <div className="flex w-[4%] justify-center">
                   <button
                     type="button"
-                    className="cursor-pointer text-body-m text-coolgray-60 hover:text-primary-60"
+                    disabled={isAdding}
+                    className="cursor-pointer text-body-m text-coolgray-60 hover:text-primary-60 disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={() => handleDeleteCourse(semesterData.semester, newCourse.id)}
                   >
                     ✕
@@ -223,7 +270,12 @@ export default function AcademicRecords() {
 
             {/* 추가 버튼 */}
             <div className="flex w-full justify-end py-3">
-              <Button variant="outlined" className="w-16 h-10" onClick={() => handleAddCourse(semesterData.semester)}>
+              <Button
+                variant={isAdding ? 'disabled' : 'outlined'}
+                className="w-16 h-10"
+                disabled={isAdding}
+                onClick={() => handleAddCourse(semesterData.semester)}
+              >
                 추가
               </Button>
             </div>
@@ -237,7 +289,12 @@ export default function AcademicRecords() {
         <Button variant="outlined" className="w-40" onClick={() => navigate('/upload')}>
           PDF 새로 업로드하기
         </Button>
-        <Button variant={hasNewCourses ? 'primary' : 'disabled'} className="w-40">
+        <Button
+          variant={hasNewCourses && !isAdding ? 'primary' : 'disabled'}
+          className="w-40"
+          disabled={!hasNewCourses || isAdding}
+          onClick={handleSubmitCourses}
+        >
           수정하기
         </Button>
       </div>
