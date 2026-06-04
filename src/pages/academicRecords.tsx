@@ -118,16 +118,20 @@ export default function AcademicRecords() {
       return;
     }
 
-    const courses = flattened.map(({ semester, course }) => ({
-      semester,
-      courseType: course.category.trim(),
-      ...(course.area.trim() ? { areaName: course.area.trim() } : {}),
-      courseCode: course.courseCode.trim(),
-      courseName: course.courseName.trim(),
-      credits: course.credits,
-      grade: course.grade.trim().toUpperCase(),
-      retake: course.retake === 'O',
-    }));
+    const courses = flattened.map(({ semester, course }) => {
+      // 기존 데이터의 빈 영역은 '-'로 표시되므로, 빈값과 '-' 모두 areaName에서 제외한다.
+      const trimmedArea = course.area.trim();
+      return {
+        semester,
+        courseType: course.category.trim(),
+        ...(trimmedArea && trimmedArea !== '-' ? { areaName: trimmedArea } : {}),
+        courseCode: course.courseCode.trim(),
+        courseName: course.courseName.trim(),
+        credits: course.credits,
+        grade: course.grade.trim().toUpperCase(),
+        retake: course.retake === 'O',
+      };
+    });
 
     // 성공 시 추가행을 비운다. (무효화로 다시 받아온 데이터에서 기존 수강으로 합류)
     addCourses({ courses }, { onSuccess: () => setAddedCourses({}) });
@@ -225,6 +229,7 @@ export default function AcademicRecords() {
                         <input
                           type="checkbox"
                           checked={newCourse.retake === 'O'}
+                          disabled={isAdding}
                           onChange={(e) =>
                             handleNewCourseChange(
                               semesterData.semester,
@@ -241,6 +246,7 @@ export default function AcademicRecords() {
                         className="!w-full"
                         placeholder={col.label}
                         value={newCourse[col.key]}
+                        disabled={isAdding}
                         onChange={(e) =>
                           handleNewCourseChange(semesterData.semester, newCourse.id, col.key, e.target.value)
                         }
@@ -252,7 +258,8 @@ export default function AcademicRecords() {
                 <div className="flex w-[4%] justify-center">
                   <button
                     type="button"
-                    className="cursor-pointer text-body-m text-coolgray-60 hover:text-primary-60"
+                    disabled={isAdding}
+                    className="cursor-pointer text-body-m text-coolgray-60 hover:text-primary-60 disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={() => handleDeleteCourse(semesterData.semester, newCourse.id)}
                   >
                     ✕
@@ -263,7 +270,12 @@ export default function AcademicRecords() {
 
             {/* 추가 버튼 */}
             <div className="flex w-full justify-end py-3">
-              <Button variant="outlined" className="w-16 h-10" onClick={() => handleAddCourse(semesterData.semester)}>
+              <Button
+                variant={isAdding ? 'disabled' : 'outlined'}
+                className="w-16 h-10"
+                disabled={isAdding}
+                onClick={() => handleAddCourse(semesterData.semester)}
+              >
                 추가
               </Button>
             </div>
