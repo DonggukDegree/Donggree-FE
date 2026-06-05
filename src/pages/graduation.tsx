@@ -89,7 +89,7 @@ export default function Graduation() {
           <ProgressBar progress={summary.achievementRate} animate={summaryInView} />
           <span className="text-heading-5 text-shimmer">졸업까지 {summary.achievementRate}% 달성했어요!</span>
         </div>
-        <div className="w-full flex flex-col gap-3 px-115">
+        <div className="w-full max-w-md mx-auto flex flex-col gap-3">
           <div className="flex justify-between">
             <span className="text-heading-5 text-coolgray-90">이수 학점</span>
             <span className="text-heading-5 text-coolgray-90">{summary.earnedCredits}학점</span>
@@ -103,7 +103,7 @@ export default function Graduation() {
             <span className="text-heading-5 text-primary-60">{summary.remainingCredits}학점</span>
           </div>
         </div>
-        <div className="w-full flex flex-col gap-3 px-100">
+        <div className="w-full max-w-md mx-auto flex flex-col gap-3">
           <div className="w-full flex justify-between">
             <span className="text-heading-4 text-coolgray-90">총 평점 평균</span>
             <span className="text-heading-4 text-coolgray-90">{summary.gpa}</span>
