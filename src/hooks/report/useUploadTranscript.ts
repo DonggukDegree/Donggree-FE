@@ -23,8 +23,9 @@ export default function useUploadTranscript() {
   return useCoreMutation((file: File) => putTranscript(file), {
     onSuccess: (data: TPutTranscriptResponse) => {
       // 성적표가 새로 저장됐으므로 관련 조회 캐시를 먼저 무효화한다. (어느 분기든 공통)
+      // ['reports'] 접두사로 졸업 판정 요약(['reports','summary'])과 영역상세(['reports',{courseType}])를 함께 무효화한다.
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_REPORTS });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_REPORT_SUMMARY });
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
       // 업로드한 PDF의 학번/이름이 일치하면 서버가 그 시점에 본인 인증(identityVerified)을 자동 처리하므로,
       // 사용자 정보 캐시도 무효화해 최신 인증 상태가 반영되게 한다.
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_INFO });

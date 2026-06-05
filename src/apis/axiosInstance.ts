@@ -33,8 +33,11 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // 재시도 요청임을 먼저 표시한다. (동시에 401난 여러 요청이 각자 refresh를 다시 트리거하지 않도록,
+    // refreshPromise 생성 여부와 무관하게 모든 요청에 _retry를 찍는다)
+    originalRequest._retry = true;
+
     if (!refreshPromise) {
-      originalRequest._retry = true;
       refreshPromise = axios
         .post(`${import.meta.env.VITE_API_URL}/auth/refresh`, {}, { withCredentials: true })
         .then(({ data }) => {
