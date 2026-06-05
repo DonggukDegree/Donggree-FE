@@ -70,7 +70,9 @@ const EMPTY_COURSE: ICourse = {
 
 export default function AcademicRecords() {
   const navigate = useNavigate();
-  const [ref, isInView] = useInView();
+  // 컨테이너 전체에 페이드인을 걸기 때문에, 수강 내역이 많아 화면보다 길어지면
+  // 기본 threshold(0.2)로는 한 번에 20%가 안 보여 영영 켜지지 않는다. 조금이라도 보이면 켜지도록 0으로 둔다.
+  const [ref, isInView] = useInView(0);
   const [addedCourses, setAddedCourses] = useState<Record<string, IAddedCourse[]>>({});
   const nextId = useRef(0);
   const { data, isPending, isError, error } = useUserReports();

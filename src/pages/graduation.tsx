@@ -120,7 +120,7 @@ export default function Graduation() {
 
         {/* 전체 졸업요건 미충족 사유 (없으면 숨김). 졸업 판정 아래 중앙 정렬, 영역별 사유와 동일한 글씨 */}
         {summary.unsatisfiedReasons.length > 0 && (
-          <div className="flex flex-col items-center gap-1 mt-4">
+          <div className="flex flex-col items-center gap-1 mb-4">
             {summary.unsatisfiedReasons.map((reason) => (
               <span key={reason} className="text-button-m text-alert">
                 {reason}
