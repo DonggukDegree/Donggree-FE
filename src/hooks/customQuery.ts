@@ -9,6 +9,7 @@ import {
 import { toast } from 'sonner';
 
 import type { TResponseError, TUseMutationCustomOptions, TUseQueryCustomOptions } from '@/types/common';
+import { getErrorStatus } from '@/utils/error';
 
 export function useCoreQuery<TQueryFnData, TData = TQueryFnData>(
   keyName: QueryKey,
@@ -23,7 +24,7 @@ export function useCoreQuery<TQueryFnData, TData = TQueryFnData>(
     // 특히 401은 이미 axios 인터셉터가 refresh를 시도한 "최종 실패"라 여기서 또 재시도할 이유가 없다.
     // 서버 오류(5xx)·네트워크 오류 같은 일시적 실패만 기존처럼 최대 3회 재시도한다.
     retry: (failureCount, error) => {
-      const status = (error as TResponseError)?.response?.status;
+      const status = getErrorStatus(error);
       if (status && status >= 400 && status < 500) return false;
       return failureCount < 3;
     },

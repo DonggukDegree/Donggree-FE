@@ -8,11 +8,13 @@ import Loading from '@/components/common/loading';
 import CourseSummaryCard from '@/components/courseSummaryCard';
 import CourseTabView from '@/components/courseTabView';
 import ProgressBar from '@/components/progressBar';
+import { ERROR_CODE } from '@/constants/errorCodes';
 import { TRANSCRIPT_ERROR_MODAL } from '@/constants/report/transcriptErrorModals';
 import useReportSummary from '@/hooks/report/useReportSummary';
 import useInView from '@/hooks/useInView';
 import NotFound from '@/pages/notFound';
 import { useModalStore } from '@/stores/modalStore';
+import { getErrorCode } from '@/utils/error';
 
 export default function Graduation() {
   const navigate = useNavigate();
@@ -25,10 +27,10 @@ export default function Graduation() {
   const [tabRef, tabInView] = useInView(0.1);
   const [buttonRef, buttonInView] = useInView();
 
-  const errorCode = isError ? error?.response?.data?.code : undefined;
+  const errorCode = isError ? getErrorCode(error) : undefined;
   // 적용 가능한 졸업 요건이 없는 학과(404 GRADUATION404_2)는 업로드의 미지원 학과 모달 문구를 재사용해 안내하고,
   // 확인 시 홈으로 보낸다.
-  const isUnsupportedDept = errorCode === 'GRADUATION404_2';
+  const isUnsupportedDept = errorCode === ERROR_CODE.NO_REQUIREMENT;
   useEffect(() => {
     if (!isUnsupportedDept) return;
     const modal = TRANSCRIPT_ERROR_MODAL.TRANSCRIPT400_3;
@@ -50,7 +52,7 @@ export default function Graduation() {
 
   if (isError) {
     // 리포트 없음(404_1)은 업로드로 유도(게이트 우회 등 방어).
-    if (errorCode === 'GRADUATION404_1') {
+    if (errorCode === ERROR_CODE.NO_GRADUATION_REPORT) {
       return <Navigate to="/upload" replace />;
     }
     // 미지원 학과(404_2)는 위 모달을 띄우는 동안 로딩을 보여준다.
@@ -141,7 +143,7 @@ export default function Graduation() {
           {areaOverviews.map((area) => (
             <CourseSummaryCard
               key={area.courseType}
-              courseName={area.courseType}
+              courseType={area.courseType}
               progress={area.achievementRate}
               remainingCredits={area.remainingCredits}
               status={area.satisfied ? 'PASS' : 'FAIL'}

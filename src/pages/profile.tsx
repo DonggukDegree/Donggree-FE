@@ -13,29 +13,7 @@ import useUpdateProfile from '@/hooks/user/useUpdateProfile';
 import useUserInfo from '@/hooks/user/useUserInfo';
 import NotFound from '@/pages/notFound';
 import { useModalStore } from '@/stores/modalStore';
-
-// 클라이언트 입력 검증 (서버 규칙과 동일). 이름 ≤5, 학번 숫자 10자리, 닉네임 ≤8
-// blur/입력 중과 제출 시 결과가 일치하도록 검증 함수 내부에서 먼저 trim한 뒤 검사한다.
-const validateName = (value: string): string => {
-  const trimmed = value.trim();
-  if (!trimmed) return '*이름을 입력해주세요.';
-  if (trimmed.length > 5) return '*이름은 5자 이하로 입력해주세요.';
-  return '';
-};
-
-const validateStudentId = (value: string): string => {
-  const trimmed = value.trim();
-  if (!trimmed) return '*학번을 입력해주세요.';
-  if (!/^\d{10}$/.test(trimmed)) return '*학번은 숫자 10자리로 입력해주세요.';
-  return '';
-};
-
-const validateNickname = (value: string): string => {
-  const trimmed = value.trim();
-  if (!trimmed) return '*닉네임을 입력해주세요.';
-  if (trimmed.length > 8) return '*닉네임은 8자 이하로 입력해주세요.';
-  return '';
-};
+import { validateName, validateNickname, validateStudentId } from '@/utils/validators';
 
 export default function Profile() {
   const [ref, isInView] = useInView();

@@ -3,6 +3,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import Loading from '@/components/common/loading';
 import useUserInfo from '@/hooks/user/useUserInfo';
 import ServerError from '@/pages/serverError';
+import { getErrorStatus } from '@/utils/error';
 
 // 2단 라우팅 게이트.
 // 1) 인증 게이트: 사용자 정보 조회 실패 시 분기.
@@ -22,7 +23,7 @@ export default function ProtectedRoute() {
 
   if (isError || !data) {
     // 서버 다운(응답 없음)·서버 오류(5xx)는 로그인이 아니라 에러 화면으로 안내한다.
-    const status = error?.response?.status;
+    const status = getErrorStatus(error);
     if (!status || status >= 500) {
       return <ServerError onRetry={() => refetch()} />;
     }

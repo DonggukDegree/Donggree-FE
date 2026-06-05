@@ -1,5 +1,5 @@
 import axiosInstance from '@/apis/axiosInstance';
-import type { TCourseName } from '@/types/course';
+import type { TCourseType } from '@/types/course';
 import type { TGetReportDetailResponse } from '@/types/report/TGetReportDetail';
 import type { TGetReportSummaryResponse } from '@/types/report/TGetReportSummary';
 import type { TGetUserReportsResponse } from '@/types/report/TGetUserReports';
@@ -19,7 +19,7 @@ export const getReportSummary = async () => {
 };
 
 // courseType별 영역 상세 조회. 잘못된 courseType은 400(COMMON400_1).
-export const getReportDetail = async (courseType: TCourseName) => {
+export const getReportDetail = async (courseType: TCourseType) => {
   const { data } = await axiosInstance.get<TGetReportDetailResponse>('/api/reports', { params: { courseType } });
   return data.result;
 };

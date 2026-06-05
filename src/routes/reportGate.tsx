@@ -4,6 +4,7 @@ import Loading from '@/components/common/loading';
 import useUserReports from '@/hooks/report/useUserReports';
 import NotFound from '@/pages/notFound';
 import ServerError from '@/pages/serverError';
+import { getErrorStatus } from '@/utils/error';
 
 // 리포트(성적표) 존재 게이트.
 // ProtectedRoute(인증·온보딩) 통과 후, 성적표 유무로 한 번 더 분기한다.
@@ -19,7 +20,7 @@ export default function ReportGate() {
   }
 
   if (isError) {
-    const status = error.response?.status;
+    const status = getErrorStatus(error);
     // 미업로드(404)는 정상 흐름이므로 업로드로 보낸다.
     if (status === 404) {
       return <Navigate to="/upload" replace />;

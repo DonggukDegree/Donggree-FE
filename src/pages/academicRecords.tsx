@@ -11,6 +11,7 @@ import useUserReports from '@/hooks/report/useUserReports';
 import useInView from '@/hooks/useInView';
 import NotFound from '@/pages/notFound';
 import type { TTranscriptRecord } from '@/types/report/TGetUserReports';
+import { getErrorStatus } from '@/utils/error';
 
 // 추가 수강 이력의 성적 허용값 (서버 enum과 동일)
 const ALLOWED_GRADES = ['A+', 'A0', 'B+', 'B0', 'C+', 'C0', 'D+', 'D0', 'F', 'P', 'NP'];
@@ -142,7 +143,7 @@ export default function AcademicRecords() {
     return <Loading />;
   }
   if (isError) {
-    if (error.response?.status === 404) {
+    if (getErrorStatus(error) === 404) {
       return <Navigate to="/upload" replace />;
     }
     return <NotFound />;

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import Inbox from '@/assets/icons/inbox.svg?react';
 import Upload from '@/assets/icons/upload.svg?react';
@@ -90,7 +91,7 @@ export default function UploadPage() {
                     if (selected && selected.type === 'application/pdf') {
                       setFile(selected);
                     } else if (selected) {
-                      alert('PDF 파일만 업로드할 수 있습니다.');
+                      toast.error('PDF 파일만 업로드할 수 있습니다.');
                     }
                     e.target.value = '';
                   }}

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import AreaDetailCard from '@/components/areaDetailCard';
 import type { TChipVariant } from '@/components/chip';
 import useReportDetail from '@/hooks/report/useReportDetail';
-import { COURSE_LABEL, type TCourseName } from '@/types/course';
+import { COURSE_LABEL, type TCourseType } from '@/types/course';
 import type { TReportItemStatus } from '@/types/report/TGetReportDetail';
 
 // 과목 이수 상태 → 칩 variant 매핑
@@ -15,11 +15,11 @@ const STATUS_TO_CHIP: Record<TReportItemStatus, TChipVariant> = {
 
 interface ICourseTabViewProps {
   // summary의 areaOverviews에서 받은, 이 회원에게 적용되는 영역 탭 목록
-  courseTypes: TCourseName[];
+  courseTypes: TCourseType[];
 }
 
 export default function CourseTabView({ courseTypes }: ICourseTabViewProps) {
-  const [activeTab, setActiveTab] = useState<TCourseName>(courseTypes[0] ?? 'COMMON_GENERAL');
+  const [activeTab, setActiveTab] = useState<TCourseType>(courseTypes[0] ?? 'COMMON_GENERAL');
   // 활성 탭의 courseType으로만 상세를 조회한다(지연 로딩, 탭별 캐시).
   const { data, isPending, isError } = useReportDetail(activeTab);
 

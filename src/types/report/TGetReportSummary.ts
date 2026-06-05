@@ -1,5 +1,5 @@
 import type { TCommonResponse } from '@/types/common';
-import type { TCourseName } from '@/types/course';
+import type { TCourseType } from '@/types/course';
 
 // GET /api/reports/summary 응답 — 전체 졸업 달성률 요약 + courseType별 이수 현황
 
@@ -16,7 +16,7 @@ export type TReportSummary = {
 
 // 영역(courseType)별 개요 카드
 export type TAreaOverview = {
-  courseType: TCourseName; // COMMON_GENERAL, LIBERAL_ARTS, ...
+  courseType: TCourseType; // COMMON_GENERAL, LIBERAL_ARTS, ...
   courseTypeName: string; // 공통교양, 일반교양, ...
   achievementRate: number; // 해당 영역 달성률 (0~100)
   remainingCredits: number; // 해당 영역 잔여 학점
