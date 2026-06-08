@@ -23,7 +23,6 @@ export default function ServerError({ onRetry }: IServerErrorProps) {
       <div className="flex flex-col items-center gap-1">
         <p className="text-primary-60 text-heading-1">500</p>
         <p className="text-coolgray-90 text-heading-4">서버에 연결할 수 없어요.</p>
-        <p className="text-coolgray-60 text-body-l">잠시 후 다시 시도해주세요.</p>
       </div>
       <Button variant="outlined" className="w-40" onClick={handleRetry}>
         다시 시도

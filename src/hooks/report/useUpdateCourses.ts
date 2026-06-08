@@ -10,19 +10,19 @@ import type { TResponseError } from '@/types/common';
 import type { TPatchReportRequest } from '@/types/report/TPatchReport';
 import { getErrorCode, getErrorMessage, getErrorStatus } from '@/utils/error';
 
-// 수강 이력 수동 추가 훅.
-// 성공 시 학업 리포트와 졸업 판정 캐시를 무효화하고 안내 토스트를 띄운다.
-export default function useAddCourses() {
+// 수강 이력 전체 치환(수정·추가·삭제) 훅.
+// 성공 시 학업 리포트와 졸업 판정 캐시를 무효화한다. (재조회로 재계산된 학점·평점·수정일까지 최신화)
+export default function useUpdateCourses() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   return useCoreMutation((body: TPatchReportRequest) => patchReportCourses(body), {
     onSuccess: () => {
-      // 수강 이력이 바뀌었으므로 성적표 조회와 졸업 판정(요약·영역상세) 캐시를 무효화한다.
-      // ['reports'] 접두사로 요약(['reports','summary'])·영역상세(['reports',{courseType}])를 한 번에 무효화한다.
+      // 수강 이력이 바뀌면 totalCredits·gpa·updatedAt도 재계산되므로 조회를 재실행한다.
+      // ['reports'] 접두사로 졸업 판정 요약(['reports','summary'])·영역상세(['reports',{courseType}])도 함께 무효화한다.
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_REPORTS });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REPORTS_ROOT });
-      toast.success('수강 이력이 추가되었어요.');
+      toast.success('수강 이력이 수정되었어요.');
     },
     onError: (error: TResponseError) => {
       // 성적표가 없으면(404 TRANSCRIPT404_1) 업로드로 유도.
@@ -36,7 +36,7 @@ export default function useAddCourses() {
         return;
       }
       // 그 외(필수 누락 등)는 서버 메시지를 토스트로 안내.
-      toast.error(getErrorMessage(error) ?? '수강 이력 추가 중 오류가 발생했어요.');
+      toast.error(getErrorMessage(error) ?? '수강 이력 수정 중 오류가 발생했어요.');
     },
   });
 }
