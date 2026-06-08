@@ -1,0 +1,65 @@
+name: Deploy to homeserver
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "index.html"
+      - "vite.config.*"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-dongree-frontend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, homeserver, dongree-home]
+    timeout-minutes: 20
+
+    env:
+      REPO_DIR: /Users/parkparkjihyeon/homeserver/services/dongree/repo-frontend
+      DIST_DIR: /Users/parkparkjihyeon/homeserver/services/dongree/dist
+
+    steps:
+      - name: Sync repo on host
+        run: |
+          cd "$REPO_DIR"
+          git fetch --all --prune
+          git reset --hard origin/main
+
+      - name: Build frontend
+        run: |
+          cd "$REPO_DIR"
+          docker run --rm -v "$PWD:/app" -w /app node:22-alpine \
+            sh -c "npm install -g pnpm && pnpm install --frozen-lockfile && VITE_API_URL=https://dongree.jihyeon.site pnpm build"
+
+      - name: Swap dist contents (inode 유지 — caddy bind mount 보존)
+        run: |
+          mkdir -p "$DIST_DIR"
+          find "$DIST_DIR" -mindepth 1 -delete
+          cp -a "$REPO_DIR/dist/." "$DIST_DIR/"
+
+      - name: Reload Caddy
+        run: |
+          docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+
+      - name: Smoke test
+        run: |
+          for i in 1 2 3; do
+            if docker exec caddy wget -q -O- \
+                --header "Host: dongree.jihyeon.site" \
+                http://localhost/ > /dev/null 2>&1; then
+              echo "Frontend OK"
+              exit 0
+            fi
+            echo "Retry $i..."
+            sleep 3
+          done
+          echo "Frontend healthcheck failed"
+          exit 1
