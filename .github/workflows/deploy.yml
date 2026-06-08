@@ -14,17 +14,17 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-dongree-frontend
+  group: deploy-donggree-frontend
   cancel-in-progress: false
 
 jobs:
   deploy:
-    runs-on: [self-hosted, homeserver, dongree-home]
+    runs-on: [self-hosted, homeserver, donggree-home]
     timeout-minutes: 20
 
     env:
-      REPO_DIR: /Users/parkparkjihyeon/homeserver/services/dongree/repo-frontend
-      DIST_DIR: /Users/parkparkjihyeon/homeserver/services/dongree/dist
+      REPO_DIR: /Users/parkparkjihyeon/homeserver/services/donggree/repo-frontend
+      DIST_DIR: /Users/parkparkjihyeon/homeserver/services/donggree/dist
 
     steps:
       - name: Sync repo on host
@@ -37,7 +37,7 @@ jobs:
         run: |
           cd "$REPO_DIR"
           docker run --rm -v "$PWD:/app" -w /app node:22-alpine \
-            sh -c "npm install -g pnpm && pnpm install --frozen-lockfile && VITE_API_URL=https://dongree.jihyeon.site pnpm build"
+            sh -c "npm install -g pnpm && pnpm install --frozen-lockfile && VITE_API_URL=https://donggree.site pnpm build"
 
       - name: Swap dist contents (inode 유지 — caddy bind mount 보존)
         run: |
@@ -53,7 +53,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             if docker exec caddy wget -q -O- \
-                --header "Host: dongree.jihyeon.site" \
+                --header "Host: donggree.site" \
                 http://localhost/ > /dev/null 2>&1; then
               echo "Frontend OK"
               exit 0
