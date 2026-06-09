@@ -8,11 +8,13 @@ import Loading from '@/components/common/loading';
 import CourseSummaryCard from '@/components/courseSummaryCard';
 import CourseTabView from '@/components/courseTabView';
 import ProgressBar from '@/components/progressBar';
+import { ERROR_CODE } from '@/constants/errorCodes';
 import { TRANSCRIPT_ERROR_MODAL } from '@/constants/report/transcriptErrorModals';
 import useReportSummary from '@/hooks/report/useReportSummary';
 import useInView from '@/hooks/useInView';
 import NotFound from '@/pages/notFound';
 import { useModalStore } from '@/stores/modalStore';
+import { getErrorCode } from '@/utils/error';
 
 export default function Graduation() {
   const navigate = useNavigate();
@@ -25,10 +27,10 @@ export default function Graduation() {
   const [tabRef, tabInView] = useInView(0.1);
   const [buttonRef, buttonInView] = useInView();
 
-  const errorCode = isError ? error?.response?.data?.code : undefined;
+  const errorCode = isError ? getErrorCode(error) : undefined;
   // 적용 가능한 졸업 요건이 없는 학과(404 GRADUATION404_2)는 업로드의 미지원 학과 모달 문구를 재사용해 안내하고,
   // 확인 시 홈으로 보낸다.
-  const isUnsupportedDept = errorCode === 'GRADUATION404_2';
+  const isUnsupportedDept = errorCode === ERROR_CODE.NO_REQUIREMENT;
   useEffect(() => {
     if (!isUnsupportedDept) return;
     const modal = TRANSCRIPT_ERROR_MODAL.TRANSCRIPT400_3;
@@ -50,7 +52,7 @@ export default function Graduation() {
 
   if (isError) {
     // 리포트 없음(404_1)은 업로드로 유도(게이트 우회 등 방어).
-    if (errorCode === 'GRADUATION404_1') {
+    if (errorCode === ERROR_CODE.NO_GRADUATION_REPORT) {
       return <Navigate to="/upload" replace />;
     }
     // 미지원 학과(404_2)는 위 모달을 띄우는 동안 로딩을 보여준다.
@@ -87,7 +89,7 @@ export default function Graduation() {
           <ProgressBar progress={summary.achievementRate} animate={summaryInView} />
           <span className="text-heading-5 text-shimmer">졸업까지 {summary.achievementRate}% 달성했어요!</span>
         </div>
-        <div className="w-full flex flex-col gap-3 px-115">
+        <div className="w-full max-w-md mx-auto flex flex-col gap-3">
           <div className="flex justify-between">
             <span className="text-heading-5 text-coolgray-90">이수 학점</span>
             <span className="text-heading-5 text-coolgray-90">{summary.earnedCredits}학점</span>
@@ -101,7 +103,7 @@ export default function Graduation() {
             <span className="text-heading-5 text-primary-60">{summary.remainingCredits}학점</span>
           </div>
         </div>
-        <div className="w-full flex flex-col gap-3 px-100">
+        <div className="w-full max-w-md mx-auto flex flex-col gap-3">
           <div className="w-full flex justify-between">
             <span className="text-heading-4 text-coolgray-90">총 평점 평균</span>
             <span className="text-heading-4 text-coolgray-90">{summary.gpa}</span>
@@ -118,7 +120,7 @@ export default function Graduation() {
 
         {/* 전체 졸업요건 미충족 사유 (없으면 숨김). 졸업 판정 아래 중앙 정렬, 영역별 사유와 동일한 글씨 */}
         {summary.unsatisfiedReasons.length > 0 && (
-          <div className="flex flex-col items-center gap-1 mt-4">
+          <div className="flex flex-col items-center gap-1 mb-4">
             {summary.unsatisfiedReasons.map((reason) => (
               <span key={reason} className="text-button-m text-alert">
                 {reason}
@@ -141,7 +143,7 @@ export default function Graduation() {
           {areaOverviews.map((area) => (
             <CourseSummaryCard
               key={area.courseType}
-              courseName={area.courseType}
+              courseType={area.courseType}
               progress={area.achievementRate}
               remainingCredits={area.remainingCredits}
               status={area.satisfied ? 'PASS' : 'FAIL'}

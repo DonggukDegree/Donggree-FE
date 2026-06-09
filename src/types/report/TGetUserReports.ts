@@ -5,7 +5,8 @@ import type { TCommonResponse } from '@/types/common';
 
 // 상단 메타 정보
 export type TReportMeta = {
-  admissionYear: number; // 입학년도
+  admissionYear: number; // 입학년도(교육과정 적용년도)
+  collegeName: string | null; // 소속 단과대학명 (학과 미등록 시 null)
   department: string; // 전공 학과명
   subMajor1: string | null; // 제1부전공 학과명 (없으면 null)
   subMajor2: string | null; // 제2부전공 학과명 (없으면 null)
@@ -15,6 +16,8 @@ export type TReportMeta = {
   totalCredits: number; // 총취득학점
   gpa: number; // 평점 평균
   completedSemesters: number; // 이수 학기 수
+  createdAt: string; // 성적표 최초 생성 시각 (ISO)
+  updatedAt: string; // 최종 수정 시각 (ISO)
 };
 
 // 개별 수강 이력

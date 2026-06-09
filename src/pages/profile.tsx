@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import User from '@/assets/icons/user.svg?react';
 import Warning from '@/assets/icons/warning.svg?react';
@@ -7,35 +8,14 @@ import Chip from '@/components/chip';
 import Button from '@/components/common/button';
 import Loading from '@/components/common/loading';
 import TextField from '@/components/common/textField';
+import { READY_MESSAGE } from '@/constants/links';
 import useInView from '@/hooks/useInView';
 import useDeleteAccount from '@/hooks/user/useDeleteAccount';
 import useUpdateProfile from '@/hooks/user/useUpdateProfile';
 import useUserInfo from '@/hooks/user/useUserInfo';
 import NotFound from '@/pages/notFound';
 import { useModalStore } from '@/stores/modalStore';
-
-// 클라이언트 입력 검증 (서버 규칙과 동일). 이름 ≤5, 학번 숫자 10자리, 닉네임 ≤8
-// blur/입력 중과 제출 시 결과가 일치하도록 검증 함수 내부에서 먼저 trim한 뒤 검사한다.
-const validateName = (value: string): string => {
-  const trimmed = value.trim();
-  if (!trimmed) return '*이름을 입력해주세요.';
-  if (trimmed.length > 5) return '*이름은 5자 이하로 입력해주세요.';
-  return '';
-};
-
-const validateStudentId = (value: string): string => {
-  const trimmed = value.trim();
-  if (!trimmed) return '*학번을 입력해주세요.';
-  if (!/^\d{10}$/.test(trimmed)) return '*학번은 숫자 10자리로 입력해주세요.';
-  return '';
-};
-
-const validateNickname = (value: string): string => {
-  const trimmed = value.trim();
-  if (!trimmed) return '*닉네임을 입력해주세요.';
-  if (trimmed.length > 8) return '*닉네임은 8자 이하로 입력해주세요.';
-  return '';
-};
+import { validateName, validateNickname, validateStudentId } from '@/utils/validators';
 
 export default function Profile() {
   const [ref, isInView] = useInView();
@@ -58,9 +38,6 @@ export default function Profile() {
   const [studentIdError, setStudentIdError] = useState('');
   const [touched, setTouched] = useState({ name: false, nickname: false, studentId: false });
 
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   // 사용자 정보가 처음 도착하면 폼을 채운다. (이미 채웠으면 사용자의 편집을 덮어쓰지 않음)
   useEffect(() => {
     if (!data || seededRef.current) return;
@@ -69,13 +46,6 @@ export default function Profile() {
     setNickname(data.nickname ?? '');
     setStudentId(data.studentId ?? '');
   }, [data]);
-
-  // 프로필 이미지 미리보기 URL 정리 (메모리 누수 방지). 이미지 업로드는 별도 API가 없어 로컬 미리보기만 지원한다.
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
 
   // 입력 변경: 이미 검증이 시작된 필드는 실시간으로 에러를 갱신한다.
   const handleNameChange = (value: string) => {
@@ -144,18 +114,6 @@ export default function Profile() {
     });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (selected && selected.type.startsWith('image/')) {
-      setPreviewUrl(URL.createObjectURL(selected));
-    }
-    e.target.value = '';
-  };
-
-  const handleImageDelete = () => {
-    setPreviewUrl(null);
-  };
-
   // 사용자 정보 조회 상태 처리
   if (isPending) {
     return <Loading />;
@@ -177,25 +135,12 @@ export default function Profile() {
       <div className="flex w-full items-center justify-center gap-15">
         <div className="flex flex-1 justify-end p-4">
           <div className="flex flex-col items-center gap-6">
-            {previewUrl ? (
-              <img src={previewUrl} alt="프로필 이미지" className="h-30 w-30 rounded-full object-cover" />
-            ) : (
-              <ProfileImage className="h-30 w-30" />
-            )}
+            <ProfileImage className="h-30 w-30" />
             <div className="flex flex-col items-center gap-2">
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-              <Button variant="outlined" className="w-30" onClick={() => fileInputRef.current?.click()}>
+              {/* 프로필 사진 변경: 업로드 API 미구현이라 준비 중 안내만 한다. */}
+              <Button variant="outlined" className="w-30" onClick={() => toast(READY_MESSAGE)}>
                 이미지 업로드
               </Button>
-              {previewUrl && (
-                <button
-                  type="button"
-                  className="text-body-s text-primary-60 underline cursor-pointer"
-                  onClick={handleImageDelete}
-                >
-                  삭제
-                </button>
-              )}
             </div>
           </div>
         </div>

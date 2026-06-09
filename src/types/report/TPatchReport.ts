@@ -1,6 +1,7 @@
 import type { TCommonResponse } from '@/types/common';
+import type { TSemesterCourses } from '@/types/report/TGetUserReports';
 
-// PATCH /api/users/me/reports 요청 — 기존 성적표에 수강 이력을 수동으로 추가
+// PATCH /api/users/me/reports 요청 — 변경 후의 전체 수강 이력 목록으로 통째 치환(수정·추가·삭제)
 export type TPatchReportCourse = {
   semester: string; // 학기 (예: 2023-1)
   courseType: string; // 이수 구분
@@ -16,9 +17,11 @@ export type TPatchReportRequest = {
   courses: TPatchReportCourse[];
 };
 
-// 응답 result: 새로 생성된 수강 이력 ID 목록
+// 응답 result: 재계산된 학점·평점 + 학기 오름차순으로 그룹핑한 전체 수강 이력(치환 후 id 새로 부여)
 export type TPatchReportResult = {
-  addedIds: number[];
+  totalCredits: number;
+  gpa: number;
+  courses: TSemesterCourses[];
 };
 
 export type TPatchReportResponse = TCommonResponse<TPatchReportResult>;

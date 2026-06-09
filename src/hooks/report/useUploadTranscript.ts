@@ -11,6 +11,7 @@ import { useCoreMutation } from '@/hooks/customQuery';
 import { useModalStore } from '@/stores/modalStore';
 import type { TResponseError } from '@/types/common';
 import type { TPutTranscriptResponse } from '@/types/report/TPutTranscript';
+import { getErrorCode, getErrorMessage, getErrorStatus } from '@/utils/error';
 
 // 성적표 PDF 업로드 훅.
 // 성공 시 관련 조회 캐시를 무효화하고 졸업 판정 화면으로 이동한다.
@@ -23,8 +24,9 @@ export default function useUploadTranscript() {
   return useCoreMutation((file: File) => putTranscript(file), {
     onSuccess: (data: TPutTranscriptResponse) => {
       // 성적표가 새로 저장됐으므로 관련 조회 캐시를 먼저 무효화한다. (어느 분기든 공통)
+      // ['reports'] 접두사로 졸업 판정 요약(['reports','summary'])과 영역상세(['reports',{courseType}])를 함께 무효화한다.
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_REPORTS });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_REPORT_SUMMARY });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REPORTS_ROOT });
       // 업로드한 PDF의 학번/이름이 일치하면 서버가 그 시점에 본인 인증(identityVerified)을 자동 처리하므로,
       // 사용자 정보 캐시도 무효화해 최신 인증 상태가 반영되게 한다.
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_INFO });
@@ -51,8 +53,8 @@ export default function useUploadTranscript() {
     },
     // either/or 정책상 onError를 직접 제공하므로 공용 기본 토스트는 뜨지 않는다. (중복 알림 방지)
     onError: (error: TResponseError) => {
-      const status = error.response?.status;
-      const code = error.response?.data?.code;
+      const status = getErrorStatus(error);
+      const code = getErrorCode(error);
 
       // 회원 조회 실패(404)·서버 내부 오류(500)는 사용자가 조치할 수 없으므로 NotFound로 보낸다.
       if (status === 404 || status === 500) {
@@ -75,7 +77,7 @@ export default function useUploadTranscript() {
       }
 
       // 그 외 예기치 못한 에러는 토스트로 안내한다. (예: 서버까지 전달된 파일 누락 등)
-      toast.error(error.response?.data?.message ?? '업로드 중 오류가 발생했습니다.');
+      toast.error(getErrorMessage(error) ?? '업로드 중 오류가 발생했습니다.');
     },
   });
 }

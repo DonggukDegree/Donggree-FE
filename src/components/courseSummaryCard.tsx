@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { COURSE_LABEL, type TCourseName } from '@/types/course';
+import { COURSE_LABEL, type TCourseType } from '@/types/course';
 
 interface ICourseSummaryCardProps {
-  courseName: TCourseName;
+  courseType: TCourseType;
   progress: number;
   remainingCredits: number;
   status: 'PASS' | 'FAIL';
@@ -11,7 +11,7 @@ interface ICourseSummaryCardProps {
 }
 
 export default function CourseSummaryCard({
-  courseName,
+  courseType,
   progress,
   remainingCredits,
   status,
@@ -30,11 +30,11 @@ export default function CourseSummaryCard({
   const circumference = 2 * Math.PI * radius;
   const arcLength = circumference * 0.75;
   const filledLength = arcLength * (animatedProgress / 100);
-  const gradientId = `highlight-${courseName}`;
+  const gradientId = `highlight-${courseType}`;
 
   return (
     <div className="border border-primary-60 p-4 flex flex-col gap-4 text-coolgray-90 rounded-sm">
-      <p className="text-heading-5">{COURSE_LABEL[courseName]}</p>
+      <p className="text-heading-5">{COURSE_LABEL[courseType]}</p>
       <div className="flex flex-col items-center">
         <svg viewBox="0 0 100 100" className="w-50 h-50">
           <defs>
