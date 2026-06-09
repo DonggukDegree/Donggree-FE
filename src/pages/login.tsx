@@ -3,7 +3,7 @@ import Logo from '@/assets/logo.svg?react';
 
 export default function Login() {
   // 카카오 로그인 시작: 백엔드의 Spring Security OAuth2 진입점으로 이동시킨다.
-  // 이후 콜백/토큰 발급은 백엔드가 처리하고 /auth/callback으로 돌아온다.
+  // 이후 콜백/토큰 발급은 백엔드가 처리하고 /login/callback으로 돌아온다.
   const handleKakaoLogin = () => {
     window.location.href = `${import.meta.env.VITE_API_URL}/oauth2/authorization/kakao`;
   };
