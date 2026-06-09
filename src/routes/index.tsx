@@ -18,7 +18,8 @@ import ReportGate from '@/routes/reportGate';
 export const router = createBrowserRouter([
   // 인증 없이 접근 가능한 라우트 (로그인, OAuth 콜백)
   { path: '/login', element: <Login /> },
-  { path: '/auth/callback', element: <AuthCallback /> },
+  // 콜백 경로는 /login/callback. (/auth/* 는 같은 도메인에서 백엔드로 라우팅되어 빨려들어가므로 피한다)
+  { path: '/login/callback', element: <AuthCallback /> },
   {
     path: '/',
     element: <Layout />,
