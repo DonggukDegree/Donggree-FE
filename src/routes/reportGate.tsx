@@ -13,9 +13,10 @@ import { getErrorStatus } from '@/utils/error';
 // - 그 외 에러: NotFound
 // - 성적표 있음: 통과(졸업 판정 등 렌더)
 export default function ReportGate() {
-  const { isPending, isError, error, refetch } = useUserReports();
+  const { isPending, isError, error, refetch, isFetching } = useUserReports();
 
-  if (isPending) {
+  // 최초 조회 중이거나, 에러 화면에서 "다시 시도"로 재요청이 진행 중일 때 로딩을 보여준다.
+  if (isPending || (isError && isFetching)) {
     return <Loading />;
   }
 

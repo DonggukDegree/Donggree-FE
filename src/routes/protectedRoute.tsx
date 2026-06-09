@@ -12,12 +12,13 @@ import { getErrorStatus } from '@/utils/error';
 // 2) 온보딩 게이트: 온보딩 미완료(studentId === null)면 무조건 온보딩 화면으로 강제하고,
 //    완료한 사용자가 온보딩 화면에 진입하면 홈으로 돌려보낸다.
 export default function ProtectedRoute() {
-  const { data, isPending, isError, error, refetch } = useUserInfo();
+  const { data, isPending, isError, error, refetch, isFetching } = useUserInfo();
   const { pathname } = useLocation();
 
   // 인증 확인이 끝날 때까지 기존 공용 로딩 컴포넌트를 보여준다.
   // (이 컴포넌트는 Layout의 Outlet 자리에 렌더되므로 Header/Footer 사이를 flex-1로 채운다)
-  if (isPending) {
+  // 에러 화면에서 "다시 시도"로 재요청이 진행 중일 때도 로딩을 보여준다.
+  if (isPending || (isError && isFetching)) {
     return <Loading />;
   }
 

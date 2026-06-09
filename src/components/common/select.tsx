@@ -13,7 +13,7 @@ export default function Select({ options, placeholder = '선택', className = ''
     <div className="relative w-full">
       <select
         {...props}
-        value={value}
+        value={value ?? ''}
         className={`w-full appearance-none rounded-lg border border-coolgray-30 bg-white py-3 pl-2 pr-7 text-body-m text-coolgray-90 outline-none disabled:cursor-not-allowed disabled:bg-coolgray-10 disabled:text-coolgray-60 ${className}`}
       >
         <option value="" disabled>

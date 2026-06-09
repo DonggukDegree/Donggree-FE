@@ -80,11 +80,15 @@ export default function AcademicRecords() {
   const { mutate: updateCourses, isPending: isSaving } = useUpdateCourses();
 
   // 조회 데이터로 편집 상태를 한 번 초기화한다. (이미 채웠으면 사용자의 편집을 덮어쓰지 않음)
-  // 수정 성공 후 재조회 시 다시 채울 수 있도록 onSuccess에서 seededRef를 리셋한다.
+  // 보기 모드에서는 항상 최신 서버 데이터와 동기화하고(백그라운드 리페치 반영),
+  // 편집 모드에서는 사용자의 입력을 덮어쓰지 않도록 진입 시 최초 1회만 시드한다.
+  // 저장하지 않고 편집을 끄면 보기 모드 동기화로 수정 사항이 자연스럽게 취소된다.
   // 로딩→콘텐츠 전환 시 빈 표가 잠깐 보이지 않도록 페인트 전(useLayoutEffect)에 시드한다.
   useLayoutEffect(() => {
-    if (!data || seededRef.current) return;
-    seededRef.current = true;
+    if (!data) return;
+    // 편집 모드에서 이미 시드를 마쳤다면 사용자의 편집을 보존한다.
+    if (editMode && seededRef.current) return;
+    seededRef.current = editMode;
     setSemesters(
       data.courses.map((semester) => ({
         id: nextId.current++,
@@ -101,7 +105,7 @@ export default function AcademicRecords() {
         })),
       })),
     );
-  }, [data]);
+  }, [data, editMode]);
 
   const hasCourses = semesters.some((semester) => semester.courses.length > 0);
 
@@ -196,12 +200,11 @@ export default function AcademicRecords() {
       };
     });
 
-    // 성공 시 시드 플래그를 리셋해, 재조회로 받은 최신 데이터로 폼을 다시 채우고 보기 모드로 돌아간다.
+    // 성공 시 보기 모드로 돌아간다. (시딩 effect가 보기 모드에서 재조회된 최신 데이터로 폼을 다시 채운다)
     updateCourses(
       { courses },
       {
         onSuccess: () => {
-          seededRef.current = false;
           setEditMode(false);
         },
       },
