@@ -1,7 +1,9 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import Layout from '@/layouts';
 import AcademicRecords from '@/pages/academicRecords';
+import AdminCourseClassifications from '@/pages/admin/courseClassifications';
+import AdminGraduationRequirements from '@/pages/admin/graduationRequirements';
 import AuthCallback from '@/pages/authCallback';
 import Curriculum from '@/pages/curriculum';
 import Graduation from '@/pages/graduation';
@@ -12,6 +14,7 @@ import NotFound from '@/pages/notFound';
 import OnBoarding from '@/pages/onBoarding';
 import Profile from '@/pages/profile';
 import UploadPage from '@/pages/uploadPage';
+import AdminRoute from '@/routes/adminRoute';
 import ProtectedRoute from '@/routes/protectedRoute';
 import ReportGate from '@/routes/reportGate';
 
@@ -46,6 +49,19 @@ export const router = createBrowserRouter([
           },
           { path: 'onboarding', element: <OnBoarding /> },
           { path: 'upload', element: <UploadPage /> },
+          {
+            element: <AdminRoute />,
+            children: [
+              {
+                path: 'admin',
+                children: [
+                  { index: true, element: <Navigate to="course-classifications" replace /> },
+                  { path: 'course-classifications', element: <AdminCourseClassifications /> },
+                  { path: 'graduation-requirements', element: <AdminGraduationRequirements /> },
+                ],
+              },
+            ],
+          },
         ],
       },
       // 정의되지 않은 경로는 인증과 무관하게 NotFound를 보여준다. (public)
