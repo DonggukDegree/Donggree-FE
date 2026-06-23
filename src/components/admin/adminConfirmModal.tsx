@@ -23,7 +23,7 @@ export default function AdminConfirmModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-overlay px-6">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-overlay px-6">
       <div className="flex w-full max-w-xl flex-col gap-8 rounded-2xl bg-white p-10 text-coolgray-90 shadow-xl">
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-2">

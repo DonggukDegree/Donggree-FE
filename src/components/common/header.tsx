@@ -28,7 +28,10 @@ export default function Header() {
       <header className="sticky top-0 z-50 w-full border-b border-coolgray-10 bg-white text-coolgray-90">
         <div className="flex items-center justify-between px-16 py-2">
           <div className="flex items-center gap-12">
-            <Logo className="w-40 h-auto" />
+            {/* 일반 헤더와 동일하게 로고 클릭 시 관리자 메인(/admin)으로 이동하도록 Link로 감싼다. */}
+            <Link to="/admin">
+              <Logo className="hover:cursor-pointer w-40 h-auto" />
+            </Link>
             <div className="flex items-center gap-2 text-button-m">
               {ADMIN_NAV_ITEMS.map((item) => (
                 <Link

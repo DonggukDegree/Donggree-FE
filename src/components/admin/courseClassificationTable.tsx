@@ -21,7 +21,9 @@ export default function CourseClassificationTable({
   onToggleAll,
   onToggleRow,
 }: ICourseClassificationTableProps) {
-  const allChecked = courses.length > 0 && selectedIds.size === courses.length;
+  // 현재 목록(courses)의 모든 과목이 선택되었는지 검사한다.
+  // selectedIds.size 비교 대신 courses.every를 사용해, selectedIds에 현재 목록에 없는 ID가 섞여 있어도 정확히 판정한다.
+  const allChecked = courses.length > 0 && courses.every((course) => selectedIds.has(course.id));
 
   return (
     <section className="flex flex-col gap-5 rounded-2xl border border-coolgray-10 bg-white p-8 shadow-sm">
