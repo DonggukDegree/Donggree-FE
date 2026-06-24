@@ -1,3 +1,4 @@
+import { ADMIN_INPUT_CLASS, SelectChevron } from '@/components/admin/adminFormControls';
 import type {
   TCourseClassificationDraft,
   TCourseClassificationFormState,
@@ -5,25 +6,9 @@ import type {
 import type { TAdminAreaType } from '@/types/admin/TGetAdminAreaTypes';
 import { COURSE_LABEL, COURSE_TYPES } from '@/types/course';
 
-const INPUT_CLASS =
-  'w-full rounded-lg border border-coolgray-20 bg-white px-3 py-2 text-body-s text-coolgray-90 outline-none placeholder:text-coolgray-60 focus:border-primary-60 disabled:bg-coolgray-10 disabled:text-coolgray-60';
+const INPUT_CLASS = ADMIN_INPUT_CLASS;
 
 const BODY_CELL_CLASS = 'px-3 py-3 align-top';
-
-// 네이티브 화살표를 숨긴 select(appearance-none) 위에 커스텀 꺽쇠를 칸 안쪽으로 들여 그린다.
-function SelectChevron() {
-  return (
-    <svg
-      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-coolgray-60"
-      viewBox="0 0 20 20"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="M5 8l5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 interface ICourseClassificationFormRowProps {
   draft: TCourseClassificationDraft;
@@ -53,6 +38,7 @@ export default function CourseClassificationFormRow({
         <input
           value={draft.courseCode}
           disabled={isSaving}
+          placeholder="RGC0003"
           onChange={(event) => onChange(draft.clientId, 'courseCode', event.target.value)}
           className={INPUT_CLASS}
         />
@@ -61,6 +47,7 @@ export default function CourseClassificationFormRow({
         <input
           value={draft.tag}
           disabled={isSaving}
+          placeholder="불교와인간"
           onChange={(event) => onChange(draft.clientId, 'tag', event.target.value)}
           className={INPUT_CLASS}
         />
@@ -70,6 +57,7 @@ export default function CourseClassificationFormRow({
           value={draft.studentYearStart}
           disabled={isSaving}
           inputMode="numeric"
+          placeholder="2023"
           onChange={(event) => onChange(draft.clientId, 'studentYearStart', event.target.value)}
           className={INPUT_CLASS}
         />
@@ -79,6 +67,7 @@ export default function CourseClassificationFormRow({
           value={draft.studentYearEnd}
           disabled={isSaving}
           inputMode="numeric"
+          placeholder="2023"
           onChange={(event) => onChange(draft.clientId, 'studentYearEnd', event.target.value)}
           className={INPUT_CLASS}
         />
@@ -123,6 +112,7 @@ export default function CourseClassificationFormRow({
         <input
           value={draft.subCategory}
           disabled={isSaving}
+          placeholder="필수"
           onChange={(event) => onChange(draft.clientId, 'subCategory', event.target.value)}
           className={INPUT_CLASS}
         />
@@ -131,6 +121,7 @@ export default function CourseClassificationFormRow({
         <input
           value={draft.subjectDomain}
           disabled={isSaving}
+          placeholder="공통교양"
           onChange={(event) => onChange(draft.clientId, 'subjectDomain', event.target.value)}
           className={INPUT_CLASS}
         />
