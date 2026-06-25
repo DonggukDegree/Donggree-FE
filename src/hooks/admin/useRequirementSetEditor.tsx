@@ -125,10 +125,12 @@ export default function useRequirementSetEditor() {
   const changeForm = (field: keyof TRequirementSetFormState, value: string | boolean | number | null) => {
     setForm((prev) => {
       if (field === 'collegeName') {
-        return { ...prev, collegeName: String(value), departmentId: null, departmentName: '' };
+        // value가 string이 아닐 때 'null'/'undefined' 문자열로 저장되지 않도록 방어한다.
+        const collegeName = typeof value === 'string' ? value : '';
+        return { ...prev, collegeName, departmentId: null, departmentName: '' };
       }
       if (field === 'departmentName') {
-        const departmentName = String(value);
+        const departmentName = typeof value === 'string' ? value : '';
         const matchedDepartment =
           formDepartments.find((department) => department.departmentName === departmentName) ??
           departments.find((department) => department.departmentName === departmentName);

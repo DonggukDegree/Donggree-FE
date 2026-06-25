@@ -126,15 +126,20 @@ const buildRuleConfig = (
     return {};
   }
 
-  const requiredCourseSets = parseRequiredCourseSets(draft.requiredCourseSetsText);
-  if (requiredCourseSets.length === 0) {
-    toast.error(`${rowLabel}의 필수 과목 세트를 입력해주세요.`);
-    return null;
+  if (ruleType.typeName === 'THESIS') {
+    const requiredCourseSets = parseRequiredCourseSets(draft.requiredCourseSetsText);
+    if (requiredCourseSets.length === 0) {
+      toast.error(`${rowLabel}의 필수 과목 세트를 입력해주세요.`);
+      return null;
+    }
+    return {
+      exemptStudentTypes: splitList(draft.exemptStudentTypes),
+      requiredCourseSets,
+    };
   }
-  return {
-    exemptStudentTypes: splitList(draft.exemptStudentTypes),
-    requiredCourseSets,
-  };
+
+  // 알 수 없는 규칙 종류는 검증할 수 없으므로 방어적으로 null을 반환한다.
+  return null;
 };
 
 // 폼 draft 한 건을 업서트 요청 항목으로 변환한다. 검증 실패 시 toast 후 null.

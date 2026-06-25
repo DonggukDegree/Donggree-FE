@@ -54,8 +54,11 @@ export const toPositiveInteger = (value: string) => {
 };
 
 // 유한한 숫자만 허용한다. 그 외에는 null. (평점평균처럼 소수 허용)
+// 빈 문자열은 Number('')가 0을 반환하므로, 미입력(빈 값)과 실제 0을 구분하기 위해 먼저 걸러낸다.
 export const toNumber = (value: string) => {
-  const parsed = Number(value.trim());
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const parsed = Number(trimmed);
   if (!Number.isFinite(parsed)) return null;
   return parsed;
 };
