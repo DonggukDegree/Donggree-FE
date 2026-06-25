@@ -65,18 +65,22 @@ export default function CourseClassificationFilters({
         <input
           value={yearInput}
           onChange={(event) => onYearInputChange(event.target.value)}
-          placeholder="예: 2023,2024"
+          placeholder="예: 2023"
           className="rounded-lg border border-coolgray-20 bg-white px-3 py-2 text-body-s text-coolgray-90 outline-none placeholder:text-coolgray-60 focus:border-primary-60"
         />
       </div>
 
       <div className="mt-auto flex justify-end gap-2">
-        <button type="button" className="rounded-full px-5 py-2 text-button-s text-coolgray-60" onClick={onReset}>
+        <button
+          type="button"
+          className="rounded-full px-5 py-2 text-button-s text-coolgray-60 cursor-pointer"
+          onClick={onReset}
+        >
           초기화
         </button>
         <button
           type="button"
-          className="rounded-full bg-primary-60 px-5 py-2 text-button-s text-white hover:opacity-90"
+          className="rounded-full bg-primary-60 px-5 py-2 text-button-s text-white hover:opacity-90 cursor-pointer"
           onClick={onApply}
         >
           필터 적용
