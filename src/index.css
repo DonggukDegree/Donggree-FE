@@ -1,1 +1,177 @@
 @import 'tailwindcss';
+
+@theme {
+  /* Primary */
+  --color-primary-30: #fffaf2;
+  --color-primary-60: #ff952b;
+  --color-primary-90: #ff7124;
+
+  /* Coolgray */
+  --color-coolgray-10: #f2f4f8;
+  --color-coolgray-20: #d9d9d9;
+  --color-coolgray-30: #c1c7cd;
+  --color-coolgray-60: #697077;
+  --color-coolgray-90: #21272a;
+
+  /* Chip */
+  --color-chip-green: #519c66;
+  --color-chip-green-bg: #32936f1f;
+  --color-chip-red: #cc5f5f;
+  --color-chip-red-bg: #f57e771f;
+
+  /* Default */
+  --color-white: #ffffff;
+  --color-alert: #f14c2e;
+  --color-success: #0c1d7c;
+  --color-overlay: #121619bf;
+
+  /* Font Family */
+  --font-pretendard: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+
+  /* Animation */
+  --animate-fade-in-up: fade-in-up 0.6s ease-out both;
+  --animate-fade-in: fade-in 0.3s ease-out both;
+  --animate-float: float 2s ease-in-out infinite;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@layer utilities {
+  /* Heading */
+  .text-heading-1 {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 48px;
+  }
+
+  .text-heading-2 {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 40px;
+  }
+
+  .text-heading-3 {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 36px;
+  }
+
+  .text-heading-4 {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 32px;
+  }
+
+  .text-heading-5 {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 28px;
+  }
+
+  .text-heading-6 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+  }
+
+  /* Button */
+  .text-button-s {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 14px;
+    letter-spacing: 0.2px;
+  }
+
+  .text-button-m {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 16px;
+    letter-spacing: 0.2px;
+  }
+
+  .text-button-l {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 18px;
+    letter-spacing: 0.2px;
+  }
+
+  /* Body */
+  .text-body-xs {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+  }
+
+  .text-body-s {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+  }
+
+  .text-body-m {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+  }
+
+  .text-body-l {
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 28px;
+  }
+
+  /* Shimmer */
+  .text-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--color-coolgray-90) 0%,
+      var(--color-primary-60) 40%,
+      var(--color-primary-90) 50%,
+      var(--color-primary-60) 60%,
+      var(--color-coolgray-90) 100%
+    );
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+  }
+}

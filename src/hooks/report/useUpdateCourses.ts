@@ -1,0 +1,42 @@
+import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+
+import { patchReportCourses } from '@/apis/report/report';
+import { ERROR_CODE } from '@/constants/errorCodes';
+import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
+import { useCoreMutation } from '@/hooks/customQuery';
+import type { TResponseError } from '@/types/common';
+import type { TPatchReportRequest } from '@/types/report/TPatchReport';
+import { getErrorCode, getErrorMessage, getErrorStatus } from '@/utils/error';
+
+// 수강 이력 전체 치환(수정·추가·삭제) 훅.
+// 성공 시 학업 리포트와 졸업 판정 캐시를 무효화한다. (재조회로 재계산된 학점·평점·수정일까지 최신화)
+export default function useUpdateCourses() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return useCoreMutation((body: TPatchReportRequest) => patchReportCourses(body), {
+    onSuccess: () => {
+      // 수강 이력이 바뀌면 totalCredits·gpa·updatedAt도 재계산되므로 조회를 재실행한다.
+      // ['reports'] 접두사로 졸업 판정 요약(['reports','summary'])·영역상세(['reports',{courseType}])도 함께 무효화한다.
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_REPORTS });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REPORTS_ROOT });
+      toast.success('수강 이력이 수정되었어요.');
+    },
+    onError: (error: TResponseError) => {
+      // 성적표가 없으면(404 TRANSCRIPT404_1) 업로드로 유도.
+      if (getErrorStatus(error) === 404) {
+        navigate('/upload', { replace: true });
+        return;
+      }
+      // 허용되지 않은 성적 값.
+      if (getErrorCode(error) === ERROR_CODE.INVALID_GRADE) {
+        toast.error('성적 값이 올바르지 않아요. (예: A+, B0, P)');
+        return;
+      }
+      // 그 외(필수 누락 등)는 서버 메시지를 토스트로 안내.
+      toast.error(getErrorMessage(error) ?? '수강 이력 수정 중 오류가 발생했어요.');
+    },
+  });
+}
