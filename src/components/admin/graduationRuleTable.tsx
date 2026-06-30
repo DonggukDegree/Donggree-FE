@@ -1,3 +1,4 @@
+import TruncatedCell from '@/components/admin/truncatedCell';
 import type { TAdminGraduationRule } from '@/types/admin/TGetGraduationRules';
 import { COURSE_LABEL } from '@/types/course';
 
@@ -54,11 +55,11 @@ export default function GraduationRuleTable({
         <table className="min-w-[1120px] w-full table-fixed border-collapse bg-white">
           <colgroup>
             <col className="w-12" />
-            <col className="w-[22%]" />
+            <col className="w-[32%]" />
             <col className="w-[18%]" />
-            <col className="w-[12%]" />
-            <col className="w-[30%]" />
-            <col className="w-[18%]" />
+            <col className="w-[8%]" />
+            <col className="w-[28%]" />
+            <col className="w-[14%]" />
           </colgroup>
           <thead className="sticky top-0 z-10 bg-primary-30">
             <tr>
@@ -119,16 +120,19 @@ export default function GraduationRuleTable({
                       aria-label={`${rule.ruleName} 선택`}
                     />
                   </td>
-                  <td className={`${BODY_CELL_CLASS} font-semibold`}>
-                    <span className="block truncate">{rule.ruleName}</span>
+                  <td className={BODY_CELL_CLASS}>
+                    {/* 규칙명이 길어 ...로 잘릴 때 커서를 올리면 전체 규칙명을 툴팁으로 보여준다. */}
+                    <TruncatedCell text={rule.ruleName} className="font-semibold" />
                   </td>
                   <td className={BODY_CELL_CLASS}>{rule.typeName}</td>
                   <td className={BODY_CELL_CLASS}>{rule.courseType ? COURSE_LABEL[rule.courseType] : '전체'}</td>
                   <td className={BODY_CELL_CLASS}>
-                    <span className="block truncate">{formatConfig(rule.ruleConfig)}</span>
+                    {/* 설정값도 길어지면 잘리므로 hover 시 전체 값을 툴팁으로 노출한다. */}
+                    <TruncatedCell text={formatConfig(rule.ruleConfig)} />
                   </td>
                   <td className={BODY_CELL_CLASS}>
-                    <span className="block truncate">{rule.description ?? '-'}</span>
+                    {/* 설명도 동일하게 hover 시 전체 내용을 확인할 수 있게 한다. */}
+                    <TruncatedCell text={rule.description ?? '-'} />
                   </td>
                 </tr>
               ))}

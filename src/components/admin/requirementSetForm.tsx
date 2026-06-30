@@ -1,4 +1,6 @@
-import { ADMIN_INPUT_CLASS } from '@/components/admin/adminFormControls';
+import type { ReactNode } from 'react';
+
+import { ADMIN_COMPACT_INPUT_CLASS, ADMIN_INPUT_CLASS } from '@/components/admin/adminFormControls';
 import Button from '@/components/common/button';
 import type { TAdminCollege, TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
 import type { TAdminRequirementSetSummary } from '@/types/admin/TRequirementSets';
@@ -28,6 +30,8 @@ interface IRequirementSetFormProps {
   onNew: () => void;
   onLoadSet: (setId: number) => void;
   onSubmit: () => void;
+  // 버전·활성 정책 콜아웃 아래에 한 줄로 노출할 졸업 세트 필터 슬롯. (인라인 형태의 RequirementSetFilters)
+  filterSlot?: ReactNode;
 }
 
 const INPUT_CLASS = ADMIN_INPUT_CLASS;
@@ -44,6 +48,7 @@ export default function RequirementSetForm({
   onNew,
   onLoadSet,
   onSubmit,
+  filterSlot,
 }: IRequirementSetFormProps) {
   const isEditMode = form.id !== null;
 
@@ -84,27 +89,34 @@ export default function RequirementSetForm({
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr]">
-        <label className="flex flex-col gap-1.5">
-          <span className="text-body-s font-semibold text-coolgray-90">기존 세트 불러오기</span>
-          <select
-            value={form.id ?? ''}
-            disabled={isSaving || isLoadingDetail}
-            onChange={(event) => {
-              if (!event.target.value) return;
-              onLoadSet(Number(event.target.value));
-            }}
-            className={INPUT_CLASS}
-          >
-            <option value="">선택</option>
-            {sets.map((set) => (
-              <option key={set.id} value={set.id}>
-                {set.departmentName} · {set.yearStart}-{set.yearEnd} · v{set.version}
-              </option>
-            ))}
-          </select>
-        </label>
+      {/* 졸업 세트 필터 + 기존 세트 불러오기: 본문 입력값과 구분되도록 primary-30 음영·테두리 박스로 묶고, 불러오기는 오른쪽에 둔다. */}
+      <div className="flex flex-col gap-2 rounded-xl border border-primary-60/20 bg-primary-30 p-4">
+        <span className="text-body-s font-semibold text-primary-90">졸업 세트 필터</span>
+        <div className="flex flex-wrap items-end gap-4">
+          {filterSlot}
+          <label className="ml-auto flex flex-col gap-1">
+            <span className="text-body-xs font-semibold text-coolgray-60">기존 세트 불러오기</span>
+            <select
+              value={form.id ?? ''}
+              disabled={isSaving || isLoadingDetail}
+              onChange={(event) => {
+                if (!event.target.value) return;
+                onLoadSet(Number(event.target.value));
+              }}
+              className={`${ADMIN_COMPACT_INPUT_CLASS} w-64`}
+            >
+              <option value="">선택</option>
+              {sets.map((set) => (
+                <option key={set.id} value={set.id}>
+                  {set.departmentName} · {set.yearStart}-{set.yearEnd} · v{set.version}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </div>
 
+      <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr]">
         <label className="flex flex-col gap-1.5">
           <span className="text-body-s font-semibold text-coolgray-90">단과대</span>
           <input
