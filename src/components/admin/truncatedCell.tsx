@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface ITruncatedCellProps {
@@ -27,6 +27,15 @@ export default function TruncatedCell({ text, className = '' }: ITruncatedCellPr
   };
 
   const handleMouseLeave = () => setTooltipPos(null);
+
+  // 툴팁은 fixed 위치라 한 번 띄운 좌표에 고정된다. 테이블/페이지를 스크롤하면 셀과 어긋나므로,
+  // 툴팁이 떠 있는 동안 스크롤이 감지되면(캡처 단계로 내부 스크롤까지 포함) 툴팁을 닫는다.
+  useEffect(() => {
+    if (!tooltipPos) return;
+    const handleScroll = () => setTooltipPos(null);
+    window.addEventListener('scroll', handleScroll, { capture: true });
+    return () => window.removeEventListener('scroll', handleScroll, { capture: true });
+  }, [tooltipPos]);
 
   return (
     <>
