@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import Button from '@/components/common/button';
 import TextField from '@/components/common/textField';
+import { TERMS_OF_SERVICE_URL } from '@/constants/links';
 import useOnboarding from '@/hooks/auth/useOnboarding';
 import { useModalStore } from '@/stores/modalStore';
 import { validateName, validateStudentId } from '@/utils/validators';
@@ -18,6 +19,8 @@ export default function OnBoardingModal() {
   const [agreedPrivacy, setAgreedPrivacy] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [agreedAge, setAgreedAge] = useState(false);
+  // 개인정보 수집·이용 동의의 '자세히' 토글: 펼치면 수집 항목 안내를 아래로 보여준다.
+  const [showPrivacyDetail, setShowPrivacyDetail] = useState(false);
 
   if (type !== 'onboarding') return null;
 
@@ -44,6 +47,9 @@ export default function OnBoardingModal() {
     setTouched((prev) => ({ ...prev, studentId: true }));
     setStudentIdError(validateStudentId(value));
   };
+
+  // 이름·학번 입력과 필수 동의 3개가 모두 채워지기 전에는 제출 버튼을 비활성(회색)으로 둔다.
+  const isSubmitDisabled = !name || !studentId || !agreedAge || !agreedPrivacy || !agreedTerms || isPending;
 
   // 온보딩 정보 저장. 성공 시 홈 이동은 useOnboarding이 처리하고, 여기서는 모달만 닫는다.
   const handleSubmit = () => {
@@ -112,12 +118,30 @@ export default function OnBoardingModal() {
             />
             <span className="text-body-m">
               [필수] 개인정보 수집·이용 동의 (
-              <a href="#" target="_blank" rel="noopener noreferrer" className="underline">
+              {/* '자세히'는 외부 링크가 아니라 아래로 펼쳐지는 토글. label 안에 있으므로 클릭이 체크박스로 전파되지 않게 막는다. */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowPrivacyDetail((prev) => !prev);
+                }}
+                className="underline cursor-pointer"
+              >
                 자세히
-              </a>
+              </button>
               )
             </span>
           </label>
+          {/* 개인정보 수집·이용 동의 상세: '자세히'를 누르면 펼쳐진다. */}
+          {showPrivacyDetail && (
+            <div className="ml-7 flex flex-col gap-1 rounded-lg bg-coolgray-10 px-4 py-3 text-body-s text-coolgray-90">
+              <span>▸ 수집 목적: 회원 식별, 서비스 제공</span>
+              <span>▸ 수집 항목: 이름, 학번, 이메일</span>
+              <span>▸ 보유 기간: 회원 탈퇴 시까지 (관련 법령에 따라 일정 기간 보관)</span>
+              <span>▸ 거부 권리: 동의를 거부할 수 있으나, 거부 시 서비스 이용이 제한됩니다.</span>
+            </div>
+          )}
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -127,7 +151,14 @@ export default function OnBoardingModal() {
             />
             <span className="text-body-m">
               [필수] 서비스 이용약관 동의 (
-              <a href="#" target="_blank" rel="noopener noreferrer" className="underline">
+              {/* 클릭이 체크박스 토글로 전파되지 않도록 막고, 약관 문서를 새 탭으로 연다. */}
+              <a
+                href={TERMS_OF_SERVICE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="underline"
+              >
                 자세히
               </a>
               )
@@ -135,9 +166,10 @@ export default function OnBoardingModal() {
           </label>
         </div>
         <Button
+          variant={isSubmitDisabled ? 'disabled' : 'primary'}
           className="w-full text-body-l py-3"
           onClick={handleSubmit}
-          disabled={!name || !studentId || !agreedAge || !agreedPrivacy || !agreedTerms || isPending}
+          disabled={isSubmitDisabled}
         >
           동그리 시작하기
         </Button>
