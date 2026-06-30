@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import Chart from '@/assets/icons/chart.svg?react';
 import Warning from '@/assets/icons/warning.svg?react';
@@ -9,6 +10,7 @@ import CourseSummaryCard from '@/components/courseSummaryCard';
 import CourseTabView from '@/components/courseTabView';
 import ProgressBar from '@/components/progressBar';
 import { ERROR_CODE } from '@/constants/errorCodes';
+import { READY_MESSAGE } from '@/constants/links';
 import { TRANSCRIPT_ERROR_MODAL } from '@/constants/report/transcriptErrorModals';
 import useReportSummary from '@/hooks/report/useReportSummary';
 import useInView from '@/hooks/useInView';
@@ -166,7 +168,8 @@ export default function Graduation() {
         <Button variant="outlined" className="w-60" onClick={() => navigate('/my-page/academic-records')}>
           내 학업 정보 수정
         </Button>
-        <Button className="w-60" onClick={() => navigate('/curriculum')}>
+        {/* 커리큘럼 기능은 아직 미개발이라 페이지 이동 대신 준비 중 토스트로 안내한다. */}
+        <Button className="w-60" onClick={() => toast(READY_MESSAGE)}>
           커리큘럼 확인하기
         </Button>
       </div>

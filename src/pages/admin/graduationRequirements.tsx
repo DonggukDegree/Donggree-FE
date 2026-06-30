@@ -127,18 +127,15 @@ export default function AdminGraduationRequirements() {
                 </p>
               </div>
 
-              <RequirementSetFilters
-                colleges={setEditor.colleges}
-                departments={setEditor.filterDepartments}
-                selectedCollegeId={setEditor.filterCollegeId}
-                selectedDepartmentId={setEditor.filterDepartmentId}
-                yearInput={setEditor.filterYear}
-                isLoadingDepartments={setEditor.isFilterDepartmentsLoading}
-                onCollegeChange={setEditor.onCollegeChange}
-                onDepartmentChange={setEditor.onDepartmentChange}
-                onYearChange={setEditor.onYearChange}
-                onApply={setEditor.applyFilters}
-                onReset={setEditor.resetFilters}
+              {/* 세트 관리 탭에서도 하단 졸업 규칙 목록을 좁힐 수 있도록 규칙 관리 탭과 동일한 졸업 규칙 필터를 둔다. */}
+              <GraduationRuleFilters
+                ruleTypes={ruleEditor.ruleTypes}
+                selectedRuleTypeIds={ruleEditor.selectedRuleTypeIds}
+                selectedCourseTypes={ruleEditor.selectedCourseTypes}
+                onRuleTypeToggle={ruleEditor.onRuleTypeToggle}
+                onCourseTypeToggle={ruleEditor.onCourseTypeToggle}
+                onApply={ruleEditor.applyFilters}
+                onReset={ruleEditor.resetFilters}
               />
             </div>
 
@@ -154,6 +151,22 @@ export default function AdminGraduationRequirements() {
               onNew={setEditor.newSet}
               onLoadSet={setEditor.loadSet}
               onSubmit={setEditor.submit}
+              // 기존 졸업 세트 필터는 세트 폼 내부(버전·활성 정책 콜아웃 아래)에 한 줄로 배치한다.
+              filterSlot={
+                <RequirementSetFilters
+                  colleges={setEditor.colleges}
+                  departments={setEditor.filterDepartments}
+                  selectedCollegeId={setEditor.filterCollegeId}
+                  selectedDepartmentId={setEditor.filterDepartmentId}
+                  yearInput={setEditor.filterYear}
+                  isLoadingDepartments={setEditor.isFilterDepartmentsLoading}
+                  onCollegeChange={setEditor.onCollegeChange}
+                  onDepartmentChange={setEditor.onDepartmentChange}
+                  onYearChange={setEditor.onYearChange}
+                  onApply={setEditor.applyFilters}
+                  onReset={setEditor.resetFilters}
+                />
+              }
             />
           </>
         )}

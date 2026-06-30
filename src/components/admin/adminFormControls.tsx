@@ -4,6 +4,10 @@ import type { ReactNode } from 'react';
 export const ADMIN_INPUT_CLASS =
   'w-full rounded-lg border border-coolgray-20 bg-white px-3 py-2 text-body-s text-coolgray-90 outline-none placeholder:text-coolgray-60 focus:border-primary-60 disabled:bg-coolgray-10 disabled:text-coolgray-60';
 
+// 한 줄에 라벨+컨트롤을 좁게 배치하는 컴팩트 입력 스타일. (너비 w-* 는 사용처에서 덧붙인다)
+export const ADMIN_COMPACT_INPUT_CLASS =
+  'rounded-lg border border-coolgray-20 bg-white px-2 py-1.5 text-body-s text-coolgray-90 outline-none placeholder:text-coolgray-60 focus:border-primary-60 disabled:bg-coolgray-10 disabled:text-coolgray-60';
+
 // 네이티브 화살표를 숨긴 select(appearance-none) 위에 커스텀 꺽쇠를 칸 안쪽으로 들여 그린다.
 export function SelectChevron() {
   return (

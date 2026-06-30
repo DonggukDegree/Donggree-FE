@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 
 import Github from '@/assets/github.svg?react';
 import Logo from '@/assets/logo.svg?react';
-import { KAKAO_CHAT_URL, READY_MESSAGE } from '@/constants/links';
+import { KAKAO_CHAT_URL, PRIVACY_POLICY_URL, READY_MESSAGE, TERMS_OF_SERVICE_URL } from '@/constants/links';
 
 // 항목별 동작 구분: 실제 페이지(link), 외부 링크(external), 미개발 안내(toast).
 const NAV_ITEMS = [
@@ -12,7 +12,8 @@ const NAV_ITEMS = [
   { name: '고객지원', type: 'external', href: KAKAO_CHAT_URL },
   { name: '동그리 소개', type: 'toast' },
   { name: '자주 묻는 질문', type: 'toast' },
-  { name: '개인정보처리방침', type: 'toast' },
+  { name: '개인정보처리방침', type: 'external', href: PRIVACY_POLICY_URL },
+  { name: '서비스이용약관', type: 'external', href: TERMS_OF_SERVICE_URL },
 ] as const;
 
 // 모든 항목이 공유하는 스타일.
