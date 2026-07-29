@@ -1,3 +1,8 @@
+/**
+ * [공용] 에러 경계
+ * 렌더링 중 발생한 예외를 잡아 앱 전체가 빈 화면이 되는 것을 막는다.
+ * main.tsx에서 앱 최상단을 감싼다.
+ */
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 import Warning from '@/assets/icons/warning.svg?react';

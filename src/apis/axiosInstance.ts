@@ -1,3 +1,10 @@
+/**
+ * [공용] axios 인스턴스
+ * 모든 API 호출이 지나가는 단일 통로.
+ *  - withCredentials: refreshToken(HttpOnly 쿠키)을 자동으로 실어 보낸다
+ *  - 요청 인터셉터: 메모리에 있는 accessToken을 Authorization 헤더에 붙인다
+ *  - 응답 인터셉터: 401이면 refresh를 '한 번만' 수행하고, 나머지 요청은 그 결과를 기다렸다가 재시도한다
+ */
 import axios from 'axios';
 
 import { hasSessionHint, useAuthStore } from '@/stores/authStore';

@@ -1,3 +1,7 @@
+/**
+ * [공용] 하단 푸터
+ * 서비스 정보와 고객지원·개인정보처리방침·서비스 이용약관 링크를 담는다.
+ */
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 

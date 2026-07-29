@@ -1,5 +1,9 @@
+/**
+ * [커리큘럼] 페이지 (/curriculum)
+ * 단과대·학과별 졸업 커리큘럼을 보여 줄 화면. 아직 API가 없어 목 데이터로 UI만 구성되어 있다.
+ */
 import Folder from '@/assets/icons/folder.svg?react';
-import CollegeSection from '@/components/collegeSection';
+import CollegeSection from '@/components/curriculum/collegeSection';
 import useInView from '@/hooks/useInView';
 
 // TODO: API 연동 시 교체

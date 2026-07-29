@@ -1,3 +1,9 @@
+/**
+ * [공용] TanStack Query 래퍼
+ * 모든 조회·변경 훅은 이 두 함수를 거친다. 캐시 정책과 에러 처리 기본값을 한곳에서 통일하기 위함이다.
+ *  - useCoreQuery : staleTime 5분, 4xx는 재시도하지 않음(재시도해도 결과가 같으므로)
+ *  - useCoreMutation: onError를 주지 않으면 공용 토스트로 안내 (either/or)
+ */
 import {
   type MutationFunction,
   type QueryFunction,

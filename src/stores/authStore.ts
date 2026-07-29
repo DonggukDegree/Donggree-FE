@@ -1,3 +1,9 @@
+/**
+ * [전역 상태] 인증 스토어
+ * accessToken은 XSS 노출을 줄이기 위해 메모리(zustand)에만 두고 저장소에 쓰지 않는다.
+ * refreshToken은 HttpOnly 쿠키라 JS가 볼 수 없으므로, '이 브라우저에서 로그인한 적이 있는지'만
+ * 세션 힌트 플래그로 남겨 불필요한 refresh 요청을 걸러내는 데 쓴다.
+ */
 import { create } from 'zustand';
 
 // "이 브라우저에서 로그인한 적이 있는지"를 나타내는 세션 힌트 키.

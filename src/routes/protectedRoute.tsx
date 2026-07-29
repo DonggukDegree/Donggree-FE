@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import Loading from '@/components/common/loading';
 import useUserInfo from '@/hooks/user/useUserInfo';
-import ServerError from '@/pages/serverError';
+import ServerError from '@/pages/exception/serverError';
 import { getErrorStatus } from '@/utils/error';
 
 // 2단 라우팅 게이트.

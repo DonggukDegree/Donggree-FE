@@ -1,3 +1,8 @@
+/**
+ * [홈] 랜딩 페이지 (/)
+ * 로그인 없이 볼 수 있는 유일한 화면. 서비스 소개와 이용 흐름(PDF 업로드 → 자동 분석 → 리포트)을
+ * 스크롤 진입 애니메이션과 함께 보여 주고, CTA로 업로드/로그인 흐름에 진입시킨다.
+ */
 import { useNavigate } from 'react-router-dom';
 
 import Icon from '@/assets/icon.svg?react';
