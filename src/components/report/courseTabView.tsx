@@ -12,6 +12,7 @@ import AreaDetailCard from '@/components/report/areaDetailCard';
 import useReportDetail from '@/hooks/report/useReportDetail';
 import { COURSE_LABEL, type TCourseType } from '@/types/course';
 import type { TReportItemStatus } from '@/types/report/TGetReportDetail';
+import { trackEvent } from '@/utils/analytics';
 
 // 과목 이수 상태 → 칩 variant 매핑
 const STATUS_TO_CHIP: Record<TReportItemStatus, TChipVariant> = {
@@ -30,6 +31,14 @@ export default function CourseTabView({ courseTypes }: ICourseTabViewProps) {
   // 활성 탭의 courseType으로만 상세를 조회한다(지연 로딩, 탭별 캐시).
   const { data, isPending, isError } = useReportDetail(activeTab);
 
+  // 사용자가 영역 상세 탭을 눌러 리포트를 파고드는지 집계한다. (같은 탭 재클릭은 제외)
+  const handleTabClick = (course: TCourseType) => {
+    if (course !== activeTab) {
+      trackEvent('report_area_tab_click', { course_type: course });
+    }
+    setActiveTab(course);
+  };
+
   return (
     <div className="flex flex-col gap-7 px-8 py-4">
       <div className="w-full border-b border-coolgray-20">
@@ -38,7 +47,7 @@ export default function CourseTabView({ courseTypes }: ICourseTabViewProps) {
             <button
               key={course}
               type="button"
-              onClick={() => setActiveTab(course)}
+              onClick={() => handleTabClick(course)}
               className={`text-heading-5 py-2 cursor-pointer ${
                 activeTab === course ? 'text-primary-90 border-b-2 border-primary-90' : 'text-coolgray-90'
               }`}

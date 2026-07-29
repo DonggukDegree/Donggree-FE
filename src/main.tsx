@@ -12,10 +12,14 @@ import { createRoot } from 'react-dom/client';
 import { Toaster } from 'sonner';
 
 import ErrorBoundary from '@/components/common/errorBoundary';
+import { initGA } from '@/utils/analytics';
 
 import App from './App.tsx';
 
 const queryClient = new QueryClient();
+
+// GA4 초기화(측정 ID가 있을 때만 동작). 렌더 전에 1회 실행해 이후 페이지뷰·이벤트를 받을 준비를 한다.
+initGA();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
