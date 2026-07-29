@@ -1,9 +1,11 @@
+import { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 import Loading from '@/components/common/loading';
 import useUserReports from '@/hooks/report/useUserReports';
 import NotFound from '@/pages/exception/notFound';
 import ServerError from '@/pages/exception/serverError';
+import { setUserProperties } from '@/utils/analytics';
 import { getErrorStatus } from '@/utils/error';
 
 // 리포트(성적표) 존재 게이트.
@@ -13,7 +15,17 @@ import { getErrorStatus } from '@/utils/error';
 // - 그 외 에러: NotFound
 // - 성적표 있음: 통과(졸업 판정 등 렌더)
 export default function ReportGate() {
-  const { isPending, isError, error, refetch, isFetching } = useUserReports();
+  const { data, isPending, isError, error, refetch, isFetching } = useUserReports();
+
+  // 성적표 메타(단과대·학과)를 GA4 사용자 속성으로 설정한다. (PDF 메타에만 있고 회원 API엔 없어 이 시점에 심는다)
+  // 리포트 게이트는 졸업 판정 등 리포트 화면의 길목이라, 여기서 한 번 심으면 이후 이벤트에 세그먼트가 붙는다.
+  useEffect(() => {
+    if (!data) return;
+    setUserProperties({
+      college_name: data.meta.collegeName ?? undefined, // 학과 미등록 시 null → 미설정
+      department: data.meta.department,
+    });
+  }, [data]);
 
   // 최초 조회 중이거나, 에러 화면에서 "다시 시도"로 재요청이 진행 중일 때 로딩을 보여준다.
   if (isPending || (isError && isFetching)) {

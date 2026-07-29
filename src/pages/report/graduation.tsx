@@ -22,6 +22,7 @@ import useReportSummary from '@/hooks/report/useReportSummary';
 import useInView from '@/hooks/useInView';
 import NotFound from '@/pages/exception/notFound';
 import { useModalStore } from '@/stores/modalStore';
+import { trackEvent } from '@/utils/analytics';
 import { getErrorCode } from '@/utils/error';
 
 export default function Graduation() {
@@ -41,6 +42,8 @@ export default function Graduation() {
   const isUnsupportedDept = errorCode === ERROR_CODE.NO_REQUIREMENT;
   useEffect(() => {
     if (!isUnsupportedDept) return;
+    // 적용 가능한 졸업 요건이 없어 리포트를 못 보는 이탈 지점을 집계한다.
+    trackEvent('error_shown', { source: 'graduation', code: ERROR_CODE.NO_REQUIREMENT });
     const modal = TRANSCRIPT_ERROR_MODAL.TRANSCRIPT400_3;
     if (!modal) return;
     openAlert({
@@ -53,6 +56,21 @@ export default function Graduation() {
       onConfirm: () => navigate('/'),
     });
   }, [isUnsupportedDept, openAlert, navigate]);
+
+  // 졸업 판정 리포트를 실제로 확인한 시점(요약 조회 성공). PASS/FAIL·달성률을 함께 집계한다.
+  useEffect(() => {
+    if (!data) return;
+    trackEvent('graduation_check', {
+      graduated: data.summary.graduated,
+      achievement_rate: data.summary.achievementRate,
+    });
+  }, [data]);
+
+  // 하단 버튼 영역이 뷰포트에 들어오면(useInView는 1회만 true) 리포트를 끝까지 스크롤했다고 본다.
+  useEffect(() => {
+    if (!buttonInView) return;
+    trackEvent('graduation_report_complete');
+  }, [buttonInView]);
 
   if (isPending) {
     return <Loading />;
