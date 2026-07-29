@@ -2,8 +2,8 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 import Loading from '@/components/common/loading';
 import useUserReports from '@/hooks/report/useUserReports';
-import NotFound from '@/pages/notFound';
-import ServerError from '@/pages/serverError';
+import NotFound from '@/pages/exception/notFound';
+import ServerError from '@/pages/exception/serverError';
 import { getErrorStatus } from '@/utils/error';
 
 // 리포트(성적표) 존재 게이트.

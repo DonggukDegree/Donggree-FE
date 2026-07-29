@@ -1,3 +1,9 @@
+/**
+ * [전역 상태] 모달 스토어
+ * 화면 어디서든 모달을 열 수 있도록 '무엇을 열지'만 담아 둔다.
+ * 실제 렌더는 레이아웃의 ModalProvider가 type을 보고 결정한다.
+ *  - alert: 아이콘+안내+버튼 하나 / onboarding: 온보딩 입력 / confirm: 관리자 저장 확인
+ */
 import type { ComponentType, ReactNode, SVGProps } from 'react';
 import { create } from 'zustand';
 

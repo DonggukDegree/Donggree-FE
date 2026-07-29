@@ -1,12 +1,20 @@
+/**
+ * [관리자 > 졸업 요건 관리] 페이지 (/admin/graduation-requirements)
+ * '졸업 규칙 관리'와 '졸업 세트 관리' 두 탭으로 이루어진 화면.
+ * 하단의 졸업 규칙 목록은 두 탭이 공유하며, 체크의 의미가 탭마다 다르다.
+ *  - 규칙 관리 탭: 체크한 규칙이 위 수정 폼으로 올라간다.
+ *  - 세트 관리 탭: 체크가 '이 세트에 포함할 규칙' 선택이 된다.
+ * 탭별 상태·저장 로직은 useGraduationRuleEditor / useRequirementSetEditor가 담당한다.
+ */
 import { useState } from 'react';
 
-import GraduationRuleFilters from '@/components/admin/graduationRuleFilters';
-import GraduationRuleForm from '@/components/admin/graduationRuleForm';
-import GraduationRuleTable from '@/components/admin/graduationRuleTable';
-import RequirementSetFilters from '@/components/admin/requirementSetFilters';
-import RequirementSetForm from '@/components/admin/requirementSetForm';
-import useGraduationRuleEditor from '@/hooks/admin/useGraduationRuleEditor';
-import useRequirementSetEditor from '@/hooks/admin/useRequirementSetEditor';
+import GraduationRuleFilters from '@/components/admin/graduationRule/graduationRuleFilters';
+import GraduationRuleForm from '@/components/admin/graduationRule/graduationRuleForm';
+import GraduationRuleTable from '@/components/admin/graduationRule/graduationRuleTable';
+import RequirementSetFilters from '@/components/admin/requirementSet/requirementSetFilters';
+import RequirementSetForm from '@/components/admin/requirementSet/requirementSetForm';
+import useGraduationRuleEditor from '@/hooks/admin/editors/useGraduationRuleEditor';
+import useRequirementSetEditor from '@/hooks/admin/editors/useRequirementSetEditor';
 
 type TGraduationRequirementTab = 'rules' | 'sets';
 
@@ -74,31 +82,20 @@ export default function AdminGraduationRequirements() {
 
         {activeTab === 'rules' ? (
           <>
-            <div className="grid gap-8 lg:grid-cols-2">
-              <div className="min-h-72 rounded-2xl border border-primary-60/20 bg-white p-8 shadow-sm flex flex-col gap-2">
-                <p className="text-body-l text-primary-90">졸업 규칙은 졸업 판정에 쓰이는 단일 조건을 정의합니다.</p>
-                <p className="text-body-m text-coolgray-90">
-                  규칙 종류마다 필요한 설정값이 다르므로, 규칙 종류를 먼저 고른 뒤 나타나는 입력칸을 채워 저장합니다.
-                  이미 존재하는 규칙이 있는지 반드시 확인 후 신규 등록해주세요.
-                </p>
-                <p className="text-body-m text-coolgray-90">없는 유형의 규칙인 경우 관리자에게 문의하세요.</p>
-                <p className="text-body-m text-primary-90">
-                  * 규칙명은 해당 규칙을 통과하지 못한 학생에게 미충족 사유로 안내되므로 명확한 문장으로 작성해주세요.
-                </p>
-                <p className="text-body-m text-primary-90">
-                  * 수정 시 DB에 즉시 반영되므로, 반드시 수정 내용을 검토한 뒤 저장해주세요.
-                </p>
-              </div>
-
-              <GraduationRuleFilters
-                ruleTypes={ruleEditor.ruleTypes}
-                selectedRuleTypeIds={ruleEditor.selectedRuleTypeIds}
-                selectedCourseTypes={ruleEditor.selectedCourseTypes}
-                onRuleTypeToggle={ruleEditor.onRuleTypeToggle}
-                onCourseTypeToggle={ruleEditor.onCourseTypeToggle}
-                onApply={ruleEditor.applyFilters}
-                onReset={ruleEditor.resetFilters}
-              />
+            {/* 안내 콜아웃. 필터가 목록 위로 내려가면서 이 박스가 가로를 꽉 채운다. */}
+            <div className="flex flex-col gap-2 rounded-2xl border border-primary-60/20 bg-white p-8 shadow-sm">
+              <p className="text-body-l text-primary-90">졸업 규칙은 졸업 판정에 쓰이는 단일 조건을 정의합니다.</p>
+              <p className="text-body-m text-coolgray-90">
+                규칙 종류마다 필요한 설정값이 다르므로, 규칙 종류를 먼저 고른 뒤 나타나는 입력칸을 채워 저장합니다. 이미
+                존재하는 규칙이 있는지 반드시 확인 후 신규 등록해주세요.
+              </p>
+              <p className="text-body-m text-coolgray-90">없는 유형의 규칙인 경우 관리자에게 문의하세요.</p>
+              <p className="text-body-m text-primary-90">
+                * 규칙명은 해당 규칙을 통과하지 못한 학생에게 미충족 사유로 안내되므로 명확한 문장으로 작성해주세요.
+              </p>
+              <p className="text-body-m text-primary-90">
+                * 수정 시 DB에 즉시 반영되므로, 반드시 수정 내용을 검토한 뒤 저장해주세요.
+              </p>
             </div>
 
             <GraduationRuleForm
@@ -114,29 +111,16 @@ export default function AdminGraduationRequirements() {
           </>
         ) : (
           <>
-            <div className="grid gap-8 lg:grid-cols-2">
-              <div className="min-h-72 rounded-2xl border border-primary-60/20 bg-white p-8 shadow-sm flex flex-col gap-2">
-                <p className="text-body-l text-primary-90">
-                  졸업 세트는 여러 졸업 규칙을 묶어 특정 학과-학번에 적용하는 졸업 판정 기준입니다.
-                </p>
-                <p className="text-body-m text-coolgray-90">
-                  기존 세트를 불러오거나 신규로 작성한 뒤, 아래 졸업 규칙 목록에서 포함할 규칙을 체크해 저장합니다.
-                </p>
-                <p className="text-body-m text-primary-90">
-                  * 수정 시 DB에 즉시 반영되므로, 반드시 수정 내용을 검토한 뒤 저장해주세요.
-                </p>
-              </div>
-
-              {/* 세트 관리 탭에서도 하단 졸업 규칙 목록을 좁힐 수 있도록 규칙 관리 탭과 동일한 졸업 규칙 필터를 둔다. */}
-              <GraduationRuleFilters
-                ruleTypes={ruleEditor.ruleTypes}
-                selectedRuleTypeIds={ruleEditor.selectedRuleTypeIds}
-                selectedCourseTypes={ruleEditor.selectedCourseTypes}
-                onRuleTypeToggle={ruleEditor.onRuleTypeToggle}
-                onCourseTypeToggle={ruleEditor.onCourseTypeToggle}
-                onApply={ruleEditor.applyFilters}
-                onReset={ruleEditor.resetFilters}
-              />
+            <div className="flex flex-col gap-2 rounded-2xl border border-primary-60/20 bg-white p-8 shadow-sm">
+              <p className="text-body-l text-primary-90">
+                졸업 세트는 여러 졸업 규칙을 묶어 특정 학과-학번에 적용하는 졸업 판정 기준입니다.
+              </p>
+              <p className="text-body-m text-coolgray-90">
+                기존 세트를 불러오거나 신규로 작성한 뒤, 아래 졸업 규칙 목록에서 포함할 규칙을 체크해 저장합니다.
+              </p>
+              <p className="text-body-m text-primary-90">
+                * 수정 시 DB에 즉시 반영되므로, 반드시 수정 내용을 검토한 뒤 저장해주세요.
+              </p>
             </div>
 
             <RequirementSetForm
@@ -163,13 +147,26 @@ export default function AdminGraduationRequirements() {
                   onCollegeChange={setEditor.onCollegeChange}
                   onDepartmentChange={setEditor.onDepartmentChange}
                   onYearChange={setEditor.onYearChange}
-                  onApply={setEditor.applyFilters}
-                  onReset={setEditor.resetFilters}
+                  onSearch={setEditor.searchSets}
                 />
               }
             />
           </>
         )}
+
+        {/* 졸업 규칙 필터와 목록은 두 탭이 공유한다. 필터 바를 목록 바로 위에 가로로 길게 둔다. */}
+        <GraduationRuleFilters
+          ruleTypes={ruleEditor.ruleTypes}
+          requirementSets={ruleEditor.requirementSets}
+          selectedRuleTypeIds={ruleEditor.selectedRuleTypeIds}
+          selectedCourseTypes={ruleEditor.selectedCourseTypes}
+          selectedSetId={ruleEditor.selectedSetId}
+          onRuleTypeToggle={ruleEditor.onRuleTypeToggle}
+          onCourseTypeToggle={ruleEditor.onCourseTypeToggle}
+          onSetChange={ruleEditor.onSetChange}
+          onApply={ruleEditor.applyFilters}
+          onReset={ruleEditor.resetFilters}
+        />
 
         <GraduationRuleTable
           rules={ruleEditor.rules}

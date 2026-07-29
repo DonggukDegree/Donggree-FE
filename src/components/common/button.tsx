@@ -1,3 +1,7 @@
+/**
+ * [공용] 버튼
+ * 서비스 전역에서 쓰는 기본 버튼. variant로 색을 정하고, 'disabled'는 색과 비활성 상태를 함께 바꾼다.
+ */
 type TButtonVariant = 'primary' | 'alert' | 'disabled' | 'outlined';
 
 interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

@@ -1,19 +1,25 @@
+/**
+ * [라우팅] 라우터 정의
+ * 게이트는 3단으로 겹쳐 둔다.
+ *  ProtectedRoute(인증 → 온보딩 강제) → ReportGate(성적표 필요) → AdminRoute(관리자 권한)
+ * 홈·로그인·콜백·404만 인증 없이 접근할 수 있다.
+ */
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import Layout from '@/layouts';
-import AcademicRecords from '@/pages/academicRecords';
 import AdminCourseClassifications from '@/pages/admin/courseClassifications';
 import AdminGraduationRequirements from '@/pages/admin/graduationRequirements';
-import AuthCallback from '@/pages/authCallback';
+import AuthCallback from '@/pages/auth/authCallback';
+import Login from '@/pages/auth/login';
+import OnBoarding from '@/pages/auth/onBoarding';
 import Curriculum from '@/pages/curriculum';
-import Graduation from '@/pages/graduation';
+import NotFound from '@/pages/exception/notFound';
 import Home from '@/pages/home';
-import Login from '@/pages/login';
-import MyPage from '@/pages/myPage';
-import NotFound from '@/pages/notFound';
-import OnBoarding from '@/pages/onBoarding';
-import Profile from '@/pages/profile';
-import UploadPage from '@/pages/uploadPage';
+import AcademicRecords from '@/pages/myPage/academicRecords';
+import MyPage from '@/pages/myPage/index';
+import Profile from '@/pages/myPage/profile';
+import Graduation from '@/pages/report/graduation';
+import UploadPage from '@/pages/report/uploadPage';
 import AdminRoute from '@/routes/adminRoute';
 import ProtectedRoute from '@/routes/protectedRoute';
 import ReportGate from '@/routes/reportGate';

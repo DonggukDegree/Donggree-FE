@@ -1,10 +1,14 @@
+/**
+ * [공용] 상단 헤더
+ * 모든 화면 위에 고정으로 놓이는 내비게이션. 로그인 상태와 관리자 권한에 따라 메뉴가 달라진다.
+ */
 import { Link, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import Headset from '@/assets/headset.svg?react';
 import Logo from '@/assets/logo.svg?react';
 import UserThumb from '@/assets/userThumb.svg?react';
-import AdminModeToggle from '@/components/admin/adminModeToggle';
+import AdminModeToggle from '@/components/admin/common/adminModeToggle';
 import { KAKAO_CHAT_URL, READY_MESSAGE } from '@/constants/links';
 
 // 졸업 판정만 실제 페이지로 연결하고, 커리큘럼은 아직 미개발이라 토스트로 안내한다.

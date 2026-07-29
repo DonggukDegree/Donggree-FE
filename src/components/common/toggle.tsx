@@ -1,3 +1,7 @@
+/**
+ * [공용] 스위치 토글
+ * 학업 정보 관리의 편집 모드 전환, 관리자 화면의 모드 전환 등 on/off 하나를 다루는 곳에 쓴다.
+ */
 interface IToggleProps {
   checked: boolean;
   onChange: (checked: boolean) => void;

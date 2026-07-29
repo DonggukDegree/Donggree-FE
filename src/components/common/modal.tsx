@@ -1,3 +1,8 @@
+/**
+ * [공용] 알림(alert) 모달
+ * 아이콘 + 제목 + 설명 + 버튼 하나로 된 안내 모달. 업로드 실패 안내, 탈퇴 확인 등에 쓴다.
+ * 내용은 modalStore.openAlert로 넣고, 렌더 여부는 ModalProvider가 정한다.
+ */
 import Button from '@/components/common/button';
 import { useModalStore } from '@/stores/modalStore';
 
