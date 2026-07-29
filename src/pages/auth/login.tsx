@@ -5,14 +5,11 @@
  */
 import Kakao from '@/assets/kakao.svg?react';
 import Logo from '@/assets/logo.svg?react';
-import { trackEvent } from '@/utils/analytics';
 
 export default function Login() {
   // 카카오 로그인 시작: 백엔드의 Spring Security OAuth2 진입점으로 이동시킨다.
   // 이후 콜백/토큰 발급은 백엔드가 처리하고 /login/callback으로 돌아온다.
   const handleKakaoLogin = () => {
-    // 외부 이동 직전에 로그인 시도를 집계한다. (실제 성공은 콜백 이후 온보딩/이용 흐름으로 확인)
-    trackEvent('login_click', { method: 'kakao' });
     window.location.href = `${import.meta.env.VITE_API_URL}/oauth2/authorization/kakao`;
   };
 

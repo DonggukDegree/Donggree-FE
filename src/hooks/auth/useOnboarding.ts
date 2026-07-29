@@ -9,7 +9,6 @@ import { useCoreMutation } from '@/hooks/customQuery';
 import { useModalStore } from '@/stores/modalStore';
 import type { TPostOnboardingRequest } from '@/types/auth/TPostOnboarding';
 import type { TResponseError } from '@/types/common';
-import { trackEvent } from '@/utils/analytics';
 import { getErrorCode, getErrorMessage } from '@/utils/error';
 
 // 온보딩 정보 저장 훅
@@ -22,8 +21,6 @@ export default function useOnboarding() {
 
   return useCoreMutation((body: TPostOnboardingRequest) => postOnboarding(body), {
     onSuccess: () => {
-      // 신규 회원이 온보딩(학번·이름)을 마친 시점. 활성화 퍼널의 핵심 지표.
-      trackEvent('onboarding_complete');
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_INFO });
       navigate('/');
     },

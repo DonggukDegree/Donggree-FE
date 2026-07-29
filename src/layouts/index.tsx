@@ -7,12 +7,8 @@ import { Outlet, ScrollRestoration } from 'react-router-dom';
 import Footer from '@/components/common/footer';
 import Header from '@/components/common/header';
 import ModalProvider from '@/components/common/modalProvider';
-import usePageTracking from '@/hooks/usePageTracking';
 
 export default function Layout() {
-  // 라우트 변경마다 GA4 페이지뷰 전송(측정 ID 없으면 no-op).
-  usePageTracking();
-
   return (
     <div className="w-full min-h-dvh flex flex-col">
       <Header />

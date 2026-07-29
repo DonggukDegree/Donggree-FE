@@ -11,7 +11,6 @@ import { useCoreMutation } from '@/hooks/customQuery';
 import { useModalStore } from '@/stores/modalStore';
 import type { TResponseError } from '@/types/common';
 import type { TPutTranscriptResponse } from '@/types/report/TPutTranscript';
-import { trackEvent } from '@/utils/analytics';
 import { getErrorCode, getErrorMessage, getErrorStatus } from '@/utils/error';
 
 // 성적표 PDF 업로드 훅.
@@ -32,9 +31,8 @@ export default function useUploadTranscript() {
       // 사용자 정보 캐시도 무효화해 최신 인증 상태가 반영되게 한다.
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_INFO });
 
-      // 성적표 업로드 성공(졸업 판정 리포트 생성됨). 학점 정합성 여부를 파라미터로 함께 집계한다.
+      // creditGap = 총취득학점 - 과목 학점 합. 0이면 정합성 정상이므로 바로 졸업 판정으로 이동한다.
       const { creditGap } = data.result;
-      trackEvent('pdf_upload', { credit_gap: creditGap, credit_gap_ok: creditGap === 0 });
       if (creditGap === 0) {
         navigate('/graduation');
         return;
@@ -57,9 +55,6 @@ export default function useUploadTranscript() {
     onError: (error: TResponseError) => {
       const status = getErrorStatus(error);
       const code = getErrorCode(error);
-
-      // 사용자가 업로드 단계에서 막힌 지점을 집계한다. (이탈 원인 파악: 미지원 학번/파일 오류 등)
-      trackEvent('error_shown', { source: 'transcript_upload', code, status });
 
       // 회원 조회 실패(404)·서버 내부 오류(500)는 사용자가 조치할 수 없으므로 NotFound로 보낸다.
       if (status === 404 || status === 500) {
