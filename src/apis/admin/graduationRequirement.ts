@@ -46,6 +46,7 @@ export const getAdminGraduationRules = async (filters: TGraduationRuleFilters) =
     params: {
       ruleTypeIds: joinParam(filters.ruleTypeIds),
       courseTypes: joinParam(filters.courseTypes),
+      requirementSetId: filters.requirementSetId,
     },
   });
   return data.result;

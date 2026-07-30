@@ -14,7 +14,6 @@ import type {
 import useUpsertGraduationRules from '@/hooks/admin/mutations/useUpsertGraduationRules';
 import useAdminAreaTypes from '@/hooks/admin/queries/useAdminAreaTypes';
 import useAdminGraduationRules from '@/hooks/admin/queries/useAdminGraduationRules';
-import useAdminRequirementSetDetail from '@/hooks/admin/queries/useAdminRequirementSetDetail';
 import useAdminRequirementSets from '@/hooks/admin/queries/useAdminRequirementSets';
 import useAdminRuleTypes from '@/hooks/admin/queries/useAdminRuleTypes';
 import { useModalStore } from '@/stores/modalStore';
@@ -191,7 +190,6 @@ export default function useGraduationRuleEditor() {
   const [selectedCourseTypes, setSelectedCourseTypes] = useState<TCourseType[]>([]);
   const [selectedSetId, setSelectedSetId] = useState('');
   const [appliedFilters, setAppliedFilters] = useState<TGraduationRuleFilters>({});
-  const [appliedSetId, setAppliedSetId] = useState<number | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [drafts, setDrafts] = useState<TGraduationRuleDraft[]>([]);
 
@@ -199,21 +197,13 @@ export default function useGraduationRuleEditor() {
   const { data: ruleTypes = [], isError: isRuleTypeError } = useAdminRuleTypes();
   // '적용 세트' 필터의 선택지. 필터 없이 전체 세트를 받는다.
   const { data: requirementSets = [] } = useAdminRequirementSets({});
+  // 규칙 종류·이수구분·적용 세트 모두 서버가 AND로 걸러 준다. (requirementSetId 파라미터 지원)
   const {
-    data: allRules = [],
-    isPending: isRulesPending,
+    data: rules = [],
+    isPending: isRulesLoading,
     isError: isRulesError,
   } = useAdminGraduationRules(appliedFilters);
-  // 적용 세트를 걸었을 때만 그 세트의 연결 규칙 ID를 받아 온다.
-  const { data: appliedSet, isPending: isAppliedSetPending } = useAdminRequirementSetDetail(appliedSetId);
   const { mutate: upsertGraduationRules, isPending: isSaving } = useUpsertGraduationRules();
-
-  // 서버의 규칙 조회에는 세트 파라미터가 없어(§5 스펙), 세트 필터는 연결 규칙 ID로 클라이언트에서 교집합을 낸다.
-  // 규칙 종류·이수구분은 이미 서버가 걸러 준 뒤이므로 결과적으로 모든 조건이 AND로 적용된다.
-  const appliedSetRuleIds = appliedSetId !== null && appliedSet ? new Set(appliedSet.graduationRuleIds) : null;
-  const rules = appliedSetRuleIds ? allRules.filter((rule) => appliedSetRuleIds.has(rule.id)) : allRules;
-  // 세트 상세를 기다리는 동안 '결과 없음'이 잠깐 보이지 않도록 로딩으로 묶는다.
-  const isRulesLoading = isRulesPending || (appliedSetId !== null && isAppliedSetPending);
 
   const clearDrafts = () => {
     setSelectedIds(new Set());
@@ -231,11 +221,12 @@ export default function useGraduationRuleEditor() {
   // 목록이 바뀌면 화면에 없는 규칙을 편집 중인 상태가 남지 않도록 draft를 비운다.
   const applyFilters = () => {
     clearDrafts();
+    const requirementSetId = toPositiveInteger(selectedSetId);
     setAppliedFilters({
       ...(selectedRuleTypeIds.length > 0 ? { ruleTypeIds: selectedRuleTypeIds } : {}),
       ...(selectedCourseTypes.length > 0 ? { courseTypes: selectedCourseTypes } : {}),
+      ...(requirementSetId ? { requirementSetId } : {}),
     });
-    setAppliedSetId(selectedSetId ? Number(selectedSetId) : null);
   };
 
   const resetFilters = () => {
@@ -243,7 +234,6 @@ export default function useGraduationRuleEditor() {
     setSelectedCourseTypes([]);
     setSelectedSetId('');
     setAppliedFilters({});
-    setAppliedSetId(null);
     clearDrafts();
   };
 
