@@ -55,12 +55,12 @@ function AcademicRecordsContent({ data }: { data: TGetUserReportsResult }) {
   return (
     <div
       ref={ref}
-      className={`flex flex-col items-center justify-center gap-12 p-20 ${isInView ? 'animate-fade-in-up' : 'opacity-0'}`}
+      className={`flex flex-col items-center justify-center gap-8 lg:gap-12 p-4 lg:p-20 ${isInView ? 'animate-fade-in-up' : 'opacity-0'}`}
     >
-      <div className="flex flex-col items-center gap-12">
-        <Edit className="w-20 h-20" />
+      <div className="flex flex-col items-center gap-8 lg:gap-12">
+        <Edit className="w-10 h-10 lg:w-20 lg:h-20 shrink-0" />
         <div className="flex flex-col items-center gap-7">
-          <p className="text-heading-2 text-coolgray-90">내 학업 정보 관리</p>
+          <p className="text-heading-4 lg:text-heading-2 text-coolgray-90">내 학업 정보 관리</p>
           {/* 보기/편집 전환. 켜는 순간 현재 데이터가 편집용으로 복사되고, 끄면 수정 내용이 버려진다. */}
           <div className="flex items-center gap-2">
             <span className="text-body-m text-primary-60">편집 모드</span>
@@ -71,8 +71,8 @@ function AcademicRecordsContent({ data }: { data: TGetUserReportsResult }) {
 
       {/* 최초 업로드일 / 마지막 수정일 (오른쪽 정렬) */}
       <div className="w-full max-w-5xl flex flex-col items-end">
-        <p className="text-body-m text-coolgray-60">최초 업로드일: {formatDateTime(meta.createdAt)}</p>
-        <p className="text-body-m text-coolgray-60">마지막 수정일: {formatDateTime(meta.updatedAt)}</p>
+        <p className="text-body-s lg:text-body-m text-coolgray-60">최초 업로드일: {formatDateTime(meta.createdAt)}</p>
+        <p className="text-body-s lg:text-body-m text-coolgray-60">마지막 수정일: {formatDateTime(meta.updatedAt)}</p>
       </div>
 
       <BasicInfoSection meta={meta} className={SECTION_CLASS} />
@@ -97,7 +97,7 @@ function AcademicRecordsContent({ data }: { data: TGetUserReportsResult }) {
           <div className="w-full max-w-5xl flex justify-end">
             <Button
               variant={editor.isSaving ? 'disabled' : 'primary'}
-              className="w-40"
+              className="w-40 max-w-full"
               disabled={editor.isSaving}
               onClick={editor.addSemester}
             >
@@ -105,21 +105,22 @@ function AcademicRecordsContent({ data }: { data: TGetUserReportsResult }) {
             </Button>
           </div>
 
-          <p className="text-body-l text-coolgray-60">
+          <p className="text-body-s lg:text-body-l text-coolgray-60">
             *수정한 정보를 기준으로 졸업 판정이 진행되므로, 추가한 수강 이력이 부정확한 경우 정확한 판정이 어려울 수
             있습니다.
           </p>
         </>
       )}
 
-      <div className="flex gap-4">
-        <Button variant="outlined" className="w-40" onClick={() => navigate('/upload')}>
+      {/* 좁은 화면에서 두 버튼이 한 줄에 안 들어가면 줄바꿈한다. (PC는 항상 한 줄이라 변화 없음) */}
+      <div className="flex flex-wrap justify-center gap-4">
+        <Button variant="outlined" className="w-40 max-w-full" onClick={() => navigate('/upload')}>
           PDF 새로 업로드하기
         </Button>
         {editor.editMode && (
           <Button
             variant={editor.hasCourses && !editor.isSaving ? 'primary' : 'disabled'}
-            className="w-40"
+            className="w-40 max-w-full"
             disabled={!editor.hasCourses || editor.isSaving}
             onClick={editor.submit}
           >

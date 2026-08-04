@@ -40,15 +40,16 @@ export default function CourseTabView({ courseTypes }: ICourseTabViewProps) {
   };
 
   return (
-    <div className="flex flex-col gap-7 px-8 py-4">
+    <div className="flex flex-col gap-7 px-0 lg:px-8 py-4">
       <div className="w-full border-b border-coolgray-20">
-        <div className="flex justify-center gap-8">
+        {/* 탭이 한 줄에 안 들어가는 모바일에서는 가운데 정렬 대신 가로 스크롤한다. */}
+        <div className="flex max-lg:justify-start lg:justify-center gap-4 lg:gap-8 max-lg:overflow-x-auto">
           {courseTypes.map((course) => (
             <button
               key={course}
               type="button"
               onClick={() => handleTabClick(course)}
-              className={`text-heading-5 py-2 cursor-pointer ${
+              className={`text-heading-6 lg:text-heading-5 py-2 shrink-0 whitespace-nowrap cursor-pointer ${
                 activeTab === course ? 'text-primary-90 border-b-2 border-primary-90' : 'text-coolgray-90'
               }`}
             >
@@ -65,7 +66,7 @@ export default function CourseTabView({ courseTypes }: ICourseTabViewProps) {
         <p className="py-10 text-center text-body-l text-coolgray-60">정보를 불러오지 못했어요.</p>
       ) : (
         <div key={activeTab} className="flex flex-col gap-7 animate-fade-in">
-          <div className="flex gap-3 overflow-x-auto">
+          <div className="flex gap-3 overflow-x-auto max-lg:pb-2">
             {data.areaDetails.map((area) => (
               <AreaDetailCard
                 key={area.areaName}
@@ -83,9 +84,10 @@ export default function CourseTabView({ courseTypes }: ICourseTabViewProps) {
             ))}
           </div>
 
-          <div className="flex gap-10">
+          {/* 두 요약 박스는 모바일에서 나란히 두기엔 좁아 세로로 쌓는다. */}
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-10">
             <div className="flex-1 border border-coolgray-20 p-4 flex flex-col gap-2">
-              <span className="text-heading-5 text-coolgray-90">미충족 사유</span>
+              <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">미충족 사유</span>
               {data.unsatisfiedReasons.length > 0 ? (
                 data.unsatisfiedReasons.map((reason) => (
                   <span key={reason} className="text-button-m text-alert">
@@ -98,16 +100,16 @@ export default function CourseTabView({ courseTypes }: ICourseTabViewProps) {
             </div>
 
             <div className="flex-1 border border-coolgray-20 p-4 flex flex-col gap-2">
-              <span className="text-heading-5 text-coolgray-90">영역 이수 현황</span>
-              <div className="flex justify-between text-heading-6 text-coolgray-90">
+              <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">영역 이수 현황</span>
+              <div className="flex justify-between gap-2 text-heading-6 text-coolgray-90">
                 <span>이수 학점</span>
                 <span>{data.creditStatus.earnedCredits}학점</span>
               </div>
-              <div className="flex justify-between text-heading-6 text-coolgray-90">
+              <div className="flex justify-between gap-2 text-heading-6 text-coolgray-90">
                 <span>목표 이수 학점</span>
                 <span>{data.creditStatus.targetCredits}학점</span>
               </div>
-              <div className="flex justify-between text-heading-6 text-coolgray-90">
+              <div className="flex justify-between gap-2 text-heading-6 text-coolgray-90">
                 <span>잔여 학점</span>
                 <span className="text-primary-60">{data.creditStatus.remainingCredits}학점</span>
               </div>

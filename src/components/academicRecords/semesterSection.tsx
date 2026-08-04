@@ -37,7 +37,7 @@ export default function SemesterSection({
   return (
     <div className={className}>
       {editMode ? (
-        <div className="flex items-center gap-3">
+        <div className="flex w-full lg:w-auto items-center gap-3">
           <TextField
             placeholder="학기 (예: 2024-1)"
             value={semester.name}
@@ -47,31 +47,40 @@ export default function SemesterSection({
           <RowDeleteButton label="학기 삭제" disabled={isSaving} onClick={onRemoveSemester} />
         </div>
       ) : (
-        <p className="text-heading-3 text-coolgray-90">{semester.name}</p>
+        <p className="text-heading-5 lg:text-heading-3 text-coolgray-90">{semester.name}</p>
       )}
 
       <div className="w-full">
-        {/* 열 헤더. 마지막 빈 칸은 각 행의 삭제 버튼 자리와 폭을 맞추기 위한 것이다. */}
-        <div className="flex w-full border-b border-coolgray-20 py-3">
-          {COLUMNS.map((column) => (
-            <div key={column.key} className={`${column.width} text-center text-heading-6 text-coolgray-90`}>
-              {column.label}
+        {/*
+          8열짜리 표라 모바일 폭에는 들어가지 않는다. 열을 접는 대신 표만 가로로 스크롤시킨다.
+          min-w는 PC 컨테이너(max-w-5xl)보다 작아 lg 이상에서는 아무 영향이 없다.
+        */}
+        <div className="w-full overflow-x-auto">
+          <div className="w-full min-w-[720px]">
+            {/* 열 헤더. 마지막 빈 칸은 각 행의 삭제 버튼 자리와 폭을 맞추기 위한 것이다. */}
+            <div className="flex w-full border-b border-coolgray-20 py-3">
+              {COLUMNS.map((column) => (
+                <div key={column.key} className={`${column.width} text-center text-heading-6 text-coolgray-90`}>
+                  {column.label}
+                </div>
+              ))}
+              <div className={ACTION_COLUMN_WIDTH} />
             </div>
-          ))}
-          <div className={ACTION_COLUMN_WIDTH} />
+
+            {semester.courses.map((course) => (
+              <CourseRow
+                key={course.id}
+                course={course}
+                editMode={editMode}
+                isSaving={isSaving}
+                onChange={(field, value) => onCourseChange(course.id, field, value)}
+                onRemove={() => onRemoveCourse(course.id)}
+              />
+            ))}
+          </div>
         </div>
 
-        {semester.courses.map((course) => (
-          <CourseRow
-            key={course.id}
-            course={course}
-            editMode={editMode}
-            isSaving={isSaving}
-            onChange={(field, value) => onCourseChange(course.id, field, value)}
-            onRemove={() => onRemoveCourse(course.id)}
-          />
-        ))}
-
+        {/* '추가'는 스크롤 영역 밖에 둬야 좁은 화면에서도 옆으로 밀지 않고 바로 누를 수 있다. */}
         {editMode && (
           <div className="flex w-full justify-end py-3">
             <Button

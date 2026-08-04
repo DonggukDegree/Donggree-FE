@@ -11,8 +11,9 @@ interface IProgressBarProps {
 export default function ProgressBar({ progress, animate = true }: IProgressBarProps) {
   const clampedProgress = Math.round(Math.min(100, Math.max(0, progress)));
 
+  // max-w-full은 모바일 대응. 부모가 600px보다 넓은 PC에서는 그대로 w-150이다.
   return (
-    <div className="w-150 bg-primary-30 rounded-full h-7 relative overflow-hidden">
+    <div className="w-150 max-w-full bg-primary-30 rounded-full h-7 relative overflow-hidden">
       <div
         className="h-7 rounded-full"
         style={{

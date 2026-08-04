@@ -18,13 +18,13 @@ export default function ServerError({ onRetry }: IServerErrorProps) {
   };
 
   return (
-    <div className="w-full flex-1 flex flex-col items-center justify-center gap-12">
-      <Warning className="w-20 h-20" />
-      <div className="flex flex-col items-center gap-1">
-        <p className="text-primary-60 text-heading-1">500</p>
-        <p className="text-coolgray-90 text-heading-4">서버에 연결할 수 없어요.</p>
+    <div className="w-full flex-1 flex flex-col items-center justify-center gap-8 lg:gap-12 px-6 lg:px-0 py-10 lg:py-0">
+      <Warning className="w-10 h-10 lg:w-20 lg:h-20 shrink-0" />
+      <div className="flex flex-col items-center gap-1 max-lg:text-center">
+        <p className="text-primary-60 text-heading-2 lg:text-heading-1">500</p>
+        <p className="text-coolgray-90 text-heading-6 lg:text-heading-4">서버에 연결할 수 없어요.</p>
       </div>
-      <Button variant="outlined" className="w-40" onClick={handleRetry}>
+      <Button variant="outlined" className="w-40 max-w-full" onClick={handleRetry}>
         다시 시도
       </Button>
     </div>

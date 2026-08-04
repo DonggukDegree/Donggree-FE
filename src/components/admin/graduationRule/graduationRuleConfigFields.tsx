@@ -18,6 +18,13 @@ import { COURSE_LABEL, COURSE_TYPES, type TCourseType } from '@/types/course';
 
 const COURSE_TYPE_OPTIONS = COURSE_TYPES.map((courseType) => ({ value: courseType, label: COURSE_LABEL[courseType] }));
 
+// MIN_CREDITS의 pdfAreaNames 선택지. 전공 과목은 과목 분류에 등록되어 있지 않아
+// 전공기초/전공전문 구분이 성적표 PDF의 영역 원문에만 있어서 쓰는 선택자다.
+const PDF_AREA_NAME_OPTIONS = [
+  { value: '기초', label: '기초 (전공기초)' },
+  { value: '전문', label: '전문 (전공전문)' },
+];
+
 interface IGraduationRuleConfigFieldsProps {
   selectedRuleType: TAdminRuleType | null;
   draft: TGraduationRuleDraft;
@@ -55,6 +62,15 @@ export default function GraduationRuleConfigFields({
     );
   };
 
+  const togglePdfAreaName = (pdfAreaName: string) => {
+    onFieldChange(
+      'pdfAreaNames',
+      draft.pdfAreaNames.includes(pdfAreaName)
+        ? draft.pdfAreaNames.filter((value) => value !== pdfAreaName)
+        : [...draft.pdfAreaNames, pdfAreaName],
+    );
+  };
+
   return (
     <div className="mt-4 rounded-xl bg-primary-30/40 p-4">
       {!selectedRuleType && (
@@ -85,46 +101,98 @@ export default function GraduationRuleConfigFields({
         </label>
       )}
 
-      {selectedRuleType?.typeName === 'MIN_AREA_CREDITS' && (
-        <div className="grid gap-3 md:grid-cols-3">
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>이수구분</FieldLabel>
-            <div className="relative">
-              <select
-                value={draft.courseType}
+      {/*
+        MIN_CREDITS: 옛 MIN_AREA_CREDITS + SCIENCE_EXPERIMENT를 합친 규칙.
+        선택자 4종은 서로 OR(합집합)로 묶이고, 임계값 2종은 AND(둘 다 지정하면 둘 다 충족)다.
+        선택자를 모두 비우면 이수구분 전체가 대상이 된다. 임계값은 최소 하나가 있어야 한다.
+      */}
+      {selectedRuleType?.typeName === 'MIN_CREDITS' && (
+        <div className="flex flex-col gap-3">
+          <p className="text-body-xs text-coolgray-60">
+            선택자(영역명 · 소분류 · PDF 영역 · 학수번호)는 <b>OR로 합쳐지고</b>, 모두 비우면 이수구분 전체가
+            대상입니다. 임계값(최소 학점 · 최소 과목 수)은 <b>지정한 것을 모두 충족</b>해야 하며 최소 하나는 필요합니다.
+          </p>
+          <div className="grid gap-3 md:grid-cols-3">
+            <label className="flex flex-col gap-1.5">
+              <FieldLabel>이수구분</FieldLabel>
+              <div className="relative">
+                <select
+                  value={draft.courseType}
+                  disabled={isSaving}
+                  onChange={(event) => onFieldChange('courseType', event.target.value)}
+                  className={`${ADMIN_INPUT_CLASS} ${SELECT_RESET_CLASS}`}
+                >
+                  <option value="">지정 안 함</option>
+                  {COURSE_TYPES.map((courseType) => (
+                    <option key={courseType} value={courseType}>
+                      {COURSE_LABEL[courseType]}
+                    </option>
+                  ))}
+                </select>
+                <SelectChevron />
+              </div>
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <FieldLabel>영역명 (선택자)</FieldLabel>
+              <MultiSelectDropdown
+                options={areaNameOptions}
+                selectedValues={draft.areaNames}
+                onToggle={toggleAreaName}
+                allLabel="전체 영역"
                 disabled={isSaving}
-                onChange={(event) => onFieldChange('courseType', event.target.value)}
-                className={`${ADMIN_INPUT_CLASS} ${SELECT_RESET_CLASS}`}
-              >
-                <option value="">선택</option>
-                {COURSE_TYPES.map((courseType) => (
-                  <option key={courseType} value={courseType}>
-                    {COURSE_LABEL[courseType]}
-                  </option>
-                ))}
-              </select>
-              <SelectChevron />
-            </div>
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>영역명</FieldLabel>
-            <MultiSelectDropdown
-              options={areaNameOptions}
-              selectedValues={draft.areaNames}
-              onToggle={toggleAreaName}
-              allLabel="전체 영역"
-              disabled={isSaving}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>최소 학점</FieldLabel>
-            <TextInput
-              value={draft.minCredits}
-              disabled={isSaving}
-              placeholder="17"
-              onChange={(value) => onFieldChange('minCredits', value)}
-            />
-          </label>
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <FieldLabel>PDF 영역 (선택자)</FieldLabel>
+              <MultiSelectDropdown
+                options={PDF_AREA_NAME_OPTIONS}
+                selectedValues={draft.pdfAreaNames}
+                onToggle={togglePdfAreaName}
+                allLabel="지정 안 함"
+                disabled={isSaving}
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <FieldLabel>소분류 (선택자)</FieldLabel>
+              <TextInput
+                value={draft.subCategories}
+                disabled={isSaving}
+                placeholder="실험"
+                onChange={(value) => onFieldChange('subCategories', value)}
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <FieldLabel>학수번호 (선택자)</FieldLabel>
+              <TextInput
+                value={draft.courseCodes}
+                disabled={isSaving}
+                placeholder="DAI* (끝의 *는 접두어 일치)"
+                onChange={(value) => onFieldChange('courseCodes', value)}
+              />
+            </label>
+          </div>
+
+          {/* 임계값은 선택자와 성격이 달라 줄을 나눠 둔다. */}
+          <div className="grid gap-3 border-t border-coolgray-20 pt-3 md:grid-cols-3">
+            <label className="flex flex-col gap-1.5">
+              <FieldLabel>최소 학점 (임계값)</FieldLabel>
+              <TextInput
+                value={draft.minCredits}
+                disabled={isSaving}
+                placeholder="17"
+                onChange={(value) => onFieldChange('minCredits', value)}
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <FieldLabel>최소 과목 수 (임계값)</FieldLabel>
+              <TextInput
+                value={draft.minCount}
+                disabled={isSaving}
+                placeholder="1"
+                onChange={(value) => onFieldChange('minCount', value)}
+              />
+            </label>
+          </div>
         </div>
       )}
 
@@ -231,24 +299,21 @@ export default function GraduationRuleConfigFields({
         </div>
       )}
 
-      {selectedRuleType?.typeName === 'SCIENCE_EXPERIMENT' && (
-        <label className="flex max-w-xs flex-col gap-1.5">
-          <FieldLabel>최소 이수 개수</FieldLabel>
-          <TextInput
-            value={draft.minCount}
-            disabled={isSaving}
-            placeholder="1"
-            onChange={(value) => onFieldChange('minCount', value)}
-          />
-        </label>
-      )}
-
       {selectedRuleType?.typeName === 'SCIENCE_CONFLICT' && (
         <p className="text-body-s text-coolgray-60">입력값이 없는 고정 규칙입니다. 저장 시 빈 객체가 전송됩니다.</p>
       )}
 
+      {/*
+        THESIS: 필수 과목 세트를 채우면 그 과목 이수로 판정하고(컴퓨터·AI학부 종합설계),
+        비워 두면 성적표 PDF의 졸업논문심사 합격 여부로 판정한다(대부분의 학과).
+        적용 학과는 규칙이 아니라 졸업 요건 세트가 정하므로 여기에 학과 입력은 없다.
+      */}
       {selectedRuleType?.typeName === 'THESIS' && (
         <div className="grid gap-3">
+          <p className="text-body-xs text-coolgray-60">
+            필수 과목 세트를 <b>비워 두면</b> 성적표의 졸업논문심사 합격으로 판정합니다. 채우면 그 과목들의 이수로
+            판정합니다. 면제 학생유형은 두 경우 모두 우선 적용됩니다.
+          </p>
           <label className="flex flex-col gap-1.5">
             <FieldLabel>면제 학생유형</FieldLabel>
             <TextInput

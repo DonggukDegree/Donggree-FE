@@ -16,8 +16,9 @@ interface ITextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 // variant별 [바깥 래퍼 너비, 입력칸 스타일, 에러가 없을 때의 테두리]
+// default의 max-w-full은 모바일 대응. 부모가 320px보다 좁을 때만 관여하므로 PC 폭은 그대로 w-80이다.
 const VARIANT_STYLES: Record<TTextFieldVariant, { wrapper: string; input: string; border: string }> = {
-  default: { wrapper: 'w-80', input: INPUT_CLASS, border: 'border-coolgray-30' },
+  default: { wrapper: 'w-80 max-w-full', input: INPUT_CLASS, border: 'border-coolgray-30' },
   admin: { wrapper: 'w-full', input: ADMIN_INPUT_BASE_CLASS, border: 'border-coolgray-20' },
 };
 

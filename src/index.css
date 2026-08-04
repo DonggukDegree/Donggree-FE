@@ -73,105 +73,111 @@
   }
 }
 
-@layer utilities {
-  /* Heading */
-  .text-heading-1 {
-    font-size: 40px;
-    font-weight: 700;
-    line-height: 48px;
-  }
+/*
+ * 타이포그래피 유틸.
+ * @layer utilities가 아니라 @utility로 정의한다. Tailwind v4에서 @layer utilities에 손으로 적은
+ * 클래스는 그냥 통과되는 CSS라 lg:·hover: 같은 변형이 생성되지 않고, 생성된 코어 유틸보다
+ * 뒤에 놓여 미디어쿼리와 무관하게 항상 이겨 버린다. @utility로 등록해야 반응형 크기를 줄 수 있다.
+ * 선언값은 그대로이므로 기존 화면의 렌더 결과는 달라지지 않는다.
+ */
 
-  .text-heading-2 {
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 40px;
-  }
+/* Heading */
+@utility text-heading-1 {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 48px;
+}
 
-  .text-heading-3 {
-    font-size: 28px;
-    font-weight: 600;
-    line-height: 36px;
-  }
+@utility text-heading-2 {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 40px;
+}
 
-  .text-heading-4 {
-    font-size: 24px;
-    font-weight: 700;
-    line-height: 32px;
-  }
+@utility text-heading-3 {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 36px;
+}
 
-  .text-heading-5 {
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 28px;
-  }
+@utility text-heading-4 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+}
 
-  .text-heading-6 {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 24px;
-  }
+@utility text-heading-5 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
 
-  /* Button */
-  .text-button-s {
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 14px;
-    letter-spacing: 0.2px;
-  }
+@utility text-heading-6 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
 
-  .text-button-m {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 16px;
-    letter-spacing: 0.2px;
-  }
+/* Button */
+@utility text-button-s {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.2px;
+}
 
-  .text-button-l {
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 18px;
-    letter-spacing: 0.2px;
-  }
+@utility text-button-m {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.2px;
+}
 
-  /* Body */
-  .text-body-xs {
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 16px;
-  }
+@utility text-button-l {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.2px;
+}
 
-  .text-body-s {
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 20px;
-  }
+/* Body */
+@utility text-body-xs {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
 
-  .text-body-m {
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 24px;
-  }
+@utility text-body-s {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
 
-  .text-body-l {
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 28px;
-  }
+@utility text-body-m {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
 
-  /* Shimmer */
-  .text-shimmer {
-    background: linear-gradient(
-      90deg,
-      var(--color-coolgray-90) 0%,
-      var(--color-primary-60) 40%,
-      var(--color-primary-90) 50%,
-      var(--color-primary-60) 60%,
-      var(--color-coolgray-90) 100%
-    );
-    background-size: 200% auto;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmer 3s linear infinite;
-  }
+@utility text-body-l {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 28px;
+}
+
+/* Shimmer */
+@utility text-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-coolgray-90) 0%,
+    var(--color-primary-60) 40%,
+    var(--color-primary-90) 50%,
+    var(--color-primary-60) 60%,
+    var(--color-coolgray-90) 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
 }

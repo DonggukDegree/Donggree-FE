@@ -31,13 +31,14 @@ export default function BasicInfoSection({ meta, className = '' }: IBasicInfoSec
 
   return (
     <div className={className}>
-      <p className="text-heading-3 text-coolgray-90">기본 정보</p>
+      <p className="text-heading-5 lg:text-heading-3 text-coolgray-90">기본 정보</p>
       {/* 블록 자체는 가운데 정렬하되, 값(2열)은 같은 시작점에서 왼쪽 정렬한다. */}
-      <div className="grid grid-cols-[auto_auto] gap-x-40 gap-y-3">
+      {/* 모바일에서는 두 열 사이 160px 간격이 화면을 넘겨 좁힌다. */}
+      <div className="grid grid-cols-[auto_auto] gap-x-8 lg:gap-x-40 gap-y-3">
         {items.map(({ label, value }) => (
           <Fragment key={label}>
-            <span className="text-heading-5 text-coolgray-90">{label}</span>
-            <span className="text-body-l text-coolgray-90">{value}</span>
+            <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">{label}</span>
+            <span className="text-body-s lg:text-body-l text-coolgray-90">{value}</span>
           </Fragment>
         ))}
       </div>
