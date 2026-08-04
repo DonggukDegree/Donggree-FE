@@ -56,11 +56,11 @@ export default function Profile() {
   return (
     <div
       ref={ref}
-      className={`flex flex-col items-center justify-center gap-12 p-20 ${isInView ? 'animate-fade-in-up' : 'opacity-0'}`}
+      className={`flex flex-col items-center justify-center gap-8 lg:gap-12 p-6 lg:p-20 ${isInView ? 'animate-fade-in-up' : 'opacity-0'}`}
     >
-      <div className="flex flex-col items-center gap-12">
-        <User className="w-20 h-20" />
-        <p className="text-heading-2 text-coolgray-90">프로필 관리</p>
+      <div className="flex flex-col items-center gap-8 lg:gap-12">
+        <User className="w-10 h-10 lg:w-20 lg:h-20 shrink-0" />
+        <p className="text-heading-4 lg:text-heading-2 text-coolgray-90">프로필 관리</p>
       </div>
 
       {/*
@@ -149,27 +149,33 @@ function ProfileUserForm({ user, onDeleteAccount }: IProfileUserFormProps) {
 
   return (
     <>
-      <div className="flex w-full items-center justify-center gap-15">
-        <div className="flex flex-1 justify-end p-4">
+      {/* 프로필 이미지와 입력 폼은 모바일에서 좌우로 나눌 폭이 없어 세로로 쌓는다. */}
+      <div className="flex flex-col lg:flex-row w-full items-center justify-center gap-8 lg:gap-15">
+        <div className="flex flex-1 max-lg:justify-center lg:justify-end p-4">
           <div className="flex flex-col items-center gap-6">
-            <ProfileImage className="h-30 w-30" />
+            <ProfileImage className="h-15 w-15 lg:h-30 lg:w-30 shrink-0" />
             <div className="flex flex-col items-center gap-2">
               {/* 프로필 사진 변경: 업로드 API 미구현이라 준비 중 안내만 한다. */}
-              <Button variant="outlined" className="w-30" onClick={() => toast(READY_MESSAGE)}>
+              {/* '이미지 업로드'가 두 줄로 접히지 않을 만큼은 남겨 둔다. */}
+              <Button
+                variant="outlined"
+                className="w-30 max-w-full whitespace-nowrap"
+                onClick={() => toast(READY_MESSAGE)}
+              >
                 이미지 업로드
               </Button>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col items-start gap-6 p-4">
+        <div className="w-full lg:w-auto flex flex-1 flex-col items-start gap-6 p-4">
           {/* 본인 인증 상태 칩 (맨 위, 왼쪽 정렬) */}
           <Chip
             variant={identityVerified ? 'satisfied' : 'unsatisfied'}
             label={identityVerified ? '본인 인증 완료' : '본인 인증 미완료'}
           />
 
-          <div className="flex flex-col items-start gap-1">
+          <div className="w-full lg:w-auto flex flex-col items-start gap-1">
             <p className="text-body-m text-coolgray-90">학번</p>
             <TextField
               placeholder="학번을 입력해주세요"
@@ -182,7 +188,7 @@ function ProfileUserForm({ user, onDeleteAccount }: IProfileUserFormProps) {
             />
           </div>
 
-          <div className="flex flex-col items-start gap-1">
+          <div className="w-full lg:w-auto flex flex-col items-start gap-1">
             <p className="text-body-m text-coolgray-90">이름</p>
             <TextField
               placeholder="이름을 입력해주세요"
@@ -194,7 +200,7 @@ function ProfileUserForm({ user, onDeleteAccount }: IProfileUserFormProps) {
             />
           </div>
 
-          <div className="flex flex-col items-start gap-1">
+          <div className="w-full lg:w-auto flex flex-col items-start gap-1">
             <p className="text-body-m text-coolgray-90">닉네임</p>
             <TextField
               placeholder="닉네임을 입력해주세요"
@@ -208,11 +214,12 @@ function ProfileUserForm({ user, onDeleteAccount }: IProfileUserFormProps) {
       </div>
 
       {/* 하단 버튼 행: 수정하기 / 탈퇴하기 (탈퇴 확인 모달은 페이지가 연다) */}
-      <div className="flex items-center gap-4">
-        <Button className="w-40" onClick={handleSubmit} disabled={isUpdating}>
+      {/* 좁은 화면에서 두 버튼이 한 줄에 안 들어가면 줄바꿈한다. (PC는 항상 한 줄이라 변화 없음) */}
+      <div className="flex flex-wrap items-center justify-center gap-4">
+        <Button className="w-40 max-w-full" onClick={handleSubmit} disabled={isUpdating}>
           수정하기
         </Button>
-        <Button variant="alert" className="w-40" onClick={onDeleteAccount}>
+        <Button variant="alert" className="w-40 max-w-full" onClick={onDeleteAccount}>
           탈퇴하기
         </Button>
       </div>

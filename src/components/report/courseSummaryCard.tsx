@@ -37,11 +37,12 @@ export default function CourseSummaryCard({
   const filledLength = arcLength * (animatedProgress / 100);
   const gradientId = `highlight-${courseType}`;
 
+  // 가로 스크롤 목록 안에 놓이므로 shrink-0으로 카드 폭이 눌리지 않게 한다.
   return (
-    <div className="border border-primary-60 p-4 flex flex-col gap-4 text-coolgray-90 rounded-sm">
-      <p className="text-heading-5">{COURSE_LABEL[courseType]}</p>
+    <div className="shrink-0 border border-primary-60 p-4 flex flex-col gap-4 text-coolgray-90 rounded-sm">
+      <p className="text-heading-6 lg:text-heading-5 whitespace-nowrap">{COURSE_LABEL[courseType]}</p>
       <div className="flex flex-col items-center">
-        <svg viewBox="0 0 100 100" className="w-50 h-50">
+        <svg viewBox="0 0 100 100" className="w-36 h-36 lg:w-50 lg:h-50">
           <defs>
             <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="white" stopOpacity="0.6" />
@@ -101,13 +102,15 @@ export default function CourseSummaryCard({
         </svg>
       </div>
       <div className="flex flex-col gap-1">
-        <div className="flex justify-between">
-          <span className="text-heading-5">잔여 학점</span>
-          <span className="text-heading-5 text-primary-60">{remainingCredits}</span>
+        <div className="flex justify-between gap-3">
+          <span className="text-heading-6 lg:text-heading-5 whitespace-nowrap">잔여 학점</span>
+          <span className="text-heading-6 lg:text-heading-5 text-primary-60">{remainingCredits}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-heading-5">충족 여부</span>
-          <span className={`text-heading-5 font-bold ${status === 'PASS' ? 'text-primary-60' : 'text-coolgray-30'}`}>
+        <div className="flex justify-between gap-3">
+          <span className="text-heading-6 lg:text-heading-5 whitespace-nowrap">충족 여부</span>
+          <span
+            className={`text-heading-6 lg:text-heading-5 font-bold ${status === 'PASS' ? 'text-primary-60' : 'text-coolgray-30'}`}
+          >
             {status}
           </span>
         </div>

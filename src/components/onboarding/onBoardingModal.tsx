@@ -74,13 +74,17 @@ export default function OnBoardingModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-overlay">
-      <div className="rounded-2xl bg-white py-10 px-60 flex flex-col items-center gap-5 text-coolgray-90">
-        <div className="flex flex-col items-center gap-2">
-          <h2 className="text-heading-2">동그리가 처음이신가요?</h2>
-          <p className="text-body-l">서비스 이용에 필요한 기본 정보를 입력해주세요.</p>
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-overlay p-4 lg:p-0">
+      {/*
+        PC는 px-60(좌우 240px)으로 폭을 만들지만 모바일에서는 그 여백이 화면보다 넓다.
+        모바일에서는 셸과 같은 640px 상한을 두고, 동의 항목까지 길어지므로 모달 안에서 세로 스크롤한다.
+      */}
+      <div className="w-full max-w-160 max-h-[90dvh] overflow-y-auto lg:w-auto lg:max-w-none rounded-2xl bg-white py-8 lg:py-10 px-6 lg:px-60 flex flex-col items-center gap-5 text-coolgray-90">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <h2 className="text-heading-4 lg:text-heading-2">동그리가 처음이신가요?</h2>
+          <p className="text-body-s lg:text-body-l">서비스 이용에 필요한 기본 정보를 입력해주세요.</p>
         </div>
-        <div className="flex flex-col gap-3">
+        <div className="w-full lg:w-auto flex flex-col gap-3">
           <label className="flex flex-col gap-1">
             <span className="text-body-m">이름</span>
             <TextField

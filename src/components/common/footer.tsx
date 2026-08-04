@@ -25,16 +25,21 @@ const ITEM_CLASS = 'px-2 py-3 hover:text-primary-60 hover:cursor-pointer';
 
 export default function Footer() {
   return (
-    <footer className="w-full pt-6 pb-14 px-16 flex flex-col items-center gap-6">
+    <footer className="w-full pt-6 pb-14 px-5 lg:px-16 flex flex-col items-center gap-6">
       <div className="w-full flex items-center justify-between">
         <Link to="/">
-          <Logo className="hover:cursor-pointer w-40 h-auto" />
+          <Logo className="hover:cursor-pointer w-32 lg:w-40 h-auto" />
         </Link>
         <a href="https://github.com/DonggukDegree" target="_blank" rel="noreferrer" className="hover:cursor-pointer">
           <Github className="w-8 h-8" />
         </a>
       </div>
-      <div className="w-full flex items-center justify-center text-button-m text-coolgray-60 gap-5 border-t border-b border-coolgray-30 py-9">
+      {/*
+        모바일에서는 7개 항목이 한 줄에 들어가지 않아 줄바꿈을 허용한다.
+        간격은 gap 단축 속성 대신 gap-x/gap-y로만 쓴다. 단축과 개별 속성이 섞이면
+        Tailwind에서 어느 쪽이 이길지 보장되지 않기 때문. (lg 값은 기존 gap-5와 동일)
+      */}
+      <div className="w-full flex flex-wrap items-center justify-center text-button-m text-coolgray-60 gap-x-3 gap-y-1 lg:gap-x-5 lg:gap-y-5 border-t border-b border-coolgray-30 py-6 lg:py-9">
         {NAV_ITEMS.map((item) => {
           // 실제 페이지로 연결.
           if (item.type === 'link') {

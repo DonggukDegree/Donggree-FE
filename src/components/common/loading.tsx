@@ -17,7 +17,11 @@ export default function Loading({ variant = 'page' }: ILoadingProps) {
       role="status"
       aria-label="불러오는 중"
     >
-      <svg className={`animate-spin ${isPage ? 'h-20 w-20' : 'h-10 w-10'}`} viewBox="0 0 80 80" fill="none">
+      <svg
+        className={`animate-spin ${isPage ? 'h-10 w-10 lg:h-20 lg:w-20' : 'h-6 w-6 lg:h-10 lg:w-10'}`}
+        viewBox="0 0 80 80"
+        fill="none"
+      >
         <circle cx="40" cy="40" r="36" className="stroke-primary-30" strokeWidth="8" />
         <circle
           cx="40"
@@ -29,7 +33,11 @@ export default function Loading({ variant = 'page' }: ILoadingProps) {
           strokeDasharray="80 226"
         />
       </svg>
-      <p className={isPage ? 'text-heading-2 text-primary-60' : 'text-body-m text-coolgray-60'}>
+      <p
+        className={
+          isPage ? 'text-heading-5 lg:text-heading-2 text-primary-60' : 'text-body-s lg:text-body-m text-coolgray-60'
+        }
+      >
         {isPage ? 'Loading...' : '불러오는 중'}
       </p>
     </div>

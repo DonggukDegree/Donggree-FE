@@ -29,54 +29,65 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center gap-20 p-20 text-coolgray-90">
-      <div className="flex flex-col items-center gap-20">
-        <div className="flex flex-col items-center gap-8">
-          <Inbox className="w-20 h-20" />
-          <p className="text-heading-2">PDF 업로드</p>
+    <div className="w-full flex flex-col items-center justify-center gap-10 lg:gap-20 p-6 lg:p-20 text-coolgray-90">
+      <div className="flex flex-col items-center gap-10 lg:gap-20">
+        <div className="flex flex-col items-center gap-6 lg:gap-8">
+          <Inbox className="w-10 h-10 lg:w-20 lg:h-20 shrink-0" />
+          <p className="text-heading-4 lg:text-heading-2">PDF 업로드</p>
           <div className="flex flex-col items-center gap-3 text-center">
-            <p className="text-heading-4">취득교과목 영역별 분류표 PDF를 업로드해주세요</p>
-            <p className="text-heading-5">최초 1번만 업로드하면 재업로드 없이 졸업 판정이 가능합니다.</p>
+            <p className="text-heading-6 lg:text-heading-4">취득교과목 영역별 분류표 PDF를 업로드해주세요</p>
+            <p className="text-body-s lg:text-heading-5">최초 1번만 업로드하면 재업로드 없이 졸업 판정이 가능합니다.</p>
           </div>
         </div>
-        <p className="text-heading-3">다운로드 방법</p>
+        <p className="text-heading-5 lg:text-heading-3">다운로드 방법</p>
       </div>
-      <div className="flex items-center gap-20">
-        <UploadInfo1 className="w-150 h-90" />
-        <div className="flex flex-col gap-12">
-          <p className="text-heading-3">{`nDRIMS > 졸업 > 취득학점확인서 조회`}</p>
-          <p className="text-body-l">{`또는 메뉴 바 상단 검색 > ‘취득학점확인서조회’ 검색`}</p>
+      {/*
+        안내 3블록. PC는 이미지와 설명이 좌우로 붙지만, 모바일에서는 600px짜리 안내 이미지가
+        가로로 들어가지 않으므로 세로로 쌓고 이미지 폭을 컨테이너에 맞춘다.
+      */}
+      <div className="w-full lg:w-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-20">
+        <UploadInfo1 className="w-full lg:w-150 h-auto lg:h-90" />
+        <div className="flex flex-col gap-3 lg:gap-12">
+          <p className="text-heading-6 lg:text-heading-3">{`nDRIMS > 졸업 > 취득학점확인서 조회`}</p>
+          <p className="text-body-s lg:text-body-l">{`또는 메뉴 바 상단 검색 > ‘취득학점확인서조회’ 검색`}</p>
         </div>
       </div>
-      <div className="flex items-center gap-20">
-        <div className="flex flex-col gap-12">
-          <p className="text-heading-3">F학점 포함 후 조회하여 PDF 확인</p>
-          <div className="flex flex-col text-body-l">
+      {/*
+        두 번째 블록만 PC에서 텍스트가 왼쪽에 온다. 모바일 세로 스택에서 다른 블록과 순서가 어긋나지 않도록
+        DOM은 '이미지 → 텍스트'로 통일하고, PC에서만 flex-row-reverse로 되돌려 좌우 배치를 유지한다.
+      */}
+      <div className="w-full lg:w-auto flex flex-col lg:flex-row-reverse items-center gap-6 lg:gap-20">
+        <UploadInfo2 className="w-full lg:w-150 h-auto lg:h-90" />
+        <div className="flex flex-col gap-3 lg:gap-12">
+          <p className="text-heading-6 lg:text-heading-3">F학점 포함 후 조회하여 PDF 확인</p>
+          <div className="flex flex-col text-body-s lg:text-body-l">
             <p>기본 설정에서 F학점제외만 체크박스 해제</p>
             <p>수강신청 포함 X, 학수번호 포함 O, F학점제외 X</p>
             <p>신청년도 및 학기가 최신 학기인지 확인</p>
           </div>
         </div>
-        <UploadInfo2 className="w-150 h-90" />
       </div>
-      <div className="flex items-center gap-20">
-        <UploadInfo3 className="w-150" />
-        <div className="flex flex-col gap-12">
-          <p className="text-heading-3">PDF 업로드</p>
-          <div className="flex flex-col text-body-l">
+      <div className="w-full lg:w-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-20">
+        <UploadInfo3 className="w-full lg:w-150 h-auto" />
+        <div className="flex flex-col gap-3 lg:gap-12">
+          <p className="text-heading-6 lg:text-heading-3">PDF 업로드</p>
+          <div className="flex flex-col text-body-s lg:text-body-l">
             <p>뷰어 왼쪽의 저장 버튼을 누르고 뜨는 팝업에서 변경 사항 없이 확인을 선택하면</p>
             <p>내 컴퓨터에 다운로드된 파일 확인 가능</p>
           </div>
         </div>
       </div>
-      <div className="flex flex-col items-center gap-25">
-        <div className="flex flex-col items-center gap-8">
-          <p className="text-heading-2">PDF 업로드</p>
-          <div className="w-225 h-89 rounded-md border border-coolgray-30 flex flex-col items-center justify-center gap-8">
+      <div className="w-full lg:w-auto flex flex-col items-center gap-10 lg:gap-25">
+        <div className="w-full lg:w-auto flex flex-col items-center gap-6 lg:gap-8">
+          <p className="text-heading-4 lg:text-heading-2">PDF 업로드</p>
+          <div className="w-full lg:w-225 h-64 lg:h-89 rounded-md border border-coolgray-30 flex flex-col items-center justify-center gap-6 lg:gap-8">
             {file ? (
               <>
-                <p className="text-heading-4 text-primary-60">{file.name}</p>
-                <p className="text-body-l text-primary-60">업로드 완료</p>
+                {/* 긴 파일명이 좁은 화면에서 박스를 뚫지 않도록 모바일에서만 강제 줄바꿈한다. */}
+                <p className="text-heading-6 lg:text-heading-4 text-primary-60 max-lg:px-4 max-lg:text-center max-lg:break-all">
+                  {file.name}
+                </p>
+                <p className="text-body-s lg:text-body-l text-primary-60">업로드 완료</p>
                 <button
                   type="button"
                   className="text-body-m text-coolgray-60 underline cursor-pointer hover:opacity-80"
@@ -107,18 +118,20 @@ export default function UploadPage() {
                   className="p-4 cursor-pointer hover:opacity-80"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <Upload />
+                  <Upload className="w-12 h-12 lg:w-24 lg:h-24" />
                 </button>
-                <p className="text-body-l">다운로드 받은 최신 PDF를 업로드해주세요.</p>
+                <p className="text-body-s lg:text-body-l max-lg:px-4 max-lg:text-center">
+                  다운로드 받은 최신 PDF를 업로드해주세요.
+                </p>
               </>
             )}
           </div>
-          <p className="text-body-l text-coolgray-60">
+          <p className="text-body-s lg:text-body-l text-coolgray-60 max-lg:text-center">
             동그리는 PDF에서 졸업 판정에 필요하지 않은 정보를 수집하지 않습니다.
           </p>
         </div>
         <Button
-          className="px-15 text-body-l"
+          className="px-15 max-w-full text-body-m lg:text-body-l"
           variant={file && !isPending ? 'primary' : 'disabled'}
           disabled={!file || isPending}
           onClick={handleSubmit}

@@ -16,20 +16,23 @@ export default function Login() {
     window.location.href = `${import.meta.env.VITE_API_URL}/oauth2/authorization/kakao`;
   };
 
+  // 로그인은 Layout 밖(전체 화면 배경)이라 셸이 적용되지 않는다. 카드 자체를 좁은 화면에 맞춘다.
   return (
-    <div className="flex items-center justify-center h-screen bg-primary-30">
-      <div className="flex flex-col items-center gap-12 rounded-md bg-white py-20 px-42">
+    <div className="flex items-center justify-center h-screen bg-primary-30 px-6 lg:px-0">
+      <div className="w-full max-w-md lg:w-auto lg:max-w-none flex flex-col items-center gap-8 lg:gap-12 rounded-md bg-white py-12 lg:py-20 px-6 lg:px-42">
         <div className="flex flex-col items-center gap-3">
-          <Logo className="w-80 h-auto" />
-          <p className="text-body-m text-primary-60">가장 쉽고 빠른 나만의 학업 로드맵, 동그리와 함께</p>
+          <Logo className="w-40 lg:w-80 max-w-full h-auto" />
+          <p className="text-body-s lg:text-body-m text-primary-60 max-lg:text-center">
+            가장 쉽고 빠른 나만의 학업 로드맵, 동그리와 함께
+          </p>
         </div>
         <button
           type="button"
           onClick={handleKakaoLogin}
-          className="flex items-center justify-center gap-4 bg-[#FEE500] rounded-md px-20 py-3 cursor-pointer hover:opacity-90"
+          className="w-full lg:w-auto flex items-center justify-center gap-4 bg-[#FEE500] rounded-md px-6 lg:px-20 py-3 cursor-pointer hover:opacity-90"
         >
-          <Kakao className="w-7 h-7" />
-          <span className="text-black text-body-l">카카오톡으로 로그인</span>
+          <Kakao className="w-7 h-7 shrink-0" />
+          <span className="text-black text-body-m lg:text-body-l">카카오톡으로 로그인</span>
         </button>
       </div>
     </div>

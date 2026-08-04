@@ -16,7 +16,10 @@ const variantStyles: Record<TButtonVariant, string> = {
 };
 
 export default function Button({ children, variant = 'primary', className = '', disabled, ...props }: IButtonProps) {
-  const baseStyles = 'p-4 rounded-sm text-button-s flex items-center justify-center';
+  // 모바일에서는 좌우 여백만 줄이고 위아래는 눌러지지 않게 남겨 둔다.
+  // p-* 단축 대신 px/py 개별 속성만 쓴다. (단축과 개별이 섞이면 어느 쪽이 이길지 보장되지 않는다)
+  // lg의 px-4 py-4는 기존 p-4와 계산값이 같다.
+  const baseStyles = 'px-3 py-3.5 lg:px-4 lg:py-4 rounded-sm text-button-s flex items-center justify-center';
   return (
     <button
       {...props}
