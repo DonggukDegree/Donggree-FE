@@ -59,20 +59,35 @@ const buildRuleConfig = (
     return { minGpa };
   }
 
-  if (ruleType.typeName === 'MIN_AREA_CREDITS') {
+  // MIN_CREDITS: 선택자 4종은 OR로 합쳐지고 임계값 2종은 AND다.
+  // 선택자를 모두 비우면 courseType 전체가 대상이 되므로 선택자는 전부 선택 사항이다.
+  if (ruleType.typeName === 'MIN_CREDITS') {
     const minCredits = toPositiveInteger(draft.minCredits);
-    if (!draft.courseType) {
-      toast.error(`${rowLabel}의 이수구분을 선택해주세요.`);
+    const minCount = toPositiveInteger(draft.minCount);
+    if (!minCredits && !minCount) {
+      toast.error(`${rowLabel}의 최소 학점 또는 최소 과목 수 중 하나는 입력해주세요.`);
       return null;
     }
-    if (!minCredits) {
-      toast.error(`${rowLabel}의 최소 학점을 입력해주세요.`);
+
+    const subCategories = splitList(draft.subCategories);
+    const courseCodes = splitList(draft.courseCodes);
+    const hasSelector =
+      draft.areaNames.length > 0 || draft.pdfAreaNames.length > 0 || subCategories.length > 0 || courseCodes.length > 0;
+    // 이수구분도 선택자도 없으면 판정 대상이 정해지지 않는다. 서버가 config를 검증하지 않으므로 여기서 막는다.
+    if (!draft.courseType && !hasSelector) {
+      toast.error(`${rowLabel}의 이수구분이나 선택자 중 하나는 지정해주세요.`);
       return null;
     }
+
+    // 비어 있는 키는 null로 보내지 않고 아예 뺀다. (스펙 예시와 같은 모양)
     return {
-      courseType: draft.courseType,
-      areaNames: draft.areaNames.length > 0 ? draft.areaNames : null,
-      minCredits,
+      ...(draft.courseType ? { courseType: draft.courseType } : {}),
+      ...(draft.areaNames.length > 0 ? { areaNames: draft.areaNames } : {}),
+      ...(subCategories.length > 0 ? { subCategories } : {}),
+      ...(draft.pdfAreaNames.length > 0 ? { pdfAreaNames: draft.pdfAreaNames } : {}),
+      ...(courseCodes.length > 0 ? { courseCodes } : {}),
+      ...(minCredits ? { minCredits } : {}),
+      ...(minCount ? { minCount } : {}),
     };
   }
 
@@ -120,28 +135,18 @@ const buildRuleConfig = (
     };
   }
 
-  if (ruleType.typeName === 'SCIENCE_EXPERIMENT') {
-    const minCount = toPositiveInteger(draft.minCount);
-    if (!minCount) {
-      toast.error(`${rowLabel}의 최소 이수 개수를 입력해주세요.`);
-      return null;
-    }
-    return { minCount };
-  }
-
   if (ruleType.typeName === 'SCIENCE_CONFLICT') {
     return {};
   }
 
+  // THESIS: requiredCourseSets가 있으면 그 과목 이수로, 없으면 성적표의 졸업논문심사 합격으로 판정한다.
+  // 후자가 대부분의 학과라 빈 객체 {}도 정상 저장값이다.
   if (ruleType.typeName === 'THESIS') {
+    const exemptStudentTypes = splitList(draft.exemptStudentTypes);
     const requiredCourseSets = parseRequiredCourseSets(draft.requiredCourseSetsText);
-    if (requiredCourseSets.length === 0) {
-      toast.error(`${rowLabel}의 필수 과목 세트를 입력해주세요.`);
-      return null;
-    }
     return {
-      exemptStudentTypes: splitList(draft.exemptStudentTypes),
-      requiredCourseSets,
+      ...(exemptStudentTypes.length > 0 ? { exemptStudentTypes } : {}),
+      ...(requiredCourseSets.length > 0 ? { requiredCourseSets } : {}),
     };
   }
 
@@ -278,6 +283,8 @@ export default function useGraduationRuleEditor() {
             minCount: '',
             courseType: '',
             areaNames: [],
+            subCategories: '',
+            pdfAreaNames: [],
             courseCodes: '',
             exemptEnglishLevels: '',
             requiredEnglishLevels: '',
