@@ -18,13 +18,6 @@ import { COURSE_LABEL, COURSE_TYPES, type TCourseType } from '@/types/course';
 
 const COURSE_TYPE_OPTIONS = COURSE_TYPES.map((courseType) => ({ value: courseType, label: COURSE_LABEL[courseType] }));
 
-// MIN_CREDITS의 pdfAreaNames 선택지. 전공 과목은 과목 분류에 등록되어 있지 않아
-// 전공기초/전공전문 구분이 성적표 PDF의 영역 원문에만 있어서 쓰는 선택자다.
-const PDF_AREA_NAME_OPTIONS = [
-  { value: '기초', label: '기초 (전공기초)' },
-  { value: '전문', label: '전문 (전공전문)' },
-];
-
 interface IGraduationRuleConfigFieldsProps {
   selectedRuleType: TAdminRuleType | null;
   draft: TGraduationRuleDraft;
@@ -62,15 +55,6 @@ export default function GraduationRuleConfigFields({
     );
   };
 
-  const togglePdfAreaName = (pdfAreaName: string) => {
-    onFieldChange(
-      'pdfAreaNames',
-      draft.pdfAreaNames.includes(pdfAreaName)
-        ? draft.pdfAreaNames.filter((value) => value !== pdfAreaName)
-        : [...draft.pdfAreaNames, pdfAreaName],
-    );
-  };
-
   return (
     <div className="mt-4 rounded-xl bg-primary-30/40 p-4">
       {!selectedRuleType && (
@@ -103,14 +87,16 @@ export default function GraduationRuleConfigFields({
 
       {/*
         MIN_CREDITS: 옛 MIN_AREA_CREDITS + SCIENCE_EXPERIMENT를 합친 규칙.
-        선택자 4종은 서로 OR(합집합)로 묶이고, 임계값 2종은 AND(둘 다 지정하면 둘 다 충족)다.
-        선택자를 모두 비우면 이수구분 전체가 대상이 된다. 임계값은 최소 하나가 있어야 한다.
+        선택자끼리는 AND(교집합)로 좁혀지고, 한 선택자 안의 여러 값은 OR(합집합)이다.
+        비운 선택자는 그 항목에 제약을 걸지 않는다. 임계값 2종은 AND이며 최소 하나가 있어야 한다.
+        pdf* 선택자는 성적표 PDF의 원문 문자열이라 값 목록을 프론트가 확정할 수 없어 콤마 입력으로 받는다.
       */}
       {selectedRuleType?.typeName === 'MIN_CREDITS' && (
         <div className="flex flex-col gap-3">
           <p className="text-body-xs text-coolgray-60">
-            선택자(영역명 · 소분류 · PDF 영역 · 학수번호)는 <b>OR로 합쳐지고</b>, 모두 비우면 이수구분 전체가
-            대상입니다. 임계값(최소 학점 · 최소 과목 수)은 <b>지정한 것을 모두 충족</b>해야 하며 최소 하나는 필요합니다.
+            채운 조건을 <b>모두 만족하는</b> 과목만 집계합니다(선택자 간 AND). 한 칸에 콤마로 여러 값을 넣으면 그중{' '}
+            <b>하나만 맞아도</b> 됩니다(값 사이 OR). <b>비운 칸은 제한 없음</b>입니다. 임계값(최소 학점 · 최소 과목
+            수)은 지정한 것을 모두 충족해야 하며 최소 하나는 필요합니다.
           </p>
           <div className="grid gap-3 md:grid-cols-3">
             <label className="flex flex-col gap-1.5">
@@ -138,17 +124,7 @@ export default function GraduationRuleConfigFields({
                 options={areaNameOptions}
                 selectedValues={draft.areaNames}
                 onToggle={toggleAreaName}
-                allLabel="전체 영역"
-                disabled={isSaving}
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <FieldLabel>PDF 영역 (선택자)</FieldLabel>
-              <MultiSelectDropdown
-                options={PDF_AREA_NAME_OPTIONS}
-                selectedValues={draft.pdfAreaNames}
-                onToggle={togglePdfAreaName}
-                allLabel="지정 안 함"
+                allLabel="제한 없음"
                 disabled={isSaving}
               />
             </label>
@@ -157,8 +133,26 @@ export default function GraduationRuleConfigFields({
               <TextInput
                 value={draft.subCategories}
                 disabled={isSaving}
-                placeholder="실험"
+                placeholder="실험, 개론"
                 onChange={(value) => onFieldChange('subCategories', value)}
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <FieldLabel>PDF 이수구분 (선택자)</FieldLabel>
+              <TextInput
+                value={draft.pdfCourseTypeNames}
+                disabled={isSaving}
+                placeholder="공교, 전공, 전필"
+                onChange={(value) => onFieldChange('pdfCourseTypeNames', value)}
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <FieldLabel>PDF 영역 (선택자)</FieldLabel>
+              <TextInput
+                value={draft.pdfAreaNames}
+                disabled={isSaving}
+                placeholder="기초, 전문"
+                onChange={(value) => onFieldChange('pdfAreaNames', value)}
               />
             </label>
             <label className="flex flex-col gap-1.5">

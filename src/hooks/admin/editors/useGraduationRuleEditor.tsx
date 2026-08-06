@@ -58,8 +58,9 @@ const buildRuleConfig = (
     return { minGpa };
   }
 
-  // MIN_CREDITS: 선택자 4종은 OR로 합쳐지고 임계값 2종은 AND다.
-  // 선택자를 모두 비우면 courseType 전체가 대상이 되므로 선택자는 전부 선택 사항이다.
+  // MIN_CREDITS: 채운 선택자를 모두 만족하는 과목만 집계한다(선택자 간 AND).
+  // 한 선택자 안의 배열 값들끼리는 OR이고, 비운 선택자는 그 항목에 제약을 걸지 않는다.
+  // 임계값 2종도 AND라 지정한 것을 모두 충족해야 하며, 최소 하나는 있어야 한다.
   if (ruleType.typeName === 'MIN_CREDITS') {
     const minCredits = toPositiveInteger(draft.minCredits);
     const minCount = toPositiveInteger(draft.minCount);
@@ -69,21 +70,29 @@ const buildRuleConfig = (
     }
 
     const subCategories = splitList(draft.subCategories);
+    const pdfCourseTypeNames = splitList(draft.pdfCourseTypeNames);
+    const pdfAreaNames = splitList(draft.pdfAreaNames);
     const courseCodes = splitList(draft.courseCodes);
     const hasSelector =
-      draft.areaNames.length > 0 || draft.pdfAreaNames.length > 0 || subCategories.length > 0 || courseCodes.length > 0;
-    // 이수구분도 선택자도 없으면 판정 대상이 정해지지 않는다. 서버가 config를 검증하지 않으므로 여기서 막는다.
+      draft.areaNames.length > 0 ||
+      subCategories.length > 0 ||
+      pdfCourseTypeNames.length > 0 ||
+      pdfAreaNames.length > 0 ||
+      courseCodes.length > 0;
+    // 이수구분도 선택자도 없으면 아무 제약이 없어 전 과목이 집계된다.
+    // 서버가 config를 검증하지 않아 조용히 통과하므로 여기서 막는다.
     if (!draft.courseType && !hasSelector) {
       toast.error(`${rowLabel}의 이수구분이나 선택자 중 하나는 지정해주세요.`);
       return null;
     }
 
-    // 비어 있는 키는 null로 보내지 않고 아예 뺀다. (스펙 예시와 같은 모양)
+    // 비어 있는 키는 null로 보내지 않고 아예 뺀다. (제약 없음 = 키 부재)
     return {
       ...(draft.courseType ? { courseType: draft.courseType } : {}),
       ...(draft.areaNames.length > 0 ? { areaNames: draft.areaNames } : {}),
       ...(subCategories.length > 0 ? { subCategories } : {}),
-      ...(draft.pdfAreaNames.length > 0 ? { pdfAreaNames: draft.pdfAreaNames } : {}),
+      ...(pdfCourseTypeNames.length > 0 ? { pdfCourseTypeNames } : {}),
+      ...(pdfAreaNames.length > 0 ? { pdfAreaNames } : {}),
       ...(courseCodes.length > 0 ? { courseCodes } : {}),
       ...(minCredits ? { minCredits } : {}),
       ...(minCount ? { minCount } : {}),
@@ -274,7 +283,8 @@ export default function useGraduationRuleEditor() {
             courseType: '',
             areaNames: [],
             subCategories: '',
-            pdfAreaNames: [],
+            pdfCourseTypeNames: '',
+            pdfAreaNames: '',
             courseCodes: '',
             exemptEnglishLevels: '',
             requiredEnglishLevels: '',

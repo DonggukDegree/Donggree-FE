@@ -16,10 +16,11 @@ const variantStyles: Record<TButtonVariant, string> = {
 };
 
 export default function Button({ children, variant = 'primary', className = '', disabled, ...props }: IButtonProps) {
-  // 모바일에서는 좌우 여백만 줄이고 위아래는 눌러지지 않게 남겨 둔다.
-  // p-* 단축 대신 px/py 개별 속성만 쓴다. (단축과 개별이 섞이면 어느 쪽이 이길지 보장되지 않는다)
-  // lg의 px-4 py-4는 기존 p-4와 계산값이 같다.
-  const baseStyles = 'px-3 py-3.5 lg:px-4 lg:py-4 rounded-sm text-button-s flex items-center justify-center';
+  // 모바일 축소는 lg:가 아니라 max-lg:로 준다.
+  // 공용 버튼이라 호출부가 px-15 같은 여백을 덧붙이는데, 기본 클래스에 lg: 변형을 두면
+  // 변형이 호출부의 기본 유틸보다 뒤에 배치되어 PC에서 호출부 값을 덮어써 버린다.
+  // max-lg:만 쓰면 lg 이상에서는 p-4만 남아 호출부 override가 예전 그대로 동작한다.
+  const baseStyles = 'p-4 max-lg:px-3 max-lg:py-3.5 rounded-sm text-button-s flex items-center justify-center';
   return (
     <button
       {...props}
