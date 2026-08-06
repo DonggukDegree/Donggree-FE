@@ -22,10 +22,12 @@ export type TGraduationRuleDraft = {
   minGpa: string;
   minCount: string;
   courseType: TCourseType | '';
-  // MIN_CREDITS 선택자 4종. areaNames·pdfAreaNames는 고정 선택지, subCategories·courseCodes는 콤마 입력.
+  // MIN_CREDITS 선택자 5종. areaNames만 area-types 다중선택이고, 나머지는 콤마 구분 입력이다.
+  // (pdf* 는 성적표 PDF의 원문 문자열이라 프론트가 선택지를 확정할 수 없다)
   areaNames: string[];
   subCategories: string;
-  pdfAreaNames: string[];
+  pdfCourseTypeNames: string;
+  pdfAreaNames: string;
   courseCodes: string;
   exemptEnglishLevels: string;
   requiredEnglishLevels: string;
