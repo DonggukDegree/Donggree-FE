@@ -24,6 +24,8 @@ export default function ReportGate() {
     setUserProperties({
       college_name: data.meta.collegeName ?? undefined, // 학과 미등록 시 null → 미설정
       department: data.meta.department,
+      // 졸업요건은 입학년도별로 갈리므로, 학번 코호트가 학과만큼 중요한 분석 축이다.
+      admission_year: String(data.meta.admissionYear),
     });
   }, [data]);
 
