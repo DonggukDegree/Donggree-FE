@@ -38,7 +38,9 @@ export default function AreaDetailCard({
           </div>
         </div>
         <span className="text-body-s text-coolgray-60">
-          {requiredCredits}학점 중 {completedCredits}학점 이수
+          {requiredCredits > 0
+            ? `${requiredCredits}학점 중 ${completedCredits}학점 이수`
+            : `${completedCredits}학점 이수`}
         </span>
       </div>
 

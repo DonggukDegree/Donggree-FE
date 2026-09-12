@@ -67,3 +67,22 @@ export const setUserProperties = (properties: Record<string, string | undefined>
   if (!isGAEnabled() || !window.gtag) return;
   window.gtag('set', 'user_properties', properties);
 };
+
+/**
+ * GA4 user_id 설정/해제. 같은 사람이 여러 기기·브라우저를 써도 한 명으로 집계되게 한다.
+ * 이걸 주지 않으면 활성 사용자(DAU/MAU)가 브라우저(client_id) 단위라 실제보다 부풀고,
+ * 특히 MAU가 더 크게 부풀어 DAU/MAU 비율이 실제보다 낮게 나온다.
+ *
+ * 넘기는 값은 내부 대체키(memberId)다. 학번·이름·이메일 같은 개인 식별 정보는
+ * GA4 약관 위반이라 절대 넣지 않는다. (memberId는 우리 DB에서만 의미를 갖는 정수다)
+ *
+ * @param memberId 로그인 사용자의 내부 ID. 로그아웃 시 null을 주어 해제한다.
+ */
+export const setUserId = (memberId: number | null): void => {
+  if (!isGAEnabled() || !window.gtag) return;
+  // GA4는 user_id에 문자열을 기대한다. null을 주면 이후 이벤트에서 연결이 끊긴다.
+  window.gtag('config', GA_ID, {
+    user_id: memberId === null ? null : String(memberId),
+    send_page_view: false,
+  });
+};

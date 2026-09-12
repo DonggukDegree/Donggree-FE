@@ -12,12 +12,15 @@ import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import Footer from '@/components/common/footer';
 import Header from '@/components/common/header';
 import ModalProvider from '@/components/common/modalProvider';
+import useAnalyticsIdentity from '@/hooks/useAnalyticsIdentity';
 import usePageTracking from '@/hooks/usePageTracking';
 
 export default function Layout() {
   const { pathname } = useLocation();
   // 라우트 변경마다 GA4 페이지뷰 전송(측정 ID 없으면 no-op).
   usePageTracking();
+  // 로그인 상태가 바뀔 때마다 GA4 user_id를 갱신한다.
+  useAnalyticsIdentity();
 
   const isAdminPage = pathname.startsWith('/admin');
 
