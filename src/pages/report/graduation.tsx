@@ -17,8 +17,7 @@ import CourseTabView from '@/components/report/courseTabView';
 import ProgressBar from '@/components/report/progressBar';
 import { ERROR_CODE } from '@/constants/errorCodes';
 import { READY_MESSAGE } from '@/constants/links';
-import { TRANSCRIPT_ERROR_MODAL } from '@/constants/report/transcriptErrorModals';
-import { UNSUPPORTED_MAJOR_MODAL } from '@/constants/report/unsupportedMajorModal';
+import { UNSUPPORTED_CURRICULUM_MODAL, UNSUPPORTED_MAJOR_MODAL } from '@/constants/report/reportModals';
 import useReportSummary from '@/hooks/report/useReportSummary';
 import useInView from '@/hooks/useInView';
 import NotFound from '@/pages/exception/notFound';
@@ -38,20 +37,18 @@ export default function Graduation() {
   const [buttonRef, buttonInView] = useInView();
 
   const errorCode = isError ? getErrorCode(error) : undefined;
-  // 적용 가능한 졸업 요건이 없는 학과(404 GRADUATION404_2)는 업로드의 미지원 학과 모달 문구를 재사용해 안내하고,
-  // 확인 시 홈으로 보낸다.
+  // 적용 가능한 졸업 요건이 없으면(404 GRADUATION404_2) 미지원 안내 후 홈으로 보낸다.
+  // 업로드 단계의 학과 미등록(TRANSCRIPT400_3)과 학생 입장에서는 같은 상황이라 문구를 공유한다.
   const isUnsupportedDept = errorCode === ERROR_CODE.NO_REQUIREMENT;
   useEffect(() => {
     if (!isUnsupportedDept) return;
     // 적용 가능한 졸업 요건이 없어 리포트를 못 보는 이탈 지점을 집계한다.
     trackEvent('error_shown', { source: 'graduation', code: ERROR_CODE.NO_REQUIREMENT });
-    const modal = TRANSCRIPT_ERROR_MODAL.TRANSCRIPT400_3;
-    if (!modal) return;
     openAlert({
       icon: Warning,
-      title: modal.title,
-      subtitle: modal.subtitle,
-      description: modal.description,
+      title: UNSUPPORTED_CURRICULUM_MODAL.title,
+      subtitle: UNSUPPORTED_CURRICULUM_MODAL.subtitle,
+      description: UNSUPPORTED_CURRICULUM_MODAL.description,
       buttonText: '닫기',
       buttonVariant: 'primary',
       onConfirm: () => navigate('/'),
