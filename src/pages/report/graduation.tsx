@@ -18,6 +18,7 @@ import ProgressBar from '@/components/report/progressBar';
 import { ERROR_CODE } from '@/constants/errorCodes';
 import { READY_MESSAGE } from '@/constants/links';
 import { TRANSCRIPT_ERROR_MODAL } from '@/constants/report/transcriptErrorModals';
+import { UNSUPPORTED_MAJOR_MODAL } from '@/constants/report/unsupportedMajorModal';
 import useReportSummary from '@/hooks/report/useReportSummary';
 import useInView from '@/hooks/useInView';
 import NotFound from '@/pages/exception/notFound';
@@ -65,6 +66,21 @@ export default function Graduation() {
       achievement_rate: data.summary.achievementRate,
     });
   }, [data]);
+
+  // 복수전공·부전공 이력이 있으면 조회할 때마다 안내한다.
+  const hasUnsupportedMajor = data?.hasUnsupportedMajor;
+  useEffect(() => {
+    if (!hasUnsupportedMajor) return;
+    trackEvent('unsupported_major_notice');
+    openAlert({
+      icon: Warning,
+      title: UNSUPPORTED_MAJOR_MODAL.title,
+      subtitle: UNSUPPORTED_MAJOR_MODAL.subtitle,
+      description: UNSUPPORTED_MAJOR_MODAL.description,
+      buttonText: '닫기',
+      buttonVariant: 'primary',
+    });
+  }, [hasUnsupportedMajor, openAlert]);
 
   // 하단 버튼 영역이 뷰포트에 들어오면(useInView는 1회만 true) 리포트를 끝까지 스크롤했다고 본다.
   useEffect(() => {
@@ -155,6 +171,17 @@ export default function Graduation() {
                 {reason}
               </span>
             ))}
+          </div>
+        )}
+
+        {/*
+          영어패스제 유의사항 문구
+        */}
+        {data.englishPassed === false && (
+          <div className="flex flex-col items-center gap-1 mb-4 max-lg:text-center">
+            <span className="text-button-m text-primary-60">
+              *유의: 외국어패스가 미충족이므로, 100%를 달성해도 졸업이 아닌 수료 상태입니다. (FAQ 확인)
+            </span>
           </div>
         )}
       </div>

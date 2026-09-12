@@ -26,6 +26,10 @@ export type TAreaOverview = {
 export type TGetReportSummaryResult = {
   summary: TReportSummary;
   areaOverviews: TAreaOverview[];
+  // 복수전공·부전공 이력 유무
+  hasUnsupportedMajor: boolean;
+  // 영어패스제 결과
+  englishPassed: boolean | null;
 };
 
 export type TGetReportSummaryResponse = TCommonResponse<TGetReportSummaryResult>;
