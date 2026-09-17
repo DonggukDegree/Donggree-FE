@@ -63,8 +63,8 @@ export default function AdminFaqs() {
           </div>
 
           <p className="text-body-m text-primary-90">
-            * 등록·수정·삭제는 DB에 즉시 반영되어 사용자 화면에 바로 노출됩니다. 미리보기와 확인 창의 내용을 꼭 검토한 뒤
-            저장해주세요.
+            * 등록·수정·삭제는 DB에 즉시 반영되어 사용자 화면에 바로 노출됩니다. 미리보기와 확인 창의 내용을 꼭 검토한
+            뒤 저장해주세요.
           </p>
         </div>
 
