@@ -7,23 +7,22 @@
  */
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { toast } from 'sonner';
 
 import Headset from '@/assets/headset.svg?react';
 import Logo from '@/assets/logo.svg?react';
 import UserThumb from '@/assets/userThumb.svg?react';
 import AdminModeToggle from '@/components/admin/common/adminModeToggle';
-import { KAKAO_CHAT_URL, READY_MESSAGE } from '@/constants/links';
+import { KAKAO_CHAT_URL } from '@/constants/links';
 
-// 졸업 판정만 실제 페이지로 연결하고, 커리큘럼은 아직 미개발이라 토스트로 안내한다.
 const NAV_ITEMS = [
-  { name: '졸업 판정', type: 'link', path: '/graduation' },
-  { name: '커리큘럼', type: 'toast' },
+  { name: '졸업 판정', path: '/graduation' },
+  { name: '자주 묻는 질문', path: '/faq' },
 ] as const;
 
 const ADMIN_NAV_ITEMS = [
   { name: '과목 관리', path: '/admin/course-classifications' },
   { name: '졸업 요건 관리', path: '/admin/graduation-requirements' },
+  { name: 'FAQ 관리', path: '/admin/faqs' },
 ] as const;
 
 // 모바일 드로어 안 항목 공통 스타일. (가로 배치가 아니라 세로 목록이므로 PC와 모양을 따로 둔다)
@@ -84,29 +83,17 @@ export default function Header() {
           </Link>
           {/* 가로 메뉴는 PC 전용. 모바일에서는 아래 드로어가 대신한다. */}
           <div className="hidden lg:flex items-center gap-2 text-button-m">
-            {NAV_ITEMS.map((item) =>
-              item.type === 'link' ? (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={`${navBaseClass} ${
-                    pathname === item.path ? 'bg-primary-30 text-primary-90' : 'text-coolgray-90'
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ) : (
-                // 미개발 기능: 토스트로 준비 중임을 안내한다.
-                <button
-                  key={item.name}
-                  type="button"
-                  onClick={() => toast(READY_MESSAGE)}
-                  className={`${navBaseClass} text-coolgray-90`}
-                >
-                  {item.name}
-                </button>
-              ),
-            )}
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`${navBaseClass} ${
+                  pathname === item.path ? 'bg-primary-30 text-primary-90' : 'text-coolgray-90'
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
           </div>
         </div>
         <div className="hidden lg:flex items-center gap-8 text-body-m">
@@ -172,32 +159,18 @@ export default function Header() {
             </div>
 
             {/* 화면을 이동하면 드로어도 함께 닫는다. (effect 대신 각 항목의 클릭에서 닫는다) */}
-            {NAV_ITEMS.map((item) =>
-              item.type === 'link' ? (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`${DRAWER_ITEM_CLASS} ${
-                    pathname === item.path ? 'bg-primary-30 text-primary-90' : 'text-coolgray-90'
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ) : (
-                <button
-                  key={item.name}
-                  type="button"
-                  onClick={() => {
-                    toast(READY_MESSAGE);
-                    setIsMenuOpen(false);
-                  }}
-                  className={`${DRAWER_ITEM_CLASS} text-coolgray-90`}
-                >
-                  {item.name}
-                </button>
-              ),
-            )}
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.name}
+                to={item.path}
+                onClick={() => setIsMenuOpen(false)}
+                className={`${DRAWER_ITEM_CLASS} ${
+                  pathname === item.path ? 'bg-primary-30 text-primary-90' : 'text-coolgray-90'
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
 
             <a
               href={KAKAO_CHAT_URL}
