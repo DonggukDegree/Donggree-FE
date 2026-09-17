@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { name: '커리큘럼', type: 'toast' },
   { name: '고객지원', type: 'external', href: KAKAO_CHAT_URL },
   { name: '동그리 소개', type: 'toast' },
-  { name: '자주 묻는 질문', type: 'toast' },
+  { name: '자주 묻는 질문', type: 'link', path: '/faq' },
   { name: '개인정보처리방침', type: 'external', href: PRIVACY_POLICY_URL },
   { name: '서비스이용약관', type: 'external', href: TERMS_OF_SERVICE_URL },
 ] as const;

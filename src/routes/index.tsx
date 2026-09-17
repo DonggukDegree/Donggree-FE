@@ -2,18 +2,20 @@
  * [라우팅] 라우터 정의
  * 게이트는 3단으로 겹쳐 둔다.
  *  ProtectedRoute(인증 → 온보딩 강제) → ReportGate(성적표 필요) → AdminRoute(관리자 권한)
- * 홈·로그인·콜백·404만 인증 없이 접근할 수 있다.
+ * 홈·자주 묻는 질문·로그인·콜백·404만 인증 없이 접근할 수 있다.
  */
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import Layout from '@/layouts';
 import AdminCourseClassifications from '@/pages/admin/courseClassifications';
+import AdminFaqs from '@/pages/admin/faqs';
 import AdminGraduationRequirements from '@/pages/admin/graduationRequirements';
 import AuthCallback from '@/pages/auth/authCallback';
 import Login from '@/pages/auth/login';
 import OnBoarding from '@/pages/auth/onBoarding';
 import Curriculum from '@/pages/curriculum';
 import NotFound from '@/pages/exception/notFound';
+import Faq from '@/pages/faq';
 import Home from '@/pages/home';
 import AcademicRecords from '@/pages/myPage/academicRecords';
 import MyPage from '@/pages/myPage/index';
@@ -33,8 +35,9 @@ export const router = createBrowserRouter([
     path: '/',
     element: <Layout />,
     children: [
-      // 홈(랜딩)은 인증 없이 접근 가능한 public 라우트.
+      // 홈, 자주 묻는 질문은 인증 없이 접근 가능한 public 라우트.
       { index: true, element: <Home /> },
+      { path: 'faq', element: <Faq /> },
       // 그 외 라우트는 ProtectedRoute(인증 → 온보딩 게이트)를 통과해야 한다.
       {
         element: <ProtectedRoute />,
@@ -64,6 +67,7 @@ export const router = createBrowserRouter([
                   { index: true, element: <Navigate to="course-classifications" replace /> },
                   { path: 'course-classifications', element: <AdminCourseClassifications /> },
                   { path: 'graduation-requirements', element: <AdminGraduationRequirements /> },
+                  { path: 'faqs', element: <AdminFaqs /> },
                 ],
               },
             ],
