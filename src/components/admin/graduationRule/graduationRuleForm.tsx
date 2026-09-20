@@ -37,6 +37,7 @@ export type TGraduationRuleDraft = {
   conditionField: '' | 'englishLevel';
   conditionValue: string;
   exemptStudentTypes: string;
+  exemptCourseCodes: string;
   requiredCourseSetsText: string;
 };
 

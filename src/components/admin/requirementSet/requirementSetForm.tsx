@@ -7,8 +7,13 @@ import type { ReactNode } from 'react';
 
 import Button from '@/components/common/button';
 import { ADMIN_INPUT_CLASS } from '@/constants/inputStyles';
+import {
+  REQUIREMENT_TRACK_DESCRIPTION,
+  REQUIREMENT_TRACK_LABEL,
+  REQUIREMENT_TRACKS,
+} from '@/constants/requirementTrack';
 import type { TAdminCollege, TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
-import type { TAdminRequirementSetSummary } from '@/types/admin/TRequirementSets';
+import type { TAdminRequirementSetSummary, TRequirementTrack } from '@/types/admin/TRequirementSets';
 
 export type TRequirementSetFormState = {
   id: number | null;
@@ -17,6 +22,7 @@ export type TRequirementSetFormState = {
   departmentName: string;
   yearStart: string;
   yearEnd: string;
+  track: TRequirementTrack;
   version: string;
   description: string;
   sheetImageUrl: string;
@@ -31,7 +37,10 @@ interface IRequirementSetFormProps {
   form: TRequirementSetFormState;
   isSaving: boolean;
   isLoadingDetail: boolean;
-  onChange: (field: keyof TRequirementSetFormState, value: string | boolean | number | null) => void;
+  onChange: (
+    field: keyof TRequirementSetFormState,
+    value: string | boolean | number | null | TRequirementTrack,
+  ) => void;
   onNew: () => void;
   onLoadSet: (setId: number) => void;
   onSubmit: () => void;
@@ -89,8 +98,14 @@ export default function RequirementSetForm({
       <div className="rounded-xl bg-primary-30/50 px-5 py-4 text-body-s text-coolgray-90">
         <p className="font-semibold text-primary-90">버전·활성 정책</p>
         <p className="mt-1">
-          버전은 서버가 자동 채번하므로 입력하지 않습니다. 활성 세트는 같은 학과에서 적용년도가 겹치면 저장이 거부되며,
-          비활성 세트끼리는 겹쳐도 함께 둘 수 있습니다.
+          버전은 서버가 자동 채번하므로 입력하지 않습니다. 활성 세트는 같은 학과에서 적용년도와 적용 대상 학생이 함께
+          겹치면 저장이 거부되며, 비활성 세트끼리는 겹쳐도 함께 둘 수 있습니다.
+        </p>
+        <p className="mt-2 font-semibold text-primary-90">과정 구분</p>
+        <p className="mt-1">
+          대부분의 학과는 <b>과정 구분 없음</b>으로 두면 됩니다. 공학인증을 운영해 일반·심화 졸업 요건이 다른 학과만 두
+          세트를 따로 등록하세요. <b>일반과정 세트만 등록하면 심화과정 학생은 리포트를 받지 못합니다.</b> 다른 과정의
+          요건으로 대신 판정하지 않기 때문입니다. 같은 적용년도에 과정 구분 없음과 일반/심화 세트를 함께 둘 수는 없습니다.
         </p>
       </div>
 
@@ -117,7 +132,8 @@ export default function RequirementSetForm({
               <option value="">선택</option>
               {sets.map((set) => (
                 <option key={set.id} value={set.id}>
-                  {set.departmentName} · {set.yearStart}-{set.yearEnd} · v{set.version}
+                  {set.departmentName} · {set.yearStart}-{set.yearEnd} · {REQUIREMENT_TRACK_LABEL[set.track]} · v
+                  {set.version}
                 </option>
               ))}
             </select>
@@ -187,6 +203,23 @@ export default function RequirementSetForm({
             onChange={(event) => onChange('yearEnd', event.target.value)}
             className={INPUT_CLASS}
           />
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-body-s font-semibold text-coolgray-90">과정</span>
+          <select
+            value={form.track}
+            disabled={isSaving}
+            onChange={(event) => onChange('track', event.target.value as TRequirementTrack)}
+            className={INPUT_CLASS}
+          >
+            {REQUIREMENT_TRACKS.map((track) => (
+              <option key={track} value={track}>
+                {REQUIREMENT_TRACK_LABEL[track]}
+              </option>
+            ))}
+          </select>
+          <span className="text-body-xs text-coolgray-60">{REQUIREMENT_TRACK_DESCRIPTION[form.track]}</span>
         </label>
 
         <label className="flex items-end gap-2 pb-2">

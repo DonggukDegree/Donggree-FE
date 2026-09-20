@@ -10,6 +10,7 @@ import type { TRequirementSetFormState } from '@/components/admin/requirementSet
 import type { TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
 import type { TAdminCourseClassification } from '@/types/admin/TGetCourseClassifications';
 import type { TAdminGraduationRule } from '@/types/admin/TGetGraduationRules';
+import type { TRequirementTrack } from '@/types/admin/TRequirementSets';
 import type { TCourseType } from '@/types/course';
 
 // 신규 졸업 규칙 행의 초기값. 모든 입력값은 편의를 위해 문자열/배열로 다룬다.
@@ -35,6 +36,7 @@ export const EMPTY_RULE_DRAFT: Omit<TGraduationRuleDraft, 'clientId'> = {
   conditionField: '',
   conditionValue: '',
   exemptStudentTypes: '',
+  exemptCourseCodes: '',
   requiredCourseSetsText: '',
 };
 
@@ -197,6 +199,7 @@ export const toRuleDraft = (rule: TAdminGraduationRule): TGraduationRuleDraft =>
     conditionField: config.conditionField === 'englishLevel' ? 'englishLevel' : '',
     conditionValue: readString(config.conditionValue),
     exemptStudentTypes: readStringArray(config.exemptStudentTypes).join(', '),
+    exemptCourseCodes: readStringArray(config.exemptCourseCodes).join(', '),
     requiredCourseSetsText: formatRequiredCourseSets(config.requiredCourseSets),
   };
 };
@@ -209,6 +212,7 @@ export const toRequirementSetForm = (
     departmentName: string;
     yearStart: number;
     yearEnd: number;
+    track: TRequirementTrack;
     version: number;
     description: string | null;
     sheetImageUrl: string | null;
@@ -222,6 +226,7 @@ export const toRequirementSetForm = (
   departmentName: department?.departmentName ?? set.departmentName,
   yearStart: String(set.yearStart),
   yearEnd: String(set.yearEnd),
+  track: set.track,
   version: String(set.version),
   description: set.description ?? '',
   sheetImageUrl: set.sheetImageUrl ?? '',
