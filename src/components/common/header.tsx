@@ -44,7 +44,7 @@ export default function Header() {
       document.body.style.overflow = previousOverflow;
     };
   }, [isMenuOpen]);
-  
+
   useEffect(() => {
     if (!isMenuOpen) return;
     const closeMenu = () => setIsMenuOpen(false);
