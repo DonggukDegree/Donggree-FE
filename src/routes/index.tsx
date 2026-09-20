@@ -3,26 +3,32 @@
  * 게이트는 3단으로 겹쳐 둔다.
  *  ProtectedRoute(인증 → 온보딩 강제) → ReportGate(성적표 필요) → AdminRoute(관리자 권한)
  * 홈·자주 묻는 질문·로그인·콜백·404만 인증 없이 접근할 수 있다.
+ *
+ * 코드 분할: 첫 화면(홈·로그인·콜백·404)만 즉시 로드하고 나머지는 lazy로 나눈다.
+ * 특히 관리자 3종은 일반 사용자가 평생 열지 않는 화면이라 초기 번들에 들어갈 이유가 없다.
+ * 청크 대기 중에는 Layout의 Suspense가 공용 로딩을 띄운다.
  */
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import Layout from '@/layouts';
-import AdminCourseClassifications from '@/pages/admin/courseClassifications';
-import AdminFaqs from '@/pages/admin/faqs';
-import AdminGraduationRequirements from '@/pages/admin/graduationRequirements';
 import AuthCallback from '@/pages/auth/authCallback';
 import Login from '@/pages/auth/login';
-import OnBoarding from '@/pages/auth/onBoarding';
-import Curriculum from '@/pages/curriculum';
 import NotFound from '@/pages/exception/notFound';
-import Faq from '@/pages/faq';
 import Home from '@/pages/home';
-import AcademicRecords from '@/pages/myPage/academicRecords';
-import MyPage from '@/pages/myPage/index';
-import Profile from '@/pages/myPage/profile';
-import Graduation from '@/pages/report/graduation';
-import UploadPage from '@/pages/report/uploadPage';
 import AdminRoute from '@/routes/adminRoute';
+import {
+  AcademicRecords,
+  AdminCourseClassifications,
+  AdminFaqs,
+  AdminGraduationRequirements,
+  Curriculum,
+  Faq,
+  Graduation,
+  MyPage,
+  OnBoarding,
+  Profile,
+  UploadPage,
+} from '@/routes/lazyPages';
 import ProtectedRoute from '@/routes/protectedRoute';
 import ReportGate from '@/routes/reportGate';
 

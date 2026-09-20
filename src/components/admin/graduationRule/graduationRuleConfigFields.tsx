@@ -308,6 +308,10 @@ export default function GraduationRuleConfigFields({
             필수 과목 세트를 <b>비워 두면</b> 성적표의 졸업논문심사 합격으로 판정합니다. 채우면 그 과목들의 이수로
             판정합니다. 면제 학생유형은 두 경우 모두 우선 적용됩니다.
           </p>
+          <p className="text-body-xs text-coolgray-60">
+            면제 과목코드를 <b>비워 두면</b> 면제 학생유형은 이 규칙 전체를 면제받습니다. 채우면 <b>그 과목만</b> 이수한
+            것으로 간주하고 나머지 과목은 그대로 요구합니다.
+          </p>
           <label className="flex flex-col gap-1.5">
             <FieldLabel>면제 학생유형</FieldLabel>
             <TextInput
@@ -315,6 +319,15 @@ export default function GraduationRuleConfigFields({
               disabled={isSaving}
               placeholder="학석사연계과정"
               onChange={(value) => onFieldChange('exemptStudentTypes', value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <FieldLabel>면제 과목코드</FieldLabel>
+            <TextInput
+              value={draft.exemptCourseCodes}
+              disabled={isSaving}
+              placeholder="CSE4067, CSC4019, DAI*"
+              onChange={(value) => onFieldChange('exemptCourseCodes', value)}
             />
           </label>
           <label className="flex flex-col gap-1.5">

@@ -45,6 +45,13 @@ export default function Header() {
     };
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const closeMenu = () => setIsMenuOpen(false);
+    window.addEventListener('popstate', closeMenu);
+    return () => window.removeEventListener('popstate', closeMenu);
+  }, [isMenuOpen]);
+
   if (isAdminPage) {
     return (
       <header className="sticky top-0 z-50 w-full border-b border-coolgray-10 bg-white text-coolgray-90">

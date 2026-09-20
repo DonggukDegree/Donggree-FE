@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { getAdminDepartments, getAdminRequirementSetDetail } from '@/apis/admin/graduationRequirement';
 import type { TRequirementSetFormState } from '@/components/admin/requirementSet/requirementSetForm';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
+import { REQUIREMENT_TRACK_LABEL } from '@/constants/requirementTrack';
 import useSaveRequirementSet from '@/hooks/admin/mutations/useSaveRequirementSet';
 import useAdminColleges from '@/hooks/admin/queries/useAdminColleges';
 import useAdminDepartments from '@/hooks/admin/queries/useAdminDepartments';
@@ -20,6 +21,7 @@ import type {
   TRequirementSetCreateRequest,
   TRequirementSetFilters,
   TRequirementSetUpdateRequest,
+  TRequirementTrack,
 } from '@/types/admin/TRequirementSets';
 import { optionalText, toPositiveInteger, toRequirementSetForm } from '@/utils/adminForm';
 
@@ -30,6 +32,8 @@ const EMPTY_SET_FORM: TRequirementSetFormState = {
   departmentName: '',
   yearStart: '',
   yearEnd: '',
+  // 과정 구분이 없는 학과가 대부분이라 ALL을 기본값으로 둔다.
+  track: 'ALL',
   version: '',
   description: '',
   sheetImageUrl: '',
@@ -120,7 +124,10 @@ export default function useRequirementSetEditor() {
     }
   };
 
-  const changeForm = (field: keyof TRequirementSetFormState, value: string | boolean | number | null) => {
+  const changeForm = (
+    field: keyof TRequirementSetFormState,
+    value: string | boolean | number | null | TRequirementTrack,
+  ) => {
     setForm((prev) => {
       if (field === 'collegeName') {
         // value가 string이 아닐 때 'null'/'undefined' 문자열로 저장되지 않도록 방어한다.
@@ -173,6 +180,7 @@ export default function useRequirementSetEditor() {
     const baseBody = {
       yearStart,
       yearEnd,
+      track: form.track,
       description: optionalText(form.description),
       sheetImageUrl: optionalText(form.sheetImageUrl),
       active: form.active,
@@ -216,6 +224,8 @@ export default function useRequirementSetEditor() {
           <dd className="text-coolgray-90">
             {payload.body.yearStart} - {payload.body.yearEnd}
           </dd>
+          <dt className="text-coolgray-60">과정</dt>
+          <dd className="text-coolgray-90">{REQUIREMENT_TRACK_LABEL[payload.body.track]}</dd>
           <dt className="text-coolgray-60">버전</dt>
           <dd className="text-coolgray-90">{payload.id === null ? '자동 채번' : '서버 관리'}</dd>
           <dt className="text-coolgray-60">활성</dt>

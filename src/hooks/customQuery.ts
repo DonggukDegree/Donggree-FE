@@ -1,7 +1,7 @@
 /**
  * [공용] TanStack Query 래퍼
  * 모든 조회·변경 훅은 이 두 함수를 거친다. 캐시 정책과 에러 처리 기본값을 한곳에서 통일하기 위함이다.
- *  - useCoreQuery : staleTime 5분, 4xx는 재시도하지 않음(재시도해도 결과가 같으므로)
+ *  - useCoreQuery : 캐시 정책은 QueryClient 기본값(constants/queryOptions)을 따르고 타입만 고정
  *  - useCoreMutation: onError를 주지 않으면 공용 토스트로 안내 (either/or)
  */
 import {
@@ -15,25 +15,17 @@ import {
 import { toast } from 'sonner';
 
 import type { TResponseError, TUseMutationCustomOptions, TUseQueryCustomOptions } from '@/types/common';
-import { getErrorStatus } from '@/utils/error';
 
 export function useCoreQuery<TQueryFnData, TData = TQueryFnData>(
   keyName: QueryKey,
   query: QueryFunction<TQueryFnData, QueryKey>,
   options?: TUseQueryCustomOptions<TQueryFnData, TData>,
 ): UseQueryResult<TData, TResponseError> {
+  // staleTime·retry·refetchOnWindowFocus는 QueryClient 기본값(constants/queryOptions)에서 온다.
+  // 여기서는 키/함수 타입만 고정하고, 화면별로 다르게 가야 하는 값만 options로 덮어쓴다.
   return useQuery({
     queryKey: keyName,
     queryFn: query,
-    staleTime: 1000 * 60 * 5,
-    // 4xx(인증 실패·리소스 없음 등)는 재시도해도 결과가 같아 backoff 지연만 늘어나므로 즉시 중단한다.
-    // 특히 401은 이미 axios 인터셉터가 refresh를 시도한 "최종 실패"라 여기서 또 재시도할 이유가 없다.
-    // 서버 오류(5xx)·네트워크 오류 같은 일시적 실패만 기존처럼 최대 3회 재시도한다.
-    retry: (failureCount, error) => {
-      const status = getErrorStatus(error);
-      if (status && status >= 400 && status < 500) return false;
-      return failureCount < 3;
-    },
     ...options,
   });
 }

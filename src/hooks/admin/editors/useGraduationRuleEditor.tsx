@@ -1,6 +1,7 @@
 /**
  * [관리자 > 졸업 요건 관리 > 졸업 규칙 관리] 탭 컨트롤러 훅
- * 필터 상태 · 수정 대상(draft) 선택 · 규칙 종류별 설정값 검증 · 저장 확인 모달 · 저장을 담당한다.
+ * 필터 상태 · 수정 대상(draft) 선택 · 저장 확인 모달 · 저장을 담당한다.
+ * 규칙 종류별 설정값 검증과 rule_config 조립은 utils/graduationRuleConfig가 맡는다.
  * 하단 규칙 목록 조회는 세트 관리 탭도 함께 쓰므로 이 훅이 소유하고 결과를 그대로 넘겨준다.
  */
 import { useRef, useState } from 'react';
@@ -17,182 +18,11 @@ import useAdminGraduationRules from '@/hooks/admin/queries/useAdminGraduationRul
 import useAdminRequirementSets from '@/hooks/admin/queries/useAdminRequirementSets';
 import useAdminRuleTypes from '@/hooks/admin/queries/useAdminRuleTypes';
 import { useModalStore } from '@/stores/modalStore';
-import type { TGraduationRuleConfig, TGraduationRuleFilters } from '@/types/admin/TGetGraduationRules';
-import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
+import type { TGraduationRuleFilters } from '@/types/admin/TGetGraduationRules';
 import type { TGraduationRuleUpsertItem } from '@/types/admin/TPutGraduationRules';
 import type { TCourseType } from '@/types/course';
-import {
-  EMPTY_RULE_DRAFT,
-  nullableList,
-  optionalText,
-  parseRequiredCourseSets,
-  splitList,
-  toggleCourseType,
-  toggleNumber,
-  toNumber,
-  toPositiveInteger,
-  toRuleDraft,
-} from '@/utils/adminForm';
-
-// 규칙 종류(typeName)별로 폼 입력값을 검증해 API용 ruleConfig를 조립한다. 누락 시 toast 후 null.
-const buildRuleConfig = (
-  draft: TGraduationRuleDraft,
-  ruleType: TAdminRuleType,
-  rowLabel: string,
-): TGraduationRuleConfig | null => {
-  if (ruleType.typeName === 'TOTAL_CREDITS') {
-    const minCredits = toPositiveInteger(draft.minCredits);
-    if (!minCredits) {
-      toast.error(`${rowLabel}의 최소 취득학점을 입력해주세요.`);
-      return null;
-    }
-    return { minCredits };
-  }
-
-  if (ruleType.typeName === 'GPA') {
-    const minGpa = toNumber(draft.minGpa);
-    if (minGpa === null || minGpa <= 0) {
-      toast.error(`${rowLabel}의 최소 평점평균을 입력해주세요.`);
-      return null;
-    }
-    return { minGpa };
-  }
-
-  // MIN_CREDITS: 채운 선택자를 모두 만족하는 과목만 집계한다(선택자 간 AND).
-  // 한 선택자 안의 배열 값들끼리는 OR이고, 비운 선택자는 그 항목에 제약을 걸지 않는다.
-  // 임계값 2종도 AND라 지정한 것을 모두 충족해야 하며, 최소 하나는 있어야 한다.
-  if (ruleType.typeName === 'MIN_CREDITS') {
-    const minCredits = toPositiveInteger(draft.minCredits);
-    const minCount = toPositiveInteger(draft.minCount);
-    if (!minCredits && !minCount) {
-      toast.error(`${rowLabel}의 최소 학점 또는 최소 과목 수 중 하나는 입력해주세요.`);
-      return null;
-    }
-
-    const subCategories = splitList(draft.subCategories);
-    const pdfCourseTypeNames = splitList(draft.pdfCourseTypeNames);
-    const pdfAreaNames = splitList(draft.pdfAreaNames);
-    const courseCodes = splitList(draft.courseCodes);
-    const hasSelector =
-      draft.areaNames.length > 0 ||
-      subCategories.length > 0 ||
-      pdfCourseTypeNames.length > 0 ||
-      pdfAreaNames.length > 0 ||
-      courseCodes.length > 0;
-    // 이수구분도 선택자도 없으면 아무 제약이 없어 전 과목이 집계된다.
-    // 서버가 config를 검증하지 않아 조용히 통과하므로 여기서 막는다.
-    if (!draft.courseType && !hasSelector) {
-      toast.error(`${rowLabel}의 이수구분이나 선택자 중 하나는 지정해주세요.`);
-      return null;
-    }
-
-    // 비어 있는 키는 null로 보내지 않고 아예 뺀다. (제약 없음 = 키 부재)
-    return {
-      ...(draft.courseType ? { courseType: draft.courseType } : {}),
-      ...(draft.areaNames.length > 0 ? { areaNames: draft.areaNames } : {}),
-      ...(subCategories.length > 0 ? { subCategories } : {}),
-      ...(pdfCourseTypeNames.length > 0 ? { pdfCourseTypeNames } : {}),
-      ...(pdfAreaNames.length > 0 ? { pdfAreaNames } : {}),
-      ...(courseCodes.length > 0 ? { courseCodes } : {}),
-      ...(minCredits ? { minCredits } : {}),
-      ...(minCount ? { minCount } : {}),
-    };
-  }
-
-  if (ruleType.typeName === 'REQUIRED_COURSE') {
-    const courseCodes = splitList(draft.courseCodes);
-    if (courseCodes.length === 0) {
-      toast.error(`${rowLabel}의 필수 과목코드를 입력해주세요.`);
-      return null;
-    }
-    return {
-      courseCodes,
-      exemptEnglishLevels: nullableList(draft.exemptEnglishLevels),
-      requiredEnglishLevels: nullableList(draft.requiredEnglishLevels),
-    };
-  }
-
-  if (ruleType.typeName === 'ENGLISH_COURSE') {
-    const minCount = toPositiveInteger(draft.minCount);
-    if (!minCount) {
-      toast.error(`${rowLabel}의 최소 이수 개수를 입력해주세요.`);
-      return null;
-    }
-    return {
-      courseTypes: draft.courseTypes.length > 0 ? draft.courseTypes : null,
-      minCount,
-    };
-  }
-
-  if (ruleType.typeName === 'PREREQUISITE') {
-    const targetCourseCodes = splitList(draft.targetCourseCodes);
-    const prerequisiteCourseCodes = splitList(draft.prerequisiteCourseCodes);
-    if (targetCourseCodes.length === 0 || prerequisiteCourseCodes.length === 0) {
-      toast.error(`${rowLabel}의 대상/선이수 과목코드를 입력해주세요.`);
-      return null;
-    }
-    if (draft.conditionField && !draft.conditionValue.trim()) {
-      toast.error(`${rowLabel}의 조건 값을 입력해주세요.`);
-      return null;
-    }
-    return {
-      targetCourseCodes,
-      prerequisiteCourseCodes,
-      conditionField: draft.conditionField || null,
-      conditionValue: draft.conditionField ? draft.conditionValue.trim() : null,
-    };
-  }
-
-  if (ruleType.typeName === 'SCIENCE_CONFLICT') {
-    return {};
-  }
-
-  // THESIS: requiredCourseSets가 있으면 그 과목 이수로, 없으면 성적표의 졸업논문심사 합격으로 판정한다.
-  // 후자가 대부분의 학과라 빈 객체 {}도 정상 저장값이다.
-  if (ruleType.typeName === 'THESIS') {
-    const exemptStudentTypes = splitList(draft.exemptStudentTypes);
-    const requiredCourseSets = parseRequiredCourseSets(draft.requiredCourseSetsText);
-    return {
-      ...(exemptStudentTypes.length > 0 ? { exemptStudentTypes } : {}),
-      ...(requiredCourseSets.length > 0 ? { requiredCourseSets } : {}),
-    };
-  }
-
-  // 알 수 없는 규칙 종류는 검증할 수 없으므로 방어적으로 null을 반환한다.
-  return null;
-};
-
-// 폼 draft 한 건을 업서트 요청 항목으로 변환한다. 검증 실패 시 toast 후 null.
-const buildRuleUpsertItem = (
-  draft: TGraduationRuleDraft,
-  index: number,
-  ruleTypes: TAdminRuleType[],
-): TGraduationRuleUpsertItem | null => {
-  const rowLabel = `${index + 1}번째 규칙`;
-  const ruleTypeId = toPositiveInteger(draft.ruleTypeId);
-  const ruleType = ruleTypeId ? ruleTypes.find((type) => type.id === ruleTypeId) : null;
-  const ruleName = draft.ruleName.trim();
-
-  if (!ruleTypeId || !ruleType) {
-    toast.error(`${rowLabel}의 규칙 종류를 선택해주세요.`);
-    return null;
-  }
-  if (!ruleName) {
-    toast.error(`${rowLabel}의 규칙명을 입력해주세요.`);
-    return null;
-  }
-
-  const ruleConfig = buildRuleConfig(draft, ruleType, rowLabel);
-  if (!ruleConfig) return null;
-
-  return {
-    id: draft.id,
-    ruleTypeId,
-    ruleName,
-    ruleConfig,
-    description: optionalText(draft.description),
-  };
-};
+import { EMPTY_RULE_DRAFT, toggleCourseType, toggleNumber, toPositiveInteger, toRuleDraft } from '@/utils/adminForm';
+import { buildRuleUpsertItem } from '@/utils/graduationRuleConfig';
 
 export default function useGraduationRuleEditor() {
   const ruleDraftIndex = useRef(0);
