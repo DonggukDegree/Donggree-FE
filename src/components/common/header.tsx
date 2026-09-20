@@ -44,6 +44,13 @@ export default function Header() {
       document.body.style.overflow = previousOverflow;
     };
   }, [isMenuOpen]);
+  
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const closeMenu = () => setIsMenuOpen(false);
+    window.addEventListener('popstate', closeMenu);
+    return () => window.removeEventListener('popstate', closeMenu);
+  }, [isMenuOpen]);
 
   if (isAdminPage) {
     return (

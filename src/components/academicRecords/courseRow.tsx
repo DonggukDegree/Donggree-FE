@@ -64,8 +64,7 @@ export default function CourseRow({ course, editMode, isSaving, onChange, onRemo
     }
     return (
       <TextField
-        // TextField 기본 너비(w-80)를 셀 폭에 맞게 덮어써야 해서 !를 붙인다.
-        className="!w-full"
+        className="w-full"
         placeholder={column.label}
         value={course[column.key]}
         disabled={isSaving}

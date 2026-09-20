@@ -9,9 +9,9 @@ import { toast } from 'sonner';
 
 import Inbox from '@/assets/icons/inbox.svg?react';
 import Upload from '@/assets/icons/upload.svg?react';
-import UploadInfo1 from '@/assets/uploadInfo1.svg?react';
-import UploadInfo2 from '@/assets/uploadInfo2.svg?react';
-import UploadInfo3 from '@/assets/uploadInfo3.svg?react';
+import uploadInfo1 from '@/assets/uploadInfo1.svg';
+import uploadInfo2 from '@/assets/uploadInfo2.svg';
+import uploadInfo3 from '@/assets/uploadInfo3.svg';
 import Button from '@/components/common/button';
 import useUploadTranscript from '@/hooks/report/useUploadTranscript';
 
@@ -46,7 +46,7 @@ export default function UploadPage() {
         가로로 들어가지 않으므로 세로로 쌓고 이미지 폭을 컨테이너에 맞춘다.
       */}
       <div className="w-full lg:w-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-20">
-        <UploadInfo1 className="w-full lg:w-150 h-auto lg:h-90" />
+        <img src={uploadInfo1} alt="nDRIMS 취득학점확인서 조회 메뉴 위치" className="w-full lg:w-150 h-auto lg:h-90" />
         <div className="flex flex-col gap-3 lg:gap-12">
           <p className="text-heading-6 lg:text-heading-3">{`nDRIMS > 졸업 > 취득학점확인서 조회`}</p>
           <p className="text-body-s lg:text-body-l">{`또는 메뉴 바 상단 검색 > ‘취득학점확인서조회’ 검색`}</p>
@@ -57,7 +57,7 @@ export default function UploadPage() {
         DOM은 '이미지 → 텍스트'로 통일하고, PC에서만 flex-row-reverse로 되돌려 좌우 배치를 유지한다.
       */}
       <div className="w-full lg:w-auto flex flex-col lg:flex-row-reverse items-center gap-6 lg:gap-20">
-        <UploadInfo2 className="w-full lg:w-150 h-auto lg:h-90" />
+        <img src={uploadInfo2} alt="F학점 제외 체크 해제 후 조회하는 화면" className="w-full lg:w-150 h-auto lg:h-90" />
         <div className="flex flex-col gap-3 lg:gap-12">
           <p className="text-heading-6 lg:text-heading-3">F학점 포함 후 조회하여 PDF 확인</p>
           <div className="flex flex-col text-body-s lg:text-body-l">
@@ -68,7 +68,7 @@ export default function UploadPage() {
         </div>
       </div>
       <div className="w-full lg:w-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-20">
-        <UploadInfo3 className="w-full lg:w-150 h-auto" />
+        <img src={uploadInfo3} alt="PDF 뷰어에서 저장 버튼을 눌러 내려받는 화면" className="w-full lg:w-150 h-auto" />
         <div className="flex flex-col gap-3 lg:gap-12">
           <p className="text-heading-6 lg:text-heading-3">PDF 업로드</p>
           <div className="flex flex-col text-body-s lg:text-body-l">
