@@ -139,12 +139,16 @@ const readCourseTypeArray = (value: unknown) => {
   return value.filter((item): item is TCourseType => typeof item === 'string') as TCourseType[];
 };
 
-const readMajorRoleArray = (value: unknown): TMajorRole[] => {
-  if (!Array.isArray(value)) return ['SINGLE_PRIMARY'];
+const readMajorRoleArray = (value: unknown, typeName: TAdminGraduationRule['typeName']): TMajorRole[] => {
+  // 기존 논문·영어강의의 두 주전공 적용 범위가 편집·재저장만으로 축소되지 않도록 보존한다.
+  const fallback: TMajorRole[] = ['THESIS', 'ENGLISH_COURSE'].includes(typeName)
+    ? ['SINGLE_PRIMARY', 'DUAL_PRIMARY']
+    : ['SINGLE_PRIMARY'];
+  if (!Array.isArray(value)) return fallback;
   const roles = value.filter(
     (item): item is TMajorRole => typeof item === 'string' && MAJOR_ROLES.includes(item as TMajorRole),
   );
-  return roles.length > 0 ? roles : ['SINGLE_PRIMARY'];
+  return roles.length > 0 ? roles : fallback;
 };
 
 // ruleConfig의 unknown 값을 문자열로 변환한다. (숫자도 문자열화)
@@ -203,7 +207,7 @@ export const toRuleDraft = (rule: TAdminGraduationRule): TGraduationRuleDraft =>
     courseCodes: readStringArray(config.courseCodes).join(', '),
     exemptEnglishLevels: readStringArray(config.exemptEnglishLevels).join(', '),
     requiredEnglishLevels: readStringArray(config.requiredEnglishLevels).join(', '),
-    applicableMajorRoles: readMajorRoleArray(config.applicableMajorRoles),
+    applicableMajorRoles: readMajorRoleArray(config.applicableMajorRoles, rule.typeName),
     courseTypes: readCourseTypeArray(config.courseTypes),
     targetCourseCodes: readStringArray(config.targetCourseCodes).join(', '),
     prerequisiteCourseCodes: readStringArray(config.prerequisiteCourseCodes).join(', '),

@@ -106,9 +106,14 @@ const buildRuleConfig = (
       toast.error(`${rowLabel}의 최소 이수 개수를 입력해주세요.`);
       return null;
     }
+    if (draft.applicableMajorRoles.length === 0) {
+      toast.error(`${rowLabel}의 규칙 적용 대상을 하나 이상 선택해주세요.`);
+      return null;
+    }
     return {
       courseTypes: draft.courseTypes.length > 0 ? draft.courseTypes : null,
       minCount,
+      applicableMajorRoles: draft.applicableMajorRoles,
     };
   }
 
@@ -135,10 +140,14 @@ const buildRuleConfig = (
     return {};
   }
 
-  // THESIS: requiredCourseSets가 있으면 그 과목 이수로, 없으면 성적표의 졸업논문심사 합격으로 판정한다.
-  // 후자가 대부분의 학과라 빈 객체 {}도 정상 저장값이다.
+  // THESIS: 과목 세트가 없으면 적용 역할의 주전공 또는 복수1 논문·시험 결과로 판정한다.
+  // 기존 {} 규칙은 읽기 호환만 유지하며, 신규·수정 시에는 적용 대상을 반드시 전송한다.
   // exemptCourseCodes를 채우면 면제 학생유형에 전체 면제 대신 그 과목만 이수한 것으로 간주한다(부분 면제).
   if (ruleType.typeName === 'THESIS') {
+    if (draft.applicableMajorRoles.length === 0) {
+      toast.error(`${rowLabel}의 규칙 적용 대상을 하나 이상 선택해주세요.`);
+      return null;
+    }
     const exemptStudentTypes = splitList(draft.exemptStudentTypes);
     const exemptCourseCodes = splitList(draft.exemptCourseCodes);
     const requiredCourseSets = parseRequiredCourseSets(draft.requiredCourseSetsText);
@@ -147,6 +156,7 @@ const buildRuleConfig = (
       return null;
     }
     return {
+      applicableMajorRoles: draft.applicableMajorRoles,
       ...(exemptStudentTypes.length > 0 ? { exemptStudentTypes } : {}),
       ...(exemptCourseCodes.length > 0 ? { exemptCourseCodes } : {}),
       ...(requiredCourseSets.length > 0 ? { requiredCourseSets } : {}),

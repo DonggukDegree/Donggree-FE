@@ -73,6 +73,26 @@ export default function GraduationRuleConfigFields({
         <p className="text-body-s text-coolgray-60">규칙 종류를 선택하면 설정 입력칸이 나타납니다.</p>
       )}
 
+      {selectedRuleType &&
+        ['MIN_CREDITS', 'REQUIRED_COURSE', 'THESIS', 'ENGLISH_COURSE'].includes(selectedRuleType.typeName) && (
+          <p className="mb-3 text-body-xs text-coolgray-60">
+            주전공 학과의 세트에서는 단일전공 또는 복수전공자의 주전공 옵션을 적용합니다. 복수전공 학과의 세트에서는
+            복수전공자의 복수전공을 선택한 규칙만 추가 검사합니다. 적용 대상 옵션이 없는 종류의 규칙은 주전공에서만
+            검사합니다. 미충족 사유는 단일전공·복수전공자의 주전공이면 제1전공 탭에, 복수전공자의 복수전공이면 제2전공
+            탭에 표시됩니다. 과목 목록과 이수·목표학점은 원래 이수구분에 유지됩니다.
+          </p>
+        )}
+
+      {selectedRuleType?.courseType === 'ACADEMIC_FOUNDATION' &&
+        ['MIN_CREDITS', 'REQUIRED_COURSE'].includes(selectedRuleType.typeName) && (
+          <p className="mb-3 text-body-xs text-coolgray-60">
+            이 학과를 복수전공하는 학생에게도 학문기초 요건이 필요하면 복수전공자의 복수전공을 함께 선택합니다. 최소
+            이수 규칙의 이수구분은 학문기초로 지정하고, 학과별 대상이 정해져 있으면 영역·학수번호 조건을 추가합니다.
+            필수과목은 지정한 학수번호로 확인합니다. 과목·학점 현황은 학문기초에 유지되며, 미충족 사유는 적용 대상에
+            따라 제1전공·제2전공 탭에 표시됩니다.
+          </p>
+        )}
+
       {selectedRuleType?.typeName === 'TOTAL_CREDITS' && (
         <label className="flex max-w-xs flex-col gap-1.5">
           <FieldLabel>최소 취득학점</FieldLabel>
@@ -263,6 +283,29 @@ export default function GraduationRuleConfigFields({
 
       {selectedRuleType?.typeName === 'ENGLISH_COURSE' && (
         <div className="grid gap-3 md:grid-cols-2">
+          <label className="flex flex-col gap-1.5 md:col-span-2 md:max-w-xl">
+            <FieldLabel>규칙 적용 대상</FieldLabel>
+            <MultiSelectDropdown
+              options={MAJOR_ROLE_OPTIONS}
+              selectedValues={draft.applicableMajorRoles}
+              onToggle={toggleMajorRole}
+              allLabel="적용 대상 선택"
+              disabled={isSaving}
+            />
+            <span className="text-body-xs text-coolgray-60">
+              신규 규칙의 기본값은 단일전공이며 하나 이상 반드시 선택합니다. 적용 대상이 없던 기존 영어강의 규칙은
+              단일전공과 복수전공자의 주전공 선택을 유지합니다.
+            </span>
+          </label>
+          <p className="text-body-xs text-coolgray-60 md:col-span-2">
+            이수구분을 비우면 복수전공을 포함한 전체 이수 과목에서 영어강의를 셉니다. 제1전공은 주전공 적용 시에는
+            주전공 과목을, 복수전공자의 복수전공 적용 시에는 복수1 과목을 뜻합니다. 제2전공을 직접 선택해도 복수1 과목을
+            셉니다. 여러 이수구분을 선택하면 합산하며, 학점이 아닌 과목 수로 비교합니다.
+          </p>
+          <p className="text-body-xs text-coolgray-60 md:col-span-2">
+            영어강의 비대상자 면제는 유지합니다. 복수전공 학과의 추가 요건은 성적표의 전체 영어강의 이수 완료 표시만으로
+            통과시키지 않고 실제 과목 수로 확인합니다.
+          </p>
           <label className="flex flex-col gap-1.5">
             <FieldLabel>대상 이수구분</FieldLabel>
             <MultiSelectDropdown
@@ -338,13 +381,28 @@ export default function GraduationRuleConfigFields({
 
       {/*
         THESIS: 필수 과목 세트를 채우면 그 과목 이수로 판정하고(컴퓨터·AI학부 종합설계),
-        비워 두면 성적표 PDF의 졸업논문심사 합격 여부로 판정한다(대부분의 학과).
+        비워 두면 선택한 전공 역할의 졸업논문·시험 심사 결과로 판정한다.
         적용 학과는 규칙이 아니라 졸업 요건 세트가 정하므로 여기에 학과 입력은 없다.
       */}
       {selectedRuleType?.typeName === 'THESIS' && (
         <div className="grid gap-3">
+          <label className="flex flex-col gap-1.5 md:max-w-xl">
+            <FieldLabel>규칙 적용 대상</FieldLabel>
+            <MultiSelectDropdown
+              options={MAJOR_ROLE_OPTIONS}
+              selectedValues={draft.applicableMajorRoles}
+              onToggle={toggleMajorRole}
+              allLabel="적용 대상 선택"
+              disabled={isSaving}
+            />
+            <span className="text-body-xs text-coolgray-60">
+              신규 규칙의 기본값은 단일전공이며 하나 이상 반드시 선택합니다. 적용 대상이 없던 기존 논문·시험 규칙은
+              단일전공과 복수전공자의 주전공 선택을 유지합니다.
+            </span>
+          </label>
           <p className="text-body-xs text-coolgray-60">
-            필수 과목 세트를 <b>비워 두면</b> 성적표의 졸업논문심사 합격으로 판정합니다. 채우면 그 과목들의 이수로
+            필수 과목 세트를 <b>비워 두면</b> 성적표의 졸업논문·시험 심사 합격으로 판정합니다. 주전공 적용 시에는 주전공
+            결과를, 복수전공자의 복수전공 적용 시에는 복수1 결과를 확인합니다. 채우면 해당 전공 역할의 과목 이수로
             판정합니다. 면제 학생유형은 두 경우 모두 우선 적용됩니다.
           </p>
           <p className="text-body-xs text-coolgray-60">
