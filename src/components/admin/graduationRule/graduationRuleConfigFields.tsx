@@ -14,9 +14,11 @@ import SelectChevron from '@/components/common/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
 import type { TAdminAreaType } from '@/types/admin/TGetAdminAreaTypes';
 import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
+import { MAJOR_ROLE_LABEL, MAJOR_ROLES, type TMajorRole } from '@/types/admin/TMajorRole';
 import { COURSE_LABEL, COURSE_TYPES, type TCourseType } from '@/types/course';
 
 const COURSE_TYPE_OPTIONS = COURSE_TYPES.map((courseType) => ({ value: courseType, label: COURSE_LABEL[courseType] }));
+const MAJOR_ROLE_OPTIONS = MAJOR_ROLES.map((role) => ({ value: role, label: MAJOR_ROLE_LABEL[role] }));
 
 interface IGraduationRuleConfigFieldsProps {
   selectedRuleType: TAdminRuleType | null;
@@ -52,6 +54,16 @@ export default function GraduationRuleConfigFields({
       draft.courseTypes.includes(courseType)
         ? draft.courseTypes.filter((value) => value !== courseType)
         : [...draft.courseTypes, courseType],
+    );
+  };
+
+  const toggleMajorRole = (role: TMajorRole) => {
+    if (draft.applicableMajorRoles.length === 1 && draft.applicableMajorRoles.includes(role)) return;
+    onFieldChange(
+      'applicableMajorRoles',
+      draft.applicableMajorRoles.includes(role)
+        ? draft.applicableMajorRoles.filter((value) => value !== role)
+        : [...draft.applicableMajorRoles, role],
     );
   };
 
@@ -98,6 +110,19 @@ export default function GraduationRuleConfigFields({
             <b>하나만 맞아도</b> 됩니다(값 사이 OR). <b>비운 칸은 제한 없음</b>입니다. 임계값(최소 학점 · 최소 과목
             수)은 지정한 것을 모두 충족해야 하며 최소 하나는 필요합니다.
           </p>
+          <label className="flex w-full flex-col gap-1.5">
+            <FieldLabel>규칙 적용 대상</FieldLabel>
+            <MultiSelectDropdown
+              options={MAJOR_ROLE_OPTIONS}
+              selectedValues={draft.applicableMajorRoles}
+              onToggle={toggleMajorRole}
+              allLabel="적용 대상 선택"
+              disabled={isSaving}
+            />
+            <span className="text-body-xs text-coolgray-60">
+              어떤 학생의 어느 전공에 적용할지를 정합니다. 기본값은 단일전공이며 하나 이상 반드시 선택합니다.
+            </span>
+          </label>
           <div className="grid gap-3 md:grid-cols-3">
             <label className="flex flex-col gap-1.5">
               <FieldLabel>이수구분</FieldLabel>
@@ -192,6 +217,20 @@ export default function GraduationRuleConfigFields({
 
       {selectedRuleType?.typeName === 'REQUIRED_COURSE' && (
         <div className="grid gap-3 md:grid-cols-3">
+          <label className="flex flex-col gap-1.5 md:col-span-3 md:max-w-xl">
+            <FieldLabel>규칙 적용 대상</FieldLabel>
+            <MultiSelectDropdown
+              options={MAJOR_ROLE_OPTIONS}
+              selectedValues={draft.applicableMajorRoles}
+              onToggle={toggleMajorRole}
+              allLabel="적용 대상 선택"
+              disabled={isSaving}
+            />
+            <span className="text-body-xs text-coolgray-60">
+              어떤 학생의 어느 전공에 이 필수과목 규칙을 적용할지 선택합니다. 기본값은 단일전공이며 하나 이상 반드시
+              선택합니다.
+            </span>
+          </label>
           <label className="flex flex-col gap-1.5">
             <FieldLabel>필수 과목코드</FieldLabel>
             <TextInput

@@ -64,7 +64,7 @@ export default function Graduation() {
     });
   }, [data]);
 
-  // 복수전공·부전공 이력이 있으면 조회할 때마다 안내한다.
+  // 복수전공 판정 누락·복수전공 2·부전공·편입으로 정확도 경고가 필요하면 조회할 때마다 안내한다.
   const hasUnsupportedMajor = data?.hasUnsupportedMajor;
   useEffect(() => {
     if (!hasUnsupportedMajor) return;
