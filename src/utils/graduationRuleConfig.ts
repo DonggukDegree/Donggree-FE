@@ -56,6 +56,10 @@ const buildRuleConfig = (
       toast.error(`${rowLabel}의 최소 학점 또는 최소 과목 수 중 하나는 입력해주세요.`);
       return null;
     }
+    if (draft.applicableMajorRoles.length === 0) {
+      toast.error(`${rowLabel}의 규칙 적용 대상을 하나 이상 선택해주세요.`);
+      return null;
+    }
 
     const subCategories = splitList(draft.subCategories);
     const pdfCourseTypeNames = splitList(draft.pdfCourseTypeNames);
@@ -72,6 +76,7 @@ const buildRuleConfig = (
       ...(pdfCourseTypeNames.length > 0 ? { pdfCourseTypeNames } : {}),
       ...(pdfAreaNames.length > 0 ? { pdfAreaNames } : {}),
       ...(courseCodes.length > 0 ? { courseCodes } : {}),
+      applicableMajorRoles: draft.applicableMajorRoles,
       ...(minCredits ? { minCredits } : {}),
       ...(minCount ? { minCount } : {}),
     };
@@ -83,10 +88,15 @@ const buildRuleConfig = (
       toast.error(`${rowLabel}의 필수 과목코드를 입력해주세요.`);
       return null;
     }
+    if (draft.applicableMajorRoles.length === 0) {
+      toast.error(`${rowLabel}의 규칙 적용 대상을 하나 이상 선택해주세요.`);
+      return null;
+    }
     return {
       courseCodes,
       exemptEnglishLevels: nullableList(draft.exemptEnglishLevels),
       requiredEnglishLevels: nullableList(draft.requiredEnglishLevels),
+      applicableMajorRoles: draft.applicableMajorRoles,
     };
   }
 

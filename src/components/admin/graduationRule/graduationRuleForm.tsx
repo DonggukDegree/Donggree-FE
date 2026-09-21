@@ -10,6 +10,7 @@ import SelectChevron from '@/components/common/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
 import type { TAdminAreaType } from '@/types/admin/TGetAdminAreaTypes';
 import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
+import type { TMajorRole } from '@/types/admin/TMajorRole';
 import type { TCourseType } from '@/types/course';
 
 export type TGraduationRuleDraft = {
@@ -31,6 +32,7 @@ export type TGraduationRuleDraft = {
   courseCodes: string;
   exemptEnglishLevels: string;
   requiredEnglishLevels: string;
+  applicableMajorRoles: TMajorRole[];
   courseTypes: TCourseType[];
   targetCourseCodes: string;
   prerequisiteCourseCodes: string;
@@ -42,7 +44,7 @@ export type TGraduationRuleDraft = {
 };
 
 export type TGraduationRuleDraftField = keyof TGraduationRuleDraft;
-export type TGraduationRuleDraftValue = string | string[] | TCourseType[];
+export type TGraduationRuleDraftValue = string | string[] | TCourseType[] | TMajorRole[];
 
 interface IGraduationRuleFormProps {
   areaTypes: TAdminAreaType[];

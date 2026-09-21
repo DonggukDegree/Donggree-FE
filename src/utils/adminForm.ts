@@ -10,6 +10,7 @@ import type { TRequirementSetFormState } from '@/components/admin/requirementSet
 import type { TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
 import type { TAdminCourseClassification } from '@/types/admin/TGetCourseClassifications';
 import type { TAdminGraduationRule } from '@/types/admin/TGetGraduationRules';
+import { MAJOR_ROLES, type TMajorRole } from '@/types/admin/TMajorRole';
 import type { TRequirementTrack } from '@/types/admin/TRequirementSets';
 import type { TCourseType } from '@/types/course';
 
@@ -30,6 +31,7 @@ export const EMPTY_RULE_DRAFT: Omit<TGraduationRuleDraft, 'clientId'> = {
   courseCodes: '',
   exemptEnglishLevels: '',
   requiredEnglishLevels: '',
+  applicableMajorRoles: ['SINGLE_PRIMARY'],
   courseTypes: [],
   targetCourseCodes: '',
   prerequisiteCourseCodes: '',
@@ -137,6 +139,14 @@ const readCourseTypeArray = (value: unknown) => {
   return value.filter((item): item is TCourseType => typeof item === 'string') as TCourseType[];
 };
 
+const readMajorRoleArray = (value: unknown): TMajorRole[] => {
+  if (!Array.isArray(value)) return ['SINGLE_PRIMARY'];
+  const roles = value.filter(
+    (item): item is TMajorRole => typeof item === 'string' && MAJOR_ROLES.includes(item as TMajorRole),
+  );
+  return roles.length > 0 ? roles : ['SINGLE_PRIMARY'];
+};
+
 // ruleConfig의 unknown 값을 문자열로 변환한다. (숫자도 문자열화)
 const readString = (value: unknown) => {
   if (typeof value === 'string') return value;
@@ -193,6 +203,7 @@ export const toRuleDraft = (rule: TAdminGraduationRule): TGraduationRuleDraft =>
     courseCodes: readStringArray(config.courseCodes).join(', '),
     exemptEnglishLevels: readStringArray(config.exemptEnglishLevels).join(', '),
     requiredEnglishLevels: readStringArray(config.requiredEnglishLevels).join(', '),
+    applicableMajorRoles: readMajorRoleArray(config.applicableMajorRoles),
     courseTypes: readCourseTypeArray(config.courseTypes),
     targetCourseCodes: readStringArray(config.targetCourseCodes).join(', '),
     prerequisiteCourseCodes: readStringArray(config.prerequisiteCourseCodes).join(', '),
