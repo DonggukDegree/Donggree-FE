@@ -118,12 +118,14 @@ export default function useGraduationRuleEditor() {
             courseCodes: '',
             exemptEnglishLevels: '',
             requiredEnglishLevels: '',
+            applicableMajorRoles: ['SINGLE_PRIMARY'],
             courseTypes: [],
             targetCourseCodes: '',
             prerequisiteCourseCodes: '',
             conditionField: '',
             conditionValue: '',
             exemptStudentTypes: '',
+            exemptCourseCodes: '',
             requiredCourseSetsText: '',
           };
         }
