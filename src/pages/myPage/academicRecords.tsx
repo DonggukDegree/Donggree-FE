@@ -81,6 +81,7 @@ function AcademicRecordsContent({ data }: { data: TGetUserReportsResult }) {
         <SemesterSection
           key={semester.id}
           semester={semester}
+          hasDualMajor1={Boolean(meta.dualMajor1)}
           editMode={editor.editMode}
           isSaving={editor.isSaving}
           className={SECTION_CLASS}

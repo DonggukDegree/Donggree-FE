@@ -13,6 +13,7 @@ import type { TEditSemester } from '@/hooks/report/useAcademicRecordsEditor';
 
 interface ISemesterSectionProps {
   semester: TEditSemester;
+  hasDualMajor1: boolean;
   editMode: boolean;
   isSaving: boolean;
   className?: string;
@@ -25,6 +26,7 @@ interface ISemesterSectionProps {
 
 export default function SemesterSection({
   semester,
+  hasDualMajor1,
   editMode,
   isSaving,
   className = '',
@@ -71,6 +73,7 @@ export default function SemesterSection({
               <CourseRow
                 key={course.id}
                 course={course}
+                hasDualMajor1={hasDualMajor1}
                 editMode={editMode}
                 isSaving={isSaving}
                 onChange={(field, value) => onCourseChange(course.id, field, value)}
