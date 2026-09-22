@@ -7,6 +7,7 @@ import { getUserInfo } from '@/apis/user/user';
 import Loading from '@/components/common/loading';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useAuthStore } from '@/stores/authStore';
+import { resetSurveyPromptForLogin } from '@/utils/surveyPrompt';
 
 // 카카오 OAuth 로그인 성공 후 백엔드가 리다이렉트하는 콜백 페이지.
 // 백엔드는 accessToken을 쿼리 파라미터로 직접 전달하고, refreshToken은 HttpOnly 쿠키로 심는다.
@@ -47,6 +48,7 @@ export default function AuthCallback() {
     // 사용자 정보를 조회해 온보딩 여부로 분기한다.
     getUserInfo()
       .then((user) => {
+        resetSurveyPromptForLogin();
         // 조회 결과를 캐시에 미리 심어, 이동한 페이지에서 useUserInfo가 중복 요청하지 않게 한다.
         queryClient.setQueryData(QUERY_KEYS.GET_USER_INFO, user);
         // studentId가 없으면 온보딩 미완료 → 온보딩으로 강제, 완료 상태면 홈으로.

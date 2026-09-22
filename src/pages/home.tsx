@@ -12,6 +12,7 @@ import Inbox from '@/assets/icons/inbox.svg?react';
 import Rocket from '@/assets/icons/rocket.svg?react';
 import Warning from '@/assets/icons/warning.svg?react';
 import Button from '@/components/common/button';
+import useSurveyPrompt from '@/hooks/survey/useSurveyPrompt';
 import useInView from '@/hooks/useInView';
 
 const STEPS = [
@@ -56,6 +57,7 @@ const FEATURES = [
 const sectionStyles = 'w-full flex flex-col items-center justify-center';
 
 export default function Home() {
+  useSurveyPrompt();
   const navigate = useNavigate();
   const [heroRef, heroInView] = useInView();
   const [ctaRef, ctaInView] = useInView();
