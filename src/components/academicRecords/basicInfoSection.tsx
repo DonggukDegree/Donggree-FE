@@ -27,6 +27,10 @@ export default function BasicInfoSection({ meta, className = '' }: IBasicInfoSec
   items.push({ label: '학적 상태', value: meta.academicStatus });
   items.push({ label: '이수 학기', value: `${meta.completedSemesters}학기` });
   items.push({ label: '총 취득학점', value: `${meta.totalCredits}학점` });
+  items.push({ label: '전공 평균 평점', value: meta.majorGpa?.toFixed(2) ?? '—' });
+  if (meta.dualMajor1) {
+    items.push({ label: '복수전공 평균 평점', value: meta.dualMajor1Gpa?.toFixed(2) ?? '—' });
+  }
   items.push({ label: '평점 평균', value: meta.gpa });
 
   return (

@@ -10,6 +10,7 @@ import AdminFilterBar, { FilterField } from '@/components/admin/common/adminFilt
 import MultiSelectDropdown from '@/components/admin/common/multiSelectDropdown';
 import SelectChevron from '@/components/common/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
+import { REQUIREMENT_TRACK_LABEL } from '@/constants/requirementTrack';
 import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
 import type { TAdminRequirementSetSummary } from '@/types/admin/TRequirementSets';
 import { COURSE_LABEL, COURSE_TYPES, type TCourseType } from '@/types/course';
@@ -49,7 +50,7 @@ export default function GraduationRuleFilters({
   return (
     <AdminFilterBar
       title="졸업 규칙 필터"
-      description="미선택 시 전체를 조회합니다. 적용 세트를 고르면 그 학과·학번에 적용 중인 규칙만 남습니다."
+      description="미선택 시 전체를 조회합니다. 적용 세트를 고르면 해당 세트에 연결된 규칙만 남습니다."
       onApply={onApply}
       onReset={onReset}
     >
@@ -79,8 +80,8 @@ export default function GraduationRuleFilters({
             <option value="">전체 세트</option>
             {requirementSets.map((set) => (
               <option key={set.id} value={set.id}>
-                {set.departmentName} · {set.yearStart}-{set.yearEnd} · v{set.version}
-                {set.active ? '' : ' (비활성)'}
+                {set.departmentName} · {set.yearStart}-{set.yearEnd} · {REQUIREMENT_TRACK_LABEL[set.track]} · v
+                {set.version} · {set.active ? '활성' : '비활성'}
               </option>
             ))}
           </select>

@@ -18,13 +18,15 @@ import type { TEditCourse } from '@/hooks/report/useAcademicRecordsEditor';
 
 interface ICourseRowProps {
   course: TEditCourse;
+  hasDualMajor1: boolean;
   editMode: boolean;
   isSaving: boolean;
   onChange: (field: TCourseField, value: string | number) => void;
   onRemove: () => void;
 }
 
-export default function CourseRow({ course, editMode, isSaving, onChange, onRemove }: ICourseRowProps) {
+export default function CourseRow({ course, hasDualMajor1, editMode, isSaving, onChange, onRemove }: ICourseRowProps) {
+  const courseTypeOptions = COURSE_TYPE_OPTIONS.filter((type) => type !== '복수1' || hasDualMajor1);
   // 편집 모드의 입력 셀. 열마다 필요한 입력 형태가 다르다.
   const renderEditField = (column: (typeof COLUMNS)[number]) => {
     if (column.key === 'retake') {
@@ -43,7 +45,7 @@ export default function CourseRow({ course, editMode, isSaving, onChange, onRemo
     if (column.key === 'category') {
       return (
         <Select
-          options={COURSE_TYPE_OPTIONS}
+          options={courseTypeOptions}
           placeholder="이수 구분"
           value={course.category}
           disabled={isSaving}

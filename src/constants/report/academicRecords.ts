@@ -7,7 +7,8 @@
 export const ALLOWED_GRADES = ['A+', 'A0', 'B+', 'B0', 'C+', 'C0', 'D+', 'D0', 'F', 'P', 'NP'];
 
 // 수강 이력의 이수구분 선택지 (PDF 원시 문자열 기준 고정 목록)
-export const COURSE_TYPE_OPTIONS = ['전공', '공교', '일교', '학기', '자선'];
+// 복수1 선택지는 복수전공1이 등록된 학생의 편집 행에서만 노출한다.
+export const COURSE_TYPE_OPTIONS = ['전공', '복수1', '공교', '일교', '학기', '자선'];
 
 // 편집 가능한 수강 이력 필드
 export type TCourseField = 'category' | 'courseCode' | 'courseName' | 'credits' | 'grade' | 'area' | 'retake';

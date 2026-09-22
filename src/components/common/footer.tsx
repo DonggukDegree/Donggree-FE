@@ -7,7 +7,13 @@ import { toast } from 'sonner';
 
 import Github from '@/assets/github.svg?react';
 import Logo from '@/assets/logo.svg?react';
-import { KAKAO_CHAT_URL, PRIVACY_POLICY_URL, READY_MESSAGE, TERMS_OF_SERVICE_URL } from '@/constants/links';
+import {
+  KAKAO_CHAT_URL,
+  PRIVACY_POLICY_URL,
+  READY_MESSAGE,
+  SATISFACTION_SURVEY_URL,
+  TERMS_OF_SERVICE_URL,
+} from '@/constants/links';
 
 // 항목별 동작 구분: 실제 페이지(link), 외부 링크(external), 미개발 안내(toast).
 const NAV_ITEMS = [
@@ -15,6 +21,7 @@ const NAV_ITEMS = [
   { name: '커리큘럼', type: 'toast' },
   { name: '고객지원', type: 'external', href: KAKAO_CHAT_URL },
   { name: '동그리 소개', type: 'toast' },
+  { name: '만족도 조사', type: SATISFACTION_SURVEY_URL ? 'external' : 'toast', href: SATISFACTION_SURVEY_URL },
   { name: '자주 묻는 질문', type: 'link', path: '/faq' },
   { name: '개인정보처리방침', type: 'external', href: PRIVACY_POLICY_URL },
   { name: '서비스이용약관', type: 'external', href: TERMS_OF_SERVICE_URL },
@@ -35,7 +42,7 @@ export default function Footer() {
         </a>
       </div>
       {/*
-        모바일에서는 7개 항목이 한 줄에 들어가지 않아 줄바꿈을 허용한다.
+        모바일에서는 메뉴 항목이 한 줄에 들어가지 않아 줄바꿈을 허용한다.
         간격은 gap 단축 속성 대신 gap-x/gap-y로만 쓴다. 단축과 개별 속성이 섞이면
         Tailwind에서 어느 쪽이 이길지 보장되지 않기 때문. (lg 값은 기존 gap-5와 동일)
       */}
