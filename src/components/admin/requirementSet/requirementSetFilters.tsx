@@ -60,7 +60,7 @@ export default function RequirementSetFilters({
           <option value="">{isLoadingDepartments ? '학과 불러오는 중' : '전체 학과'}</option>
           {departments.map((department) => (
             <option key={department.id} value={department.id}>
-              {department.departmentName}
+              {department.collegeName} / {department.departmentName}
             </option>
           ))}
         </select>

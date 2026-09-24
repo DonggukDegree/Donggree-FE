@@ -126,6 +126,7 @@ export default function AdminGraduationRequirements() {
             <RequirementSetForm
               colleges={setEditor.colleges}
               departments={setEditor.formDepartments}
+              allDepartments={setEditor.departments}
               sets={setEditor.requirementSets}
               selectedRuleCount={setEditor.ruleIds.size}
               form={setEditor.form}
@@ -156,6 +157,7 @@ export default function AdminGraduationRequirements() {
 
         {/* 졸업 규칙 필터와 목록은 두 탭이 공유한다. 필터 바를 목록 바로 위에 가로로 길게 둔다. */}
         <GraduationRuleFilters
+          departments={setEditor.departments}
           ruleTypes={ruleEditor.ruleTypes}
           requirementSets={ruleEditor.requirementSets}
           selectedRuleTypeIds={ruleEditor.selectedRuleTypeIds}

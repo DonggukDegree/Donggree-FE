@@ -11,13 +11,16 @@ import MultiSelectDropdown from '@/components/admin/common/multiSelectDropdown';
 import SelectChevron from '@/components/common/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
 import { REQUIREMENT_TRACK_LABEL } from '@/constants/requirementTrack';
+import type { TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
 import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
 import type { TAdminRequirementSetSummary } from '@/types/admin/TRequirementSets';
 import { COURSE_LABEL, COURSE_TYPES, type TCourseType } from '@/types/course';
+import { getDepartmentLabel } from '@/utils/academicOrganization';
 
 interface IGraduationRuleFiltersProps {
   ruleTypes: TAdminRuleType[];
   requirementSets: TAdminRequirementSetSummary[];
+  departments: TAdminDepartment[];
   selectedRuleTypeIds: number[];
   selectedCourseTypes: TCourseType[];
   selectedSetId: string;
@@ -31,6 +34,7 @@ interface IGraduationRuleFiltersProps {
 export default function GraduationRuleFilters({
   ruleTypes,
   requirementSets,
+  departments = [],
   selectedRuleTypeIds,
   selectedCourseTypes,
   selectedSetId,
@@ -80,8 +84,8 @@ export default function GraduationRuleFilters({
             <option value="">전체 세트</option>
             {requirementSets.map((set) => (
               <option key={set.id} value={set.id}>
-                {set.departmentName} · {set.yearStart}-{set.yearEnd} · {REQUIREMENT_TRACK_LABEL[set.track]} · v
-                {set.version} · {set.active ? '활성' : '비활성'}
+                {getDepartmentLabel(set.departmentId, set.departmentName, departments)} · {set.yearStart}-{set.yearEnd}{' '}
+                · {REQUIREMENT_TRACK_LABEL[set.track]} · v{set.version} · {set.active ? '활성' : '비활성'}
               </option>
             ))}
           </select>

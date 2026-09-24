@@ -23,6 +23,7 @@ import type {
   TRequirementSetUpdateRequest,
   TRequirementTrack,
 } from '@/types/admin/TRequirementSets';
+import { findDepartmentForForm } from '@/utils/academicOrganization';
 import { optionalText, toPositiveInteger, toRequirementSetForm } from '@/utils/adminForm';
 
 const EMPTY_SET_FORM: TRequirementSetFormState = {
@@ -69,9 +70,10 @@ export default function useRequirementSetEditor() {
   const { data: filterDepartments = [], isPending: isFilterDepartmentsLoading } = useAdminDepartments(
     selectedFilterCollegeId ?? undefined,
   );
-  // 폼에서 입력한 단과대명으로 학과 선택지를 좁힌다. (단과대명 → id 매칭)
-  const selectedFormCollegeId = colleges.find((college) => college.collegeName === form.collegeName.trim())?.id;
-  const { data: formDepartments = [] } = useAdminDepartments(selectedFormCollegeId);
+  // 신규 단과대를 입력해도 다른 단과대의 학과가 선택지에 섞이지 않게 한다.
+  const formDepartments = departments.filter(
+    (department) => !form.collegeName.trim() || department.collegeName === form.collegeName.trim(),
+  );
   const { data: requirementSets = [] } = useAdminRequirementSets(appliedFilters);
   const { mutate: saveRequirementSet, isPending: isSaving } = useSaveRequirementSet();
 
@@ -136,9 +138,7 @@ export default function useRequirementSetEditor() {
       }
       if (field === 'departmentName') {
         const departmentName = typeof value === 'string' ? value : '';
-        const matchedDepartment =
-          formDepartments.find((department) => department.departmentName === departmentName) ??
-          departments.find((department) => department.departmentName === departmentName);
+        const matchedDepartment = findDepartmentForForm(departments, departmentName, prev.collegeName);
         return {
           ...prev,
           departmentId: matchedDepartment?.id ?? null,
