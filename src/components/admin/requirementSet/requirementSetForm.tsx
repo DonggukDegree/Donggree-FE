@@ -14,6 +14,7 @@ import {
 } from '@/constants/requirementTrack';
 import type { TAdminCollege, TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
 import type { TAdminRequirementSetSummary, TRequirementTrack } from '@/types/admin/TRequirementSets';
+import { getDepartmentLabel } from '@/utils/academicOrganization';
 
 export type TRequirementSetFormState = {
   id: number | null;
@@ -32,6 +33,7 @@ export type TRequirementSetFormState = {
 interface IRequirementSetFormProps {
   colleges: TAdminCollege[];
   departments: TAdminDepartment[];
+  allDepartments: TAdminDepartment[];
   sets: TAdminRequirementSetSummary[];
   selectedRuleCount: number;
   form: TRequirementSetFormState;
@@ -53,6 +55,7 @@ const INPUT_CLASS = ADMIN_INPUT_CLASS;
 export default function RequirementSetForm({
   colleges,
   departments,
+  allDepartments,
   sets,
   selectedRuleCount,
   form,
@@ -133,8 +136,8 @@ export default function RequirementSetForm({
               <option value="">선택</option>
               {sets.map((set) => (
                 <option key={set.id} value={set.id}>
-                  {set.departmentName} · {set.yearStart}-{set.yearEnd} · {REQUIREMENT_TRACK_LABEL[set.track]} · v
-                  {set.version}
+                  {getDepartmentLabel(set.departmentId, set.departmentName, allDepartments)} · {set.yearStart}-
+                  {set.yearEnd} · {REQUIREMENT_TRACK_LABEL[set.track]} · v{set.version}
                 </option>
               ))}
             </select>
@@ -172,7 +175,7 @@ export default function RequirementSetForm({
           />
           <datalist id="admin-department-options">
             {departments.map((department) => (
-              <option key={department.id} value={department.departmentName} />
+              <option key={department.id} value={department.departmentName} label={department.collegeName} />
             ))}
           </datalist>
         </label>
