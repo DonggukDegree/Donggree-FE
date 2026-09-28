@@ -159,7 +159,7 @@ const readString = (value: unknown) => {
 };
 
 // requiredCourseSets(3중 배열)를 폼 textarea용 텍스트로 직렬화한다.
-// 한 줄 = 하나의 세트, '|'로 그룹 구분, 그룹 내부는 콤마 구분.
+// 한 줄 = 하나의 세트, '&'로 필수 그룹 구분, 그룹 내부는 콤마(대체 과목) 구분.
 const formatRequiredCourseSets = (value: unknown) => {
   if (!Array.isArray(value)) return '';
   return value
@@ -168,23 +168,30 @@ const formatRequiredCourseSets = (value: unknown) => {
       return set
         .map((group) => (Array.isArray(group) ? group.filter((code) => typeof code === 'string').join(',') : ''))
         .filter(Boolean)
-        .join(' | ');
+        .join(' & ');
     })
     .filter(Boolean)
     .join('\n');
 };
 
-// 폼 textarea 텍스트를 다시 requiredCourseSets(3중 배열)로 파싱한다.
+// 표시에는 &를 쓰되, 예전 입력을 붙여넣는 경우를 위해 |도 AND로 허용한다.
 export const parseRequiredCourseSets = (value: string) =>
   value
     .split('\n')
     .map((line) =>
       line
-        .split('|')
+        .split(/[&|]/)
         .map((group) => splitList(group))
         .filter((group) => group.length > 0),
     )
     .filter((set) => set.length > 0);
+
+// 빈 AND 그룹을 제거해서 실제보다 느슨한 요건으로 저장하지 않도록 검사한다.
+export const hasEmptyRequiredCourseGroup = (value: string) =>
+  value
+    .split('\n')
+    .filter((line) => line.trim())
+    .some((line) => line.split(/[&|]/).some((group) => splitList(group).length === 0));
 
 // 서버 졸업 규칙을 폼 입력용 draft로 변환한다.
 export const toRuleDraft = (rule: TAdminGraduationRule): TGraduationRuleDraft => {
@@ -215,7 +222,9 @@ export const toRuleDraft = (rule: TAdminGraduationRule): TGraduationRuleDraft =>
     conditionValue: readString(config.conditionValue),
     exemptStudentTypes: readStringArray(config.exemptStudentTypes).join(', '),
     exemptCourseCodes: readStringArray(config.exemptCourseCodes).join(', '),
-    requiredCourseSetsText: formatRequiredCourseSets(config.requiredCourseSets),
+    requiredCourseSetsText:
+      formatRequiredCourseSets(config.requiredCourseSets) ||
+      (rule.typeName === 'REQUIRED_COURSE' ? readStringArray(config.courseCodes).join(', ') : ''),
   };
 };
 

@@ -252,14 +252,19 @@ export default function GraduationRuleConfigFields({
               선택합니다.
             </span>
           </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>필수 과목코드</FieldLabel>
-            <TextInput
-              value={draft.courseCodes}
+          <label className="flex flex-col gap-1.5 md:col-span-3">
+            <FieldLabel>필수 과목 세트</FieldLabel>
+            <textarea
+              value={draft.requiredCourseSetsText}
               disabled={isSaving}
-              placeholder="RGC0003"
-              onChange={(value) => onFieldChange('courseCodes', value)}
+              placeholder={'물리1학수번호 & 물리2학수번호\n생물1학수번호 & 생물2학수번호'}
+              onChange={(event) => onFieldChange('requiredCourseSetsText', event.target.value)}
+              className={`${ADMIN_INPUT_CLASS} min-h-24 resize-y`}
             />
+            <span className="text-body-xs text-coolgray-60">
+              쉼표(,)는 하나만 이수(OR), &amp;는 모두 이수(AND), 줄바꿈은 세트 중 하나 완성(OR)을 뜻합니다. 한 과목이나
+              대체 과목만 필요하면 기존처럼 학수번호를 쉼표로 입력하세요.
+            </span>
           </label>
           <label className="flex flex-col gap-1.5">
             <FieldLabel>면제 영어레벨</FieldLabel>
@@ -433,10 +438,13 @@ export default function GraduationRuleConfigFields({
             <textarea
               value={draft.requiredCourseSetsText}
               disabled={isSaving}
-              placeholder={'한 줄이 하나의 세트입니다.\n예: CSE4066,CSC4018 | CSE4067,CSC4019'}
+              placeholder={'한 줄이 하나의 세트입니다.\n예: CSE4066,CSC4018 & CSE4067,CSC4019'}
               onChange={(event) => onFieldChange('requiredCourseSetsText', event.target.value)}
               className={`${ADMIN_INPUT_CLASS} min-h-24 resize-y`}
             />
+            <span className="text-body-xs text-coolgray-60">
+              쉼표(,)는 하나만 이수(OR), &amp;는 모두 이수(AND), 줄바꿈은 세트 중 하나 완성(OR)을 뜻합니다.
+            </span>
           </label>
         </div>
       )}
