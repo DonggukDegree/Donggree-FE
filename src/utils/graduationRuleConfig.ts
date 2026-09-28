@@ -13,6 +13,7 @@ import type { TGraduationRuleConfig } from '@/types/admin/TGetGraduationRules';
 import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
 import type { TGraduationRuleUpsertItem } from '@/types/admin/TPutGraduationRules';
 import {
+  hasEmptyRequiredCourseGroup,
   nullableList,
   optionalText,
   parseRequiredCourseSets,
@@ -83,17 +84,24 @@ const buildRuleConfig = (
   }
 
   if (ruleType.typeName === 'REQUIRED_COURSE') {
-    const courseCodes = splitList(draft.courseCodes);
-    if (courseCodes.length === 0) {
+    const requiredCourseSets = parseRequiredCourseSets(draft.requiredCourseSetsText);
+    if (requiredCourseSets.length === 0) {
       toast.error(`${rowLabel}의 필수 과목코드를 입력해주세요.`);
       return null;
     }
+    if (hasEmptyRequiredCourseGroup(draft.requiredCourseSetsText)) {
+      toast.error(`${rowLabel}의 & 양쪽에 과목코드를 입력해주세요.`);
+      return null;
+    }
+    const [firstSet] = requiredCourseSets;
+    const courseCodes = requiredCourseSets.length === 1 && firstSet?.length === 1 ? firstSet[0] : undefined;
     if (draft.applicableMajorRoles.length === 0) {
       toast.error(`${rowLabel}의 규칙 적용 대상을 하나 이상 선택해주세요.`);
       return null;
     }
     return {
-      courseCodes,
+      // 쉼표만 사용하는 기존 규칙은 재저장해도 courseCodes 형식을 유지한다.
+      ...(courseCodes ? { courseCodes } : { requiredCourseSets }),
       exemptEnglishLevels: nullableList(draft.exemptEnglishLevels),
       requiredEnglishLevels: nullableList(draft.requiredEnglishLevels),
       applicableMajorRoles: draft.applicableMajorRoles,
@@ -151,6 +159,10 @@ const buildRuleConfig = (
     const exemptStudentTypes = splitList(draft.exemptStudentTypes);
     const exemptCourseCodes = splitList(draft.exemptCourseCodes);
     const requiredCourseSets = parseRequiredCourseSets(draft.requiredCourseSetsText);
+    if (hasEmptyRequiredCourseGroup(draft.requiredCourseSetsText)) {
+      toast.error(`${rowLabel}의 & 양쪽에 과목코드를 입력해주세요.`);
+      return null;
+    }
     if (exemptCourseCodes.length > 0 && exemptStudentTypes.length === 0) {
       toast.error(`${rowLabel}의 면제 과목코드를 쓰려면 면제 학생유형도 입력해주세요.`);
       return null;
