@@ -6,8 +6,8 @@ import type { TCommonResponse } from '@/types/common';
 // 상단 메타 정보
 export type TReportMeta = {
   admissionYear: number; // 입학년도(교육과정 적용년도)
-  collegeName: string | null; // 소속 단과대학명 (학과 미등록 시 null)
-  department: string; // 전공 학과명
+  collegeName: string | null; // 소속 단과대학명 (학과 연결 실패 시 PDF 원문, 원문도 없으면 null)
+  department: string | null; // 전공 학과명 (학과 연결 실패 시 PDF 원문, 원문도 없으면 null)
   subMajor1: string | null; // 제1부전공 학과명 (없으면 null)
   subMajor2: string | null; // 제2부전공 학과명 (없으면 null)
   dualMajor1: string | null; // 제1복수전공 학과명 (없으면 null)

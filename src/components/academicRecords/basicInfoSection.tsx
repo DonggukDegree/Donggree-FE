@@ -2,7 +2,7 @@
  * [내 학업 정보 관리] 기본 정보 섹션
  * 페이지 상단, 학기별 수강 내역 위에 놓이는 고정 텍스트 블록.
  * 성적표 메타 정보(교육과정 적용년도·학과·학적 상태·총 취득학점 등)를 2열로 보여 준다.
- * 부전공/복수전공·단과대학처럼 없을 수 있는 항목은 값이 있을 때만 줄이 생긴다.
+ * 부전공/복수전공은 값이 있을 때만 표시하고, 학과·단과대학 누락은 미기재로 표시한다.
  */
 import { Fragment } from 'react';
 
@@ -18,8 +18,8 @@ export default function BasicInfoSection({ meta, className = '' }: IBasicInfoSec
   const items: { label: string; value: string | number }[] = [
     { label: '교육과정 적용년도', value: meta.admissionYear },
   ];
-  if (meta.collegeName) items.push({ label: '단과대학', value: meta.collegeName });
-  items.push({ label: '학과', value: meta.department });
+  items.push({ label: '단과대학', value: meta.collegeName ?? '미기재' });
+  items.push({ label: '학과', value: meta.department ?? '미기재' });
   if (meta.subMajor1) items.push({ label: '부전공1', value: meta.subMajor1 });
   if (meta.subMajor2) items.push({ label: '부전공2', value: meta.subMajor2 });
   if (meta.dualMajor1) items.push({ label: '복수전공1', value: meta.dualMajor1 });
