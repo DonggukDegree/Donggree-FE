@@ -1,0 +1,52 @@
+/** [공통 > 분석] 원본 키를 유지하는 한국어 표시 사전 */
+export const PAGE_NAMES: Record<string, string> = {
+  '/': '홈',
+  '/login': '로그인',
+  '/login/callback': '로그인 처리',
+  '/faq': '자주 묻는 질문',
+  '/upload': '성적표 업로드',
+  '/graduation': '졸업 확인',
+  '/onboarding': '회원 정보 입력',
+  '/my-page': '마이페이지',
+  '/my-page/profile': '프로필 수정',
+  '/my-page/academic-records': '학업정보관리',
+  '/curriculum': '커리큘럼',
+  '/404': '페이지를 찾을 수 없음',
+  '/admin': '관리자',
+  '/admin/course-classifications': '관리자 과목 관리',
+  '/admin/graduation-requirements': '관리자 졸업 요건 관리',
+  '/admin/faqs': '관리자 FAQ 관리',
+  '/admin/report-preview': '관리자 PDF 리포트 테스트',
+};
+export const EVENT_NAMES = {
+  page_view: '화면 조회',
+  login_click: '로그인 버튼 클릭',
+  login_success: '로그인 성공',
+  login_failure: '로그인 실패',
+  pdf_upload_start: '성적표 제출 시작',
+  pdf_upload: '성적표 처리·저장 성공',
+  pdf_upload_failure: '성적표 제출·처리 실패',
+  graduation_check: '졸업 리포트 요약 표시',
+  graduation_report_complete: '졸업 리포트 하단 노출',
+  error_shown: '오류 안내 표시',
+  onboarding_complete: '회원 정보 입력 완료',
+  academic_records_edit: '수강 내역 수정',
+  report_area_tab_click: '리포트 영역 탭 선택',
+  unsupported_major_notice: '판정 정확도 유의사항 표시',
+} as const;
+export type TAnalyticsEvent = keyof typeof EVENT_NAMES;
+export const ERROR_SOURCES = [
+  'login',
+  'transcript_upload',
+  'graduation',
+  'report_gate',
+  'authentication',
+  'profile',
+  'onboarding',
+  'academic_records',
+  'mutation',
+  'not_found',
+  'server',
+  'render',
+] as const;
+export type TErrorSource = (typeof ERROR_SOURCES)[number];

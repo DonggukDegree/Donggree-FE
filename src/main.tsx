@@ -13,14 +13,18 @@ import { Toaster } from 'sonner';
 
 import ErrorBoundary from '@/components/common/errorBoundary';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@/constants/queryOptions';
-import { initGA } from '@/utils/analytics';
+import { observeAnalyticsIdentity } from '@/hooks/useAnalyticsIdentity';
+import { router } from '@/routes';
+import { initGA, trackPageView } from '@/utils/analytics';
 
 import App from './App.tsx';
 
 const queryClient = new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS });
 
-// GA4 초기화(측정 ID가 있을 때만 동작). 렌더 전에 1회 실행해 이후 페이지뷰·이벤트를 받을 준비를 한다.
+// 수집 차단과 방문 문맥을 렌더 전에 준비하고, 권한 확인 후 태그를 로드한다.
 initGA();
+observeAnalyticsIdentity(queryClient);
+trackPageView(router.state.location.pathname, router.state.location.key);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

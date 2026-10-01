@@ -29,7 +29,7 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
       return Promise.reject(error);
     }
 
@@ -52,11 +52,6 @@ axiosInstance.interceptors.response.use(
           useAuthStore.getState().setAccessToken(newToken);
           return newToken;
         })
-        .catch(() => {
-          useAuthStore.getState().clearAuth();
-          window.location.href = '/login';
-          throw error;
-        })
         .finally(() => {
           refreshPromise = null;
         });
@@ -67,7 +62,14 @@ axiosInstance.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${token}`;
         return axiosInstance(originalRequest);
       },
-      () => Promise.reject(error),
+      (refreshError) => {
+        // 분석용 배경 확인은 공개 화면을 로그인으로 이동시키지 않는다.
+        // 응답 없는 실패를 로그아웃으로 간주하면 관리자 세션을 익명으로 오인할 수 있다.
+        const status = axios.isAxiosError(refreshError) ? refreshError.response?.status : undefined;
+        if (!originalRequest.passiveAuth || status === 400 || status === 401) useAuthStore.getState().clearAuth();
+        if (!originalRequest.passiveAuth) window.location.href = '/login';
+        return Promise.reject(error);
+      },
     );
   },
 );

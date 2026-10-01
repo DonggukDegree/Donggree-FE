@@ -4,8 +4,8 @@ import type { TGetUserInfoResponse } from '@/types/user/TGetUserInfo';
 import type { TPatchProfileRequest, TPatchProfileResponse } from '@/types/user/TPatchProfile';
 
 // 로그인한 사용자 정보 조회
-export const getUserInfo = async () => {
-  const { data } = await axiosInstance.get<TGetUserInfoResponse>('/api/users/me');
+export const getUserInfo = async (options: { signal?: AbortSignal; passiveAuth?: boolean } = {}) => {
+  const { data } = await axiosInstance.get<TGetUserInfoResponse>('/api/users/me', options);
   return data.result;
 };
 

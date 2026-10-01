@@ -5,9 +5,13 @@
  */
 import { RouterProvider } from 'react-router-dom';
 
+import useAnalyticsIdentity from '@/hooks/useAnalyticsIdentity';
+import usePageTracking from '@/hooks/usePageTracking';
 import { router } from '@/routes';
 
 function App() {
+  usePageTracking();
+  useAnalyticsIdentity();
   return <RouterProvider router={router} />;
 }
 

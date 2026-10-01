@@ -26,7 +26,7 @@ export default function ProtectedRoute() {
     // 서버 다운(응답 없음)·서버 오류(5xx)는 로그인이 아니라 에러 화면으로 안내한다.
     const status = getErrorStatus(error);
     if (!status || status >= 500) {
-      return <ServerError onRetry={() => refetch()} />;
+      return <ServerError error={error} source="authentication" onRetry={() => refetch()} />;
     }
     // 그 외(4xx, 미인증 등)는 로그인 화면으로.
     return <Navigate to="/login" replace />;

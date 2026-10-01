@@ -18,6 +18,7 @@ interface ImportMeta {
 
 // gtag.js가 전역(window)에 심는 값들. analytics.ts에서만 접근한다.
 interface Window {
+  [key: `ga-disable-${string}`]: boolean;
   dataLayer: unknown[];
   gtag: (...args: unknown[]) => void;
 }

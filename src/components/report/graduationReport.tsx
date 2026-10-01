@@ -15,7 +15,7 @@ import useInView from '@/hooks/useInView';
 import { useModalStore } from '@/stores/modalStore';
 import type { TReportPreviewDetails } from '@/types/admin/TPostReportPreview';
 import type { TGetReportSummaryResult } from '@/types/report/TGetReportSummary';
-import { trackEvent } from '@/utils/analytics';
+import { trackOncePerVisit } from '@/utils/analytics';
 
 interface IGraduationReportProps {
   data: TGetReportSummaryResult;
@@ -35,7 +35,7 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
   // 졸업 판정 리포트를 실제로 확인한 시점(요약 조회 성공). PASS/FAIL·달성률을 함께 집계한다.
   useEffect(() => {
     if (isPreview) return;
-    trackEvent('graduation_check', {
+    trackOncePerVisit('graduation_check', {
       graduated: data.summary.graduated,
       achievement_rate: data.summary.achievementRate,
     });
@@ -45,7 +45,7 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
   const hasUnsupportedMajor = data?.hasUnsupportedMajor;
   useEffect(() => {
     if (!hasUnsupportedMajor) return;
-    if (!isPreview) trackEvent('unsupported_major_notice');
+    if (!isPreview) trackOncePerVisit('unsupported_major_notice');
     openAlert({
       icon: Warning,
       title: UNSUPPORTED_MAJOR_MODAL.title,
@@ -56,10 +56,10 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
     });
   }, [hasUnsupportedMajor, openAlert, isPreview]);
 
-  // 하단 버튼 영역이 뷰포트에 들어오면(useInView는 1회만 true) 리포트를 끝까지 스크롤했다고 본다.
+  // 하단 버튼 영역의 노출만 기록한다. 생성 완료나 완독을 의미하지 않는다.
   useEffect(() => {
     if (!buttonInView || isPreview) return;
-    trackEvent('graduation_report_complete');
+    trackOncePerVisit('graduation_report_complete');
   }, [buttonInView, isPreview]);
 
   const { summary, areaOverviews } = data;

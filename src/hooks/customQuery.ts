@@ -15,6 +15,7 @@ import {
 import { toast } from 'sonner';
 
 import type { TResponseError, TUseMutationCustomOptions, TUseQueryCustomOptions } from '@/types/common';
+import { trackErrorShown } from '@/utils/analyticsError';
 
 export function useCoreQuery<TQueryFnData, TData = TQueryFnData>(
   keyName: QueryKey,
@@ -42,6 +43,7 @@ export function useCoreMutation<T, U>(mutation: MutationFunction<T, U>, options?
         onError(error, variables, context);
       } else {
         toast.error(error.response?.data?.message ?? '요청 처리 중 오류가 발생했습니다.');
+        trackErrorShown('mutation', error);
       }
     },
     ...restOptions,

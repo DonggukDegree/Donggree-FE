@@ -7,6 +7,7 @@ import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useCoreMutation } from '@/hooks/customQuery';
 import type { TResponseError } from '@/types/common';
 import type { TPatchProfileRequest } from '@/types/user/TPatchProfile';
+import { trackErrorShown } from '@/utils/analyticsError';
 import { getErrorCode, getErrorMessage } from '@/utils/error';
 
 // 프로필 수정 훅.
@@ -21,6 +22,7 @@ export default function useUpdateProfile() {
       toast.success('프로필이 수정되었어요.');
     },
     onError: (error: TResponseError) => {
+      trackErrorShown('profile', error);
       const code = getErrorCode(error);
 
       // 학번 중복은 제출 시점에만 알 수 있어 토스트로 안내.

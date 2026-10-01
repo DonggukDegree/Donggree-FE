@@ -1,88 +1,242 @@
-/**
- * [공통 > 분석] GA4(Google Analytics 4) 연동 유틸
- * gtag.js를 코드로 주입하고(index.html에 스니펫을 박지 않는다), 페이지뷰·커스텀 이벤트 전송을 한곳에 모은다.
- * VITE_GA_ID가 없으면 모든 함수가 조용히 no-op이 되어(가드) 로컬/미설정 환경에서도 안전하다.
- */
+/** [공통 > 분석] 환경·권한·URL·개인정보를 검사하는 유일한 GA 발송 경로 */
+import { ERROR_SOURCES, EVENT_NAMES, PAGE_NAMES, type TAnalyticsEvent } from '@/constants/analytics';
+import { COURSE_TYPES, type TCourseType } from '@/types/course';
 
-// 측정 ID(G-XXXXXXXXXX). .env의 VITE_GA_ID로 주입한다.
 const GA_ID = import.meta.env.VITE_GA_ID;
+type TProperties = { department: string | null; college_name: string | null; admission_year: string | null };
+type TPendingEvent = { name: TAnalyticsEvent; params: Record<string, unknown> };
+const emptyProperties = (): TProperties => ({ department: null, college_name: null, admission_year: null });
+let properties = emptyProperties();
+let userId: number | null = null;
+let identity: 'pending' | 'allowed' | 'excluded' = 'pending';
+let consent = true; // 현재 동의 UI는 없다. 향후 철회 연동 시 false로 전환한다.
+let initialized = false;
+let guarded = false;
+let callbackSanitized = false;
+let pending: TPendingEvent[] = [];
+let visitKey = '';
+let visitId = '';
+let identityGeneration = 0;
+let once = new Set<string>();
 
-// GA 사용 가능 조건: 측정 ID가 있고 브라우저 환경일 때만. (SSR은 없지만 방어적으로 window 체크)
-const isGAEnabled = (): boolean => Boolean(GA_ID) && typeof window !== 'undefined';
-
-/**
- * gtag.js 스크립트를 1회 주입하고 dataLayer/gtag를 초기화한다.
- * 앱 진입점(main.tsx)에서 한 번만 호출한다. 최초 페이지뷰는 라우트 추적(usePageTracking)이 담당하므로
- * 여기서는 자동 page_view 전송을 끄고(send_page_view:false) 중복 집계를 막는다.
- */
-export const initGA = (): void => {
-  if (!isGAEnabled()) return;
-
-  // gtag.js 로더 스크립트 주입 (async)
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-  document.head.appendChild(script);
-
-  // 표준 gtag 부트스트랩. dataLayer에 인자를 그대로 push하는 얇은 래퍼다.
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag() {
-    // eslint-disable-next-line prefer-rest-params
-    window.dataLayer.push(arguments);
-  };
-  window.gtag('js', new Date());
-  // send_page_view:false — 페이지뷰는 SPA 라우트 변경마다 trackPageView로 직접 보낸다.
-  window.gtag('config', GA_ID, { send_page_view: false });
+const enabledEnvironment = () =>
+  Boolean(GA_ID) &&
+  import.meta.env.PROD &&
+  import.meta.env.MODE === 'production' &&
+  typeof window !== 'undefined' &&
+  window.location.protocol === 'https:' &&
+  ['donggree.site', 'www.donggree.site'].includes(window.location.hostname);
+export const isExcludedPath = (path: string) => path === '/admin' || path.startsWith('/admin/');
+const safeLocation = () => {
+  const { pathname, search, hash } = window.location;
+  return (
+    Boolean(PAGE_NAMES[pathname]) &&
+    !isExcludedPath(pathname) &&
+    (pathname !== '/login/callback' || (callbackSanitized && !search && !hash))
+  );
 };
-
-/**
- * 페이지뷰 전송. SPA는 물리적 새로고침이 없어 라우트 변경 시 수동으로 보내야 한다.
- * @param path 현재 경로(location.pathname + search)
- */
-export const trackPageView = (path: string): void => {
-  if (!isGAEnabled() || !window.gtag) return;
-  window.gtag('event', 'page_view', {
-    page_path: path,
-    page_location: window.location.href,
-    page_title: document.title,
-  });
+const canSend = () => enabledEnvironment() && consent && identity === 'allowed' && safeLocation();
+const disable = (value: boolean) => {
+  if (GA_ID && typeof window !== 'undefined') window[`ga-disable-${GA_ID}`] = value;
 };
-
-/**
- * 커스텀 이벤트 전송. 사용자 핵심 액션(로그인·온보딩·업로드·졸업 판정 등)을 집계한다.
- * @param name  이벤트 이름(snake_case 권장)
- * @param params 이벤트 파라미터(선택)
- */
-export const trackEvent = (name: string, params?: Record<string, unknown>): void => {
-  if (!isGAEnabled() || !window.gtag) return;
-  window.gtag('event', name, params);
+const command = (...args: unknown[]) => {
+  try {
+    window.gtag?.(...args);
+  } catch {
+    /* 분석 차단은 서비스 이용을 중단시키지 않는다. */
+  }
 };
-
-/**
- * 사용자 속성 설정. 이후 전송되는 모든 이벤트에 세그먼트 꼬리표로 붙어 학과·단과대별 분석을 가능하게 한다.
- * 개인 식별 정보(이름·학번·이메일)는 GA4 약관 위반이므로 절대 넣지 않는다. 집단 값(학과·단과대)만 허용한다.
- * @param properties 사용자 속성(집단 값). undefined 값은 gtag가 무시한다.
- */
-export const setUserProperties = (properties: Record<string, string | undefined>): void => {
-  if (!isGAEnabled() || !window.gtag) return;
-  window.gtag('set', 'user_properties', properties);
+export const createAttemptId = () => {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  }
 };
+const pageParams = (path = window.location.pathname) => ({
+  page_path: path,
+  page_location: `${window.location.origin}${path}`,
+  page_title: `${PAGE_NAMES[path] ?? '페이지를 찾을 수 없음'} | 동그리`,
+  page_name_ko: PAGE_NAMES[path] ?? '페이지를 찾을 수 없음',
+});
 
-/**
- * GA4 user_id 설정/해제. 같은 사람이 여러 기기·브라우저를 써도 한 명으로 집계되게 한다.
- * 이걸 주지 않으면 활성 사용자(DAU/MAU)가 브라우저(client_id) 단위라 실제보다 부풀고,
- * 특히 MAU가 더 크게 부풀어 DAU/MAU 비율이 실제보다 낮게 나온다.
- *
- * 넘기는 값은 내부 대체키(memberId)다. 학번·이름·이메일 같은 개인 식별 정보는
- * GA4 약관 위반이라 절대 넣지 않는다. (memberId는 우리 DB에서만 의미를 갖는 정수다)
- *
- * @param memberId 로그인 사용자의 내부 ID. 로그아웃 시 null을 주어 해제한다.
- */
-export const setUserId = (memberId: number | null): void => {
-  if (!isGAEnabled() || !window.gtag) return;
-  // GA4는 user_id에 문자열을 기대한다. null을 주면 이후 이벤트에서 연결이 끊긴다.
-  window.gtag('config', GA_ID, {
-    user_id: memberId === null ? null : String(memberId),
+/** 초기 준비만 수행한다. 권한 확인 전에는 외부 스크립트도 로드하지 않는다. */
+export const initGA = () => {
+  disable(true);
+  if (guarded || typeof window === 'undefined') return;
+  guarded = true;
+  // 실제 주소 변경 전에 차단한다. 허용은 전역 동기화 이후에만 한다.
+  for (const method of ['pushState', 'replaceState'] as const) {
+    const original = window.history[method].bind(window.history);
+    window.history[method] = (...args: Parameters<History[typeof method]>) => {
+      disable(true);
+      return original(args[0], args[1], args[2]);
+    };
+  }
+  window.addEventListener('popstate', () => disable(true), { capture: true });
+};
+function safeReferrer() {
+  try {
+    const url = new URL(document.referrer);
+    return url.origin === window.location.origin && PAGE_NAMES[url.pathname]
+      ? `${url.origin}${url.pathname}`
+      : url.origin;
+  } catch {
+    return '';
+  }
+}
+const configure = () => {
+  command('set', 'user_properties', properties);
+  command('config', GA_ID, {
     send_page_view: false,
+    user_id: userId === null ? null : String(userId),
+    ...pageParams(),
+    page_referrer: safeReferrer(),
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false,
   });
 };
+const activate = () => {
+  if (!canSend()) {
+    disable(true);
+    return false;
+  }
+  disable(false);
+  if (!initialized) {
+    initialized = true;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function gtag() {
+      // Google 태그의 표준 arguments 형식을 유지한다.
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer.push(arguments);
+    };
+    command('js', new Date());
+    configure();
+    try {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+      script.referrerPolicy = 'origin';
+      document.head.appendChild(script);
+    } catch {
+      disable(true);
+      return false;
+    }
+  } else configure();
+  const waiting = pending;
+  pending = [];
+  waiting.forEach(({ name, params }) => command('event', name, params));
+  return true;
+};
+/** 계정이 달라지는 순간 호출한다. 이전 계정의 미발송 기록과 속성은 폐기한다. */
+export const resetAnalyticsIdentity = (dropPending = true) => {
+  disable(true);
+  identityGeneration += 1;
+  identity = 'pending';
+  properties = emptyProperties();
+  userId = null;
+  if (dropPending) {
+    pending = [];
+    once = new Set();
+  }
+  if (initialized) {
+    command('set', 'user_properties', properties);
+    command('config', GA_ID, { user_id: null, send_page_view: false });
+  }
+};
+const cohortName = (value: string | null | undefined) =>
+  typeof value === 'string' && value.trim().length > 0 && value.length <= 100 && !/[@<>\r\n]|https?:|\d{6,}/.test(value)
+    ? value.trim()
+    : null;
+export const syncAnalyticsIdentity = (
+  state: 'pending' | 'allowed' | 'excluded',
+  memberId: number | null,
+  values: Partial<TProperties> = {},
+) => {
+  identity = state;
+  userId = state === 'allowed' ? memberId : null;
+  properties = {
+    department: cohortName(values.department),
+    college_name: cohortName(values.college_name),
+    admission_year:
+      values.admission_year && /^(19|20)\d{2}$/.test(values.admission_year) ? values.admission_year : null,
+  };
+  if (state === 'excluded') pending = [];
+  activate();
+};
+export const setAnalyticsConsent = (allowed: boolean) => {
+  consent = allowed;
+  if (!allowed) {
+    pending = [];
+    disable(true);
+  } else activate();
+};
+export const markCallbackSanitized = () => {
+  callbackSanitized = true;
+};
+const sanitizeParams = (params: Record<string, unknown>) => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(params)) {
+    if (
+      ['credit_gap', 'achievement_rate', 'course_count'].includes(key) &&
+      typeof value === 'number' &&
+      Number.isFinite(value)
+    )
+      result[key] = value;
+    if (['credit_gap_ok', 'graduated'].includes(key) && typeof value === 'boolean') result[key] = value;
+    if (key === 'method' && value === 'kakao') result[key] = value;
+    if (key === 'attempt_id' && typeof value === 'string' && /^[a-z0-9-]{12,64}$/i.test(value)) result[key] = value;
+    if (key === 'source' && ERROR_SOURCES.includes(value as (typeof ERROR_SOURCES)[number])) result[key] = value;
+    if (
+      key === 'code' &&
+      typeof value === 'string' &&
+      /^(?:COMMON|USER|TRANSCRIPT|GRADUATION)\d{3}_\d{1,2}$|^(?:NETWORK_ERROR|UNKNOWN_ERROR|INVALID_PDF|LOGIN_FAILED|MISSING_TOKEN|USER_CHECK_FAILED|RENDER_ERROR|NOT_FOUND|VALIDATION_ERROR)$/.test(
+        value,
+      )
+    )
+      result[key] = value;
+    if (
+      key === 'status' &&
+      typeof value === 'number' &&
+      (value === 0 || (Number.isInteger(value) && value >= 100 && value <= 599))
+    )
+      result[key] = value;
+    if (key === 'course_type' && typeof value === 'string' && COURSE_TYPES.includes(value as TCourseType))
+      result[key] = value;
+  }
+  return result;
+};
+export const trackEvent = (name: TAnalyticsEvent, params: Record<string, unknown> = {}) => {
+  if (!enabledEnvironment() || !consent || identity === 'excluded' || !safeLocation() || !EVENT_NAMES[name]) return;
+  const payload = {
+    ...sanitizeParams(params),
+    ...pageParams(),
+    page_referrer: safeReferrer(),
+    event_label_ko: EVENT_NAMES[name],
+    page_visit_id: visitId,
+  };
+  if (identity === 'pending') {
+    if (pending.length < 100) pending.push({ name, params: payload });
+    return;
+  }
+  if (activate()) command('event', name, payload);
+};
+export const trackOncePerVisit = (name: TAnalyticsEvent, params: Record<string, unknown> = {}, discriminator = '') => {
+  const key = `${name}:${discriminator}`;
+  if (once.has(key)) return;
+  once.add(key);
+  trackEvent(name, params);
+};
+/** 뒤로가기도 새 방문으로 세고 StrictMode·동일 전환의 반복 알림만 합친다. */
+export const trackPageView = (path: string, key: string) => {
+  const pathname = path.split(/[?#]/)[0] || '/';
+  document.title = `${PAGE_NAMES[pathname] ?? '페이지를 찾을 수 없음'} | 동그리`;
+  activate();
+  if (!safeLocation()) return;
+  if (visitKey === `${key}:${pathname}`) return;
+  visitKey = `${key}:${pathname}`;
+  visitId = createAttemptId();
+  once = new Set();
+  trackEvent('page_view');
+};
+export const getAnalyticsIdentityGeneration = () => identityGeneration;

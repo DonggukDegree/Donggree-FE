@@ -1,14 +1,24 @@
+/** [오류 > 서버 연결] 실제 오류 UI 표시 시 응답 유무를 구분하여 기록 */
+import { useEffect } from 'react';
+
 import Warning from '@/assets/icons/warning.svg?react';
 import Button from '@/components/common/button';
+import type { TErrorSource } from '@/constants/analytics';
+import { trackErrorShown } from '@/utils/analyticsError';
 
 interface IServerErrorProps {
+  error?: unknown;
+  source?: TErrorSource;
   // 다시 시도 동작 (보통 쿼리 refetch). 없으면 페이지를 새로고침한다.
   onRetry?: () => void;
 }
 
 // 서버 연결 실패(응답 없는 네트워크 오류)·서버 내부 오류(5xx) 시 보여주는 화면.
 // NotFound와 동일한 레이아웃을 따른다.
-export default function ServerError({ onRetry }: IServerErrorProps) {
+export default function ServerError({ onRetry, error, source = 'server' }: IServerErrorProps) {
+  useEffect(() => {
+    trackErrorShown(source, error, true);
+  }, [source, error]);
   const handleRetry = () => {
     if (onRetry) {
       onRetry();

@@ -7,8 +7,8 @@ import type { TPatchReportRequest, TPatchReportResponse } from '@/types/report/T
 import type { TPutTranscriptResponse } from '@/types/report/TPutTranscript';
 
 // 성적표(학업 리포트) 조회. 성적표가 없으면 404(TRANSCRIPT404_1)를 반환한다.
-export const getUserReports = async () => {
-  const { data } = await axiosInstance.get<TGetUserReportsResponse>('/api/users/me/reports');
+export const getUserReports = async (signal?: AbortSignal, passiveAuth = false) => {
+  const { data } = await axiosInstance.get<TGetUserReportsResponse>('/api/users/me/reports', { signal, passiveAuth });
   return data.result;
 };
 

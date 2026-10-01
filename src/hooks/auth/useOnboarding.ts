@@ -10,6 +10,7 @@ import { useModalStore } from '@/stores/modalStore';
 import type { TPostOnboardingRequest } from '@/types/auth/TPostOnboarding';
 import type { TResponseError } from '@/types/common';
 import { trackEvent } from '@/utils/analytics';
+import { trackErrorShown } from '@/utils/analyticsError';
 import { getErrorCode, getErrorMessage } from '@/utils/error';
 
 // 온보딩 정보 저장 훅
@@ -28,6 +29,7 @@ export default function useOnboarding() {
       navigate('/');
     },
     onError: (error: TResponseError) => {
+      trackErrorShown('onboarding', error);
       const code = getErrorCode(error);
 
       // 이미 온보딩 완료된 회원(다른 탭에서 먼저 완료한 레이스 등): 입력을 저장하지 않고 모달을 닫은 뒤 홈으로 보낸다.

@@ -37,7 +37,7 @@ export default function AcademicRecords() {
     if (getErrorStatus(error) === 404) {
       return <Navigate to="/upload" replace />;
     }
-    return <NotFound />;
+    return <NotFound error={error} source="academic_records" />;
   }
 
   // 데이터가 확정된 뒤에만 편집 화면을 마운트한다. (편집 훅이 초기값을 바로 만들 수 있도록)
