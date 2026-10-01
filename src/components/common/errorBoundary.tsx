@@ -7,6 +7,7 @@ import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 import Warning from '@/assets/icons/warning.svg?react';
 import Button from '@/components/common/button';
+import { trackEvent } from '@/utils/analytics';
 
 interface IErrorBoundaryProps {
   children: ReactNode;
@@ -27,6 +28,7 @@ export default class ErrorBoundary extends Component<IErrorBoundaryProps, IError
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
+    trackEvent('error_shown', { source: 'render', code: 'RENDER_ERROR', status: 0 });
     // 추후 에러 로깅(Sentry 등) 연동 지점
     console.error('Unhandled error:', error, info);
   }

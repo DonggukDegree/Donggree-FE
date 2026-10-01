@@ -1,5 +1,5 @@
 /** [졸업 판정] 저장된 내 성적표 조회와 진입 오류 처리 */
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 import Warning from '@/assets/icons/warning.svg?react';
@@ -10,11 +10,12 @@ import { UNSUPPORTED_CURRICULUM_MODAL } from '@/constants/report/reportModals';
 import useReportSummary from '@/hooks/report/useReportSummary';
 import NotFound from '@/pages/exception/notFound';
 import { useModalStore } from '@/stores/modalStore';
-import { trackEvent } from '@/utils/analytics';
+import { analyticsError } from '@/utils/analyticsError';
 import { getErrorCode } from '@/utils/error';
 
 export default function Graduation() {
   const navigate = useNavigate();
+  const shownUnsupported = useRef(false);
   const openAlert = useModalStore((state) => state.openAlert);
   const { data, isPending, isError, error } = useReportSummary();
   const errorCode = isError ? getErrorCode(error) : undefined;
@@ -22,10 +23,15 @@ export default function Graduation() {
   // 업로드 단계의 학과 미등록(TRANSCRIPT400_3)과 학생 입장에서는 같은 상황이라 문구를 공유한다.
   const isUnsupportedDept = errorCode === ERROR_CODE.NO_REQUIREMENT;
   useEffect(() => {
-    if (!isUnsupportedDept) return;
+    if (!isUnsupportedDept) {
+      shownUnsupported.current = false;
+      return;
+    }
+    if (shownUnsupported.current) return;
+    shownUnsupported.current = true;
     // 적용 가능한 졸업 요건이 없어 리포트를 못 보는 이탈 지점을 집계한다.
-    trackEvent('error_shown', { source: 'graduation', code: ERROR_CODE.NO_REQUIREMENT });
     openAlert({
+      analyticsError: analyticsError('graduation', error),
       icon: Warning,
       title: UNSUPPORTED_CURRICULUM_MODAL.title,
       subtitle: UNSUPPORTED_CURRICULUM_MODAL.subtitle,
@@ -34,7 +40,7 @@ export default function Graduation() {
       buttonVariant: 'primary',
       onConfirm: () => navigate('/'),
     });
-  }, [isUnsupportedDept, openAlert, navigate]);
+  }, [isUnsupportedDept, openAlert, navigate, error]);
 
   if (isPending) {
     return <Loading />;
@@ -50,7 +56,7 @@ export default function Graduation() {
       return <Loading />;
     }
     // 그 외 예기치 못한 오류는 NotFound.
-    return <NotFound />;
+    return <NotFound error={error} source="graduation" />;
   }
 
   return <GraduationReport data={data} />;

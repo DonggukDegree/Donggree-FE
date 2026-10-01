@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { ALLOWED_GRADES } from '@/constants/report/academicRecords';
 import useUpdateCourses from '@/hooks/report/useUpdateCourses';
 import type { TGetUserReportsResult, TSemesterCourses } from '@/types/report/TGetUserReports';
+import { trackEvent } from '@/utils/analytics';
 
 // 편집 화면이 다루는 수강 이력 한 줄. 입력 편의를 위해 재수강은 'O'/'X' 문자열로 다룬다.
 export type TEditCourse = {
@@ -137,6 +138,7 @@ export default function useAcademicRecordsEditor(data: TGetUserReportsResult) {
   const submit = () => {
     if (drafts.some((semester) => semester.courses.length > 0 && !semester.name.trim())) {
       toast.error('학기 이름을 입력해주세요.');
+      trackEvent('error_shown', { source: 'academic_records', code: 'VALIDATION_ERROR', status: 0 });
       return;
     }
 
@@ -146,6 +148,7 @@ export default function useAcademicRecordsEditor(data: TGetUserReportsResult) {
     // 전체를 비울 수는 없다. (서버 @NotEmpty)
     if (flattened.length === 0) {
       toast.error('최소 1개의 수강 이력이 필요해요.');
+      trackEvent('error_shown', { source: 'academic_records', code: 'VALIDATION_ERROR', status: 0 });
       return;
     }
 
@@ -157,6 +160,7 @@ export default function useAcademicRecordsEditor(data: TGetUserReportsResult) {
     });
     if (!isValid) {
       toast.error('모든 항목을 올바르게 입력해주세요. (성적은 A+·B0·P 등)');
+      trackEvent('error_shown', { source: 'academic_records', code: 'VALIDATION_ERROR', status: 0 });
       return;
     }
 

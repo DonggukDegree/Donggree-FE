@@ -1,4 +1,6 @@
+/** [성적표 업로드] 제출 시도별 시작·저장 결과와 사용자 오류 안내 */
 import { useQueryClient } from '@tanstack/react-query';
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -8,39 +10,30 @@ import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { CREDIT_GAP_MODAL, TRANSCRIPT_ERROR_MODAL } from '@/constants/report/reportModals';
 import { useCoreMutation } from '@/hooks/customQuery';
 import { useModalStore } from '@/stores/modalStore';
-import type { TResponseError } from '@/types/common';
-import type { TPutTranscriptResponse } from '@/types/report/TPutTranscript';
-import { trackEvent } from '@/utils/analytics';
+import { createAttemptId, getAnalyticsIdentityGeneration, trackEvent } from '@/utils/analytics';
+import { analyticsError, trackErrorShown } from '@/utils/analyticsError';
 import { getErrorCode, getErrorMessage, getErrorStatus } from '@/utils/error';
 
-// 성적표 PDF 업로드 훅.
-// 성공 시 관련 조회 캐시를 무효화하고 졸업 판정 화면으로 이동한다.
-// 실패 시 에러 코드/상태에 따라 NotFound 이동 · alert 모달 · 토스트로 분기한다.
+type TSubmission = { file: File; attemptId: string; generation: number };
 export default function useUploadTranscript() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const openAlert = useModalStore((state) => state.openAlert);
-
-  return useCoreMutation((file: File) => putTranscript(file), {
-    onSuccess: (data: TPutTranscriptResponse) => {
-      // 성적표가 새로 저장됐으므로 관련 조회 캐시를 먼저 무효화한다. (어느 분기든 공통)
-      // ['reports'] 접두사로 졸업 판정 요약(['reports','summary'])과 영역상세(['reports',{courseType}])를 함께 무효화한다.
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_REPORTS });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REPORTS_ROOT });
-      // 업로드한 PDF의 학번/이름이 일치하면 서버가 그 시점에 본인 인증(identityVerified)을 자동 처리하므로,
-      // 사용자 정보 캐시도 무효화해 최신 인증 상태가 반영되게 한다.
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_INFO });
-
-      // 성적표 업로드 성공(졸업 판정 리포트 생성됨). 학점 정합성 여부를 파라미터로 함께 집계한다.
+  const submitting = useRef(false);
+  const mutation = useCoreMutation(({ file }: TSubmission) => putTranscript(file), {
+    retry: false,
+    onSuccess: (data, { attemptId, generation }) => {
+      // PDF 저장 성공은 졸업 리포트 표시 성공과 별개의 행동이다.
       const { creditGap } = data.result;
-      trackEvent('pdf_upload', { credit_gap: creditGap, credit_gap_ok: creditGap === 0 });
+      if (generation !== getAnalyticsIdentityGeneration()) return;
+      trackEvent('pdf_upload', { attempt_id: attemptId, credit_gap: creditGap, credit_gap_ok: creditGap === 0 });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_REPORTS });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REPORTS_ROOT });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_INFO });
       if (creditGap === 0) {
         navigate('/graduation');
         return;
       }
-
-      // 0이 아니면 리포트는 생성됐지만 학점 정합성이 맞지 않는 상태.
-      // 부호에 따라 다른 안내 모달을 띄우고, 확인 시 졸업 판정 화면으로 이동시킨다.
       const modal = creditGap > 0 ? CREDIT_GAP_MODAL.positive(creditGap) : CREDIT_GAP_MODAL.negative(creditGap);
       openAlert({
         icon: Warning,
@@ -52,21 +45,15 @@ export default function useUploadTranscript() {
         onConfirm: () => navigate('/graduation'),
       });
     },
-    // either/or 정책상 onError를 직접 제공하므로 공용 기본 토스트는 뜨지 않는다. (중복 알림 방지)
-    onError: (error: TResponseError) => {
+    onError: (error, { attemptId, generation }) => {
+      if (generation !== getAnalyticsIdentityGeneration()) return;
+      trackEvent('pdf_upload_failure', { attempt_id: attemptId, ...analyticsError('transcript_upload', error) });
       const status = getErrorStatus(error);
       const code = getErrorCode(error);
-
-      // 사용자가 업로드 단계에서 막힌 지점을 집계한다. (이탈 원인 파악: 미지원 학번/파일 오류 등)
-      trackEvent('error_shown', { source: 'transcript_upload', code, status });
-
-      // 회원 조회 실패(404)·서버 내부 오류(500)는 사용자가 조치할 수 없으므로 NotFound로 보낸다.
       if (status === 404 || status === 500) {
-        navigate('/404', { replace: true });
+        navigate('/404', { replace: true, state: { analyticsError: analyticsError('transcript_upload', error) } });
         return;
       }
-
-      // 에러 코드에 해당하는 모달 문구가 있으면 alert 모달로 안내하고 업로드 화면에 머문다.
       const modal = code ? TRANSCRIPT_ERROR_MODAL[code] : undefined;
       if (modal) {
         openAlert({
@@ -76,12 +63,29 @@ export default function useUploadTranscript() {
           description: modal.description,
           buttonText: '닫기',
           buttonVariant: 'primary',
+          analyticsError: analyticsError('transcript_upload', error),
         });
         return;
       }
-
-      // 그 외 예기치 못한 에러는 토스트로 안내한다. (예: 서버까지 전달된 파일 누락 등)
       toast.error(getErrorMessage(error) ?? '업로드 중 오류가 발생했습니다.');
+      trackErrorShown('transcript_upload', error);
+    },
+    onSettled: () => {
+      submitting.current = false;
     },
   });
+  const mutate = (file: File) => {
+    // React가 비활성 버튼을 다시 그리기 전의 이중 클릭도 차단한다.
+    if (submitting.current) return;
+    if (file.type !== 'application/pdf' || file.size === 0) {
+      toast.error('내용이 있는 PDF 파일을 선택해주세요.');
+      trackEvent('error_shown', { source: 'transcript_upload', code: 'INVALID_PDF', status: 0 });
+      return;
+    }
+    submitting.current = true;
+    const attemptId = createAttemptId();
+    trackEvent('pdf_upload_start', { attempt_id: attemptId });
+    mutation.mutate({ file, attemptId, generation: getAnalyticsIdentityGeneration() });
+  };
+  return { mutate, isPending: mutation.isPending };
 }

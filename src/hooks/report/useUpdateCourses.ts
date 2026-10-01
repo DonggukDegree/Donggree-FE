@@ -9,6 +9,7 @@ import { useCoreMutation } from '@/hooks/customQuery';
 import type { TResponseError } from '@/types/common';
 import type { TPatchReportRequest } from '@/types/report/TPatchReport';
 import { trackEvent } from '@/utils/analytics';
+import { trackErrorShown } from '@/utils/analyticsError';
 import { getErrorCode, getErrorMessage, getErrorStatus } from '@/utils/error';
 
 // 수강 이력 전체 치환(수정·추가·삭제) 훅.
@@ -28,6 +29,7 @@ export default function useUpdateCourses() {
       toast.success('수강 이력이 수정되었어요.');
     },
     onError: (error: TResponseError) => {
+      trackErrorShown('academic_records', error);
       // 성적표가 없으면(404 TRANSCRIPT404_1) 업로드로 유도.
       if (getErrorStatus(error) === 404) {
         navigate('/upload', { replace: true });
