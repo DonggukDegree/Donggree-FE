@@ -1,4 +1,4 @@
-/** [졸업 판정 > 리포트] 사용자 조회와 관리자 일회성 미리보기의 동일한 리포트 화면 */
+/** [졸업 판정 > 리포트] 사용자 조회·홈 체험·관리자 미리보기에서 공유하는 동일한 리포트 화면 */
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -19,7 +19,8 @@ import { trackOncePerVisit } from '@/utils/analytics';
 
 interface IGraduationReportProps {
   data: TGetReportSummaryResult;
-  preview?: { details: TReportPreviewDetails; onRestart: () => void };
+  // 미리보기는 실제 화면의 버튼을 유지하고, 동작은 필요한 시연 콜백으로 바꿀 수 있다.
+  preview?: { details: TReportPreviewDetails; onRestart?: () => void; onEdit?: () => void };
 }
 
 export default function GraduationReport({ data, preview }: IGraduationReportProps) {
@@ -81,6 +82,7 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
       {/* 요약 */}
       <div
         ref={summaryRef}
+        data-report-section="summary"
         className={`flex flex-col px-0 lg:px-4 py-6 lg:py-8 gap-8 lg:gap-15 items-center border-b border-coolgray-20 ${summaryInView ? 'animate-fade-in-up' : 'opacity-0'}`}
       >
         <h3 className="text-heading-5 lg:text-heading-3 text-coolgray-90">요약</h3>
@@ -146,6 +148,7 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
       {/* 영역별 이수 현황 */}
       <div
         ref={areaRef}
+        data-report-section="areas"
         className={`flex flex-col gap-6 items-center ${areaInView ? 'animate-fade-in-up' : 'opacity-0'}`}
       >
         <div className="flex flex-col gap-2 items-center max-lg:text-center">
@@ -155,7 +158,10 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
           </p>
         </div>
         {/* 카드가 화면보다 많으면 가로로 스크롤한다. (모바일에서 특히 필요) */}
-        <div className="w-full lg:w-auto flex gap-3 overflow-x-auto max-lg:pb-2">
+        <div
+          data-report-section="overview-cards"
+          className="w-full lg:w-auto max-w-full flex gap-3 overflow-x-auto max-lg:pb-2"
+        >
           {areaOverviews.map((area) => (
             <CourseSummaryCard
               key={area.courseType}
@@ -172,6 +178,7 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
       {/* 탭뷰 */}
       <div
         ref={tabRef}
+        data-report-section="details"
         className={`w-full py-4 px-0 lg:px-10 border-b border-coolgray-20 ${tabInView ? 'animate-fade-in-up' : 'opacity-0'}`}
       >
         <CourseTabView courseTypes={courseTypes} previewDetails={preview?.details} />
@@ -180,9 +187,10 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
       {/* 버튼 */}
       <div
         ref={buttonRef}
+        data-report-section="actions"
         className={`flex flex-col lg:flex-row items-center gap-4 justify-center ${buttonInView ? 'animate-fade-in-up' : 'opacity-0'}`}
       >
-        {preview ? (
+        {preview?.onRestart ? (
           <Button className="w-60 max-w-full" onClick={preview.onRestart}>
             다시 하기
           </Button>
@@ -191,7 +199,7 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
             <Button
               variant="outlined"
               className="w-60 max-w-full"
-              onClick={() => navigate('/my-page/academic-records')}
+              onClick={preview?.onEdit ?? (() => navigate('/my-page/academic-records'))}
             >
               내 학업 정보 수정
             </Button>

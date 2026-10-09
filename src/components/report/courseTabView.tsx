@@ -99,7 +99,10 @@ function CourseTabPanel({ data }: { data?: TGetReportDetailResult }) {
 
       {/* 두 요약 박스는 모바일에서 나란히 두기엔 좁아 세로로 쌓는다. */}
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-10">
-        <div className="flex-1 border border-coolgray-20 p-4 flex flex-col gap-2">
+        <div
+          data-report-section="unsatisfied-reasons"
+          className="flex-1 border border-coolgray-20 p-4 flex flex-col gap-2"
+        >
           <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">미충족 사유</span>
           {data.unsatisfiedReasons.length > 0 ? (
             data.unsatisfiedReasons.map((reason) => (
