@@ -3,7 +3,7 @@
  * 학과·적용년도·활성 여부 등 세트 정보를 입력하고, 하단 목록에서 고른 규칙들을 묶어 저장한다.
  * 기존 세트를 불러와 수정할 수도 있으며, 세트 조회 필터는 filterSlot으로 이 폼 안에 배치된다.
  */
-import { useState, type ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 
 import Button from '@/components/common/button';
 import AdditionalRequirementNotice from '@/components/report/additionalRequirementNotice';

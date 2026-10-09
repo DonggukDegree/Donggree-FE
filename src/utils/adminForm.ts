@@ -210,14 +210,17 @@ export const toRuleDraft = (rule: TAdminGraduationRule): TGraduationRuleDraft =>
     gpaScope: config.gpaScope === 'MAJOR' ? 'MAJOR' : 'TOTAL',
     minCount: readString(config.minCount),
     creditAdjustments: Array.isArray(config.creditAdjustments)
-      ? config.creditAdjustments.flatMap((item) => {
+      ? config.creditAdjustments.flatMap((item, index) => {
           if (typeof item !== 'object' || item === null) return [];
           const adjustment = item as Record<string, unknown>;
-          return [{
-            requiredCourseCodes: readStringArray(adjustment.requiredCourseCodes).join(', '),
-            replacementCourseCodes: readStringArray(adjustment.replacementCourseCodes).join(', '),
-            credits: readString(adjustment.credits),
-          }];
+          return [
+            {
+              clientId: `credit-adjustment-${rule.id}-${index}`,
+              requiredCourseCodes: readStringArray(adjustment.requiredCourseCodes).join(', '),
+              replacementCourseCodes: readStringArray(adjustment.replacementCourseCodes).join(', '),
+              credits: readString(adjustment.credits),
+            },
+          ];
         })
       : [],
     courseType: readString(config.courseType) as TCourseType | '',

@@ -277,7 +277,12 @@ export default function GraduationRuleConfigFields({
                 onClick={() =>
                   onFieldChange('creditAdjustments', [
                     ...draft.creditAdjustments,
-                    { requiredCourseCodes: '', replacementCourseCodes: '', credits: '' },
+                    {
+                      clientId: crypto.randomUUID(),
+                      requiredCourseCodes: '',
+                      replacementCourseCodes: '',
+                      credits: '',
+                    },
                   ])
                 }
               >
@@ -288,19 +293,19 @@ export default function GraduationRuleConfigFields({
               <p className="text-body-xs text-coolgray-50">대체 인정 규칙이 있으면 행을 추가해 입력하세요.</p>
             ) : (
               <div className="flex flex-col gap-3">
-                {draft.creditAdjustments.map((adjustment, index) => {
+                {draft.creditAdjustments.map((adjustment) => {
                   const updateAdjustment = (field: keyof TCreditAdjustmentDraft, value: string) => {
                     onFieldChange(
                       'creditAdjustments',
-                      draft.creditAdjustments.map((row, rowIndex) =>
-                        rowIndex === index ? { ...row, [field]: value } : row,
+                      draft.creditAdjustments.map((row) =>
+                        row.clientId === adjustment.clientId ? { ...row, [field]: value } : row,
                       ),
                     );
                   };
 
                   return (
                     <div
-                      key={index}
+                      key={adjustment.clientId}
                       className="grid items-end gap-3 rounded-lg bg-white p-3 md:grid-cols-[1fr_1fr_8rem_auto]"
                     >
                       <label className="flex flex-col gap-1.5">
@@ -338,7 +343,7 @@ export default function GraduationRuleConfigFields({
                         onClick={() =>
                           onFieldChange(
                             'creditAdjustments',
-                            draft.creditAdjustments.filter((_, rowIndex) => rowIndex !== index),
+                            draft.creditAdjustments.filter((row) => row.clientId !== adjustment.clientId),
                           )
                         }
                       >

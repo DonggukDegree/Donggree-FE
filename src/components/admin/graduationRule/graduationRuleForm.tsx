@@ -46,18 +46,14 @@ export type TGraduationRuleDraft = {
 };
 
 export type TCreditAdjustmentDraft = {
+  clientId: string;
   requiredCourseCodes: string;
   replacementCourseCodes: string;
   credits: string;
 };
 
 export type TGraduationRuleDraftField = keyof TGraduationRuleDraft;
-export type TGraduationRuleDraftValue =
-  | string
-  | string[]
-  | TCourseType[]
-  | TMajorRole[]
-  | TCreditAdjustmentDraft[];
+export type TGraduationRuleDraftValue = string | string[] | TCourseType[] | TMajorRole[] | TCreditAdjustmentDraft[];
 
 interface IGraduationRuleFormProps {
   areaTypes: TAdminAreaType[];

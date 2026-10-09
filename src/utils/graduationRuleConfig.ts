@@ -78,9 +78,7 @@ const buildRuleConfig = (
     let creditAdjustments: TCreditAdjustment[] | undefined;
     const populatedAdjustments = draft.creditAdjustments.filter(
       (adjustment) =>
-        adjustment.requiredCourseCodes.trim() ||
-        adjustment.replacementCourseCodes.trim() ||
-        adjustment.credits.trim(),
+        adjustment.requiredCourseCodes.trim() || adjustment.replacementCourseCodes.trim() || adjustment.credits.trim(),
     );
     if (populatedAdjustments.length > 0) {
       const adjustments = populatedAdjustments.map((adjustment) => ({

@@ -84,146 +84,146 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
         />
       )}
       <div className="flex flex-col p-4 lg:p-20 gap-10 lg:gap-15">
-      {/* 헤더 */}
-      <div
-        ref={headerRef}
-        className={`flex flex-col items-center gap-6 lg:gap-10 ${headerInView ? 'animate-fade-in-up' : 'opacity-0'}`}
-      >
-        <Chart className="w-10 h-10 lg:w-20 lg:h-20 shrink-0" />
-        <h2 className="text-heading-4 lg:text-heading-2 text-coolgray-90">나의 학업 리포트</h2>
-      </div>
+        {/* 헤더 */}
+        <div
+          ref={headerRef}
+          className={`flex flex-col items-center gap-6 lg:gap-10 ${headerInView ? 'animate-fade-in-up' : 'opacity-0'}`}
+        >
+          <Chart className="w-10 h-10 lg:w-20 lg:h-20 shrink-0" />
+          <h2 className="text-heading-4 lg:text-heading-2 text-coolgray-90">나의 학업 리포트</h2>
+        </div>
 
-      {/* 요약 */}
-      <div
-        ref={summaryRef}
-        data-report-section="summary"
-        className={`flex flex-col px-0 lg:px-4 py-6 lg:py-8 gap-8 lg:gap-15 items-center border-b border-coolgray-20 ${summaryInView ? 'animate-fade-in-up' : 'opacity-0'}`}
-      >
-        <h3 className="text-heading-5 lg:text-heading-3 text-coolgray-90">요약</h3>
-        {/* w-full이어야 좁은 화면에서 진행 바가 부모 폭을 기준으로 줄어든다. */}
-        <div className="w-full flex flex-col gap-6 items-center">
-          <ProgressBar progress={summary.achievementRate} animate={summaryInView} />
-          <span className="text-heading-6 lg:text-heading-5 text-shimmer max-lg:text-center">
-            졸업까지 {summary.achievementRate}% 달성했어요!
-          </span>
-        </div>
-        <div className="w-full max-w-md mx-auto flex flex-col gap-3">
-          <div className="flex justify-between gap-2">
-            <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">이수 학점</span>
-            <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">{summary.earnedCredits}학점</span>
-          </div>
-          <div className="flex justify-between gap-2">
-            <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">목표 이수 학점</span>
-            <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">{summary.targetCredits}학점</span>
-          </div>
-          <div className="flex justify-between gap-2">
-            <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">잔여 학점</span>
-            <span className="text-heading-6 lg:text-heading-5 text-primary-60">{summary.remainingCredits}학점</span>
-          </div>
-        </div>
-        <div className="w-full max-w-md mx-auto flex flex-col gap-3">
-          <div className="w-full flex justify-between gap-2">
-            <span className="text-heading-6 lg:text-heading-4 text-coolgray-90">총 평점 평균</span>
-            <span className="text-heading-6 lg:text-heading-4 text-coolgray-90">{summary.gpa}</span>
-          </div>
-          <div className="w-full flex justify-between gap-2">
-            <span className="text-heading-5 lg:text-heading-3 text-primary-60">졸업 판정</span>
-            <span
-              className={`text-heading-5 lg:text-heading-3 font-bold ${graduationStatus === 'PASS' ? 'text-primary-60' : 'text-coolgray-30'}`}
-            >
-              {graduationStatus}
+        {/* 요약 */}
+        <div
+          ref={summaryRef}
+          data-report-section="summary"
+          className={`flex flex-col px-0 lg:px-4 py-6 lg:py-8 gap-8 lg:gap-15 items-center border-b border-coolgray-20 ${summaryInView ? 'animate-fade-in-up' : 'opacity-0'}`}
+        >
+          <h3 className="text-heading-5 lg:text-heading-3 text-coolgray-90">요약</h3>
+          {/* w-full이어야 좁은 화면에서 진행 바가 부모 폭을 기준으로 줄어든다. */}
+          <div className="w-full flex flex-col gap-6 items-center">
+            <ProgressBar progress={summary.achievementRate} animate={summaryInView} />
+            <span className="text-heading-6 lg:text-heading-5 text-shimmer max-lg:text-center">
+              졸업까지 {summary.achievementRate}% 달성했어요!
             </span>
           </div>
-        </div>
-
-        {/* 전체 졸업요건 미충족 사유 (없으면 숨김). 졸업 판정 아래 중앙 정렬, 영역별 사유와 동일한 글씨 */}
-        {summary.unsatisfiedReasons.length > 0 && (
-          <div className="flex flex-col items-center gap-1 mb-4 max-lg:text-center">
-            {summary.unsatisfiedReasons.map((reason) => (
-              <span key={reason} className="text-button-m text-alert">
-                {reason}
-              </span>
-            ))}
+          <div className="w-full max-w-md mx-auto flex flex-col gap-3">
+            <div className="flex justify-between gap-2">
+              <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">이수 학점</span>
+              <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">{summary.earnedCredits}학점</span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">목표 이수 학점</span>
+              <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">{summary.targetCredits}학점</span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">잔여 학점</span>
+              <span className="text-heading-6 lg:text-heading-5 text-primary-60">{summary.remainingCredits}학점</span>
+            </div>
           </div>
-        )}
+          <div className="w-full max-w-md mx-auto flex flex-col gap-3">
+            <div className="w-full flex justify-between gap-2">
+              <span className="text-heading-6 lg:text-heading-4 text-coolgray-90">총 평점 평균</span>
+              <span className="text-heading-6 lg:text-heading-4 text-coolgray-90">{summary.gpa}</span>
+            </div>
+            <div className="w-full flex justify-between gap-2">
+              <span className="text-heading-5 lg:text-heading-3 text-primary-60">졸업 판정</span>
+              <span
+                className={`text-heading-5 lg:text-heading-3 font-bold ${graduationStatus === 'PASS' ? 'text-primary-60' : 'text-coolgray-30'}`}
+              >
+                {graduationStatus}
+              </span>
+            </div>
+          </div>
 
-        {/*
+          {/* 전체 졸업요건 미충족 사유 (없으면 숨김). 졸업 판정 아래 중앙 정렬, 영역별 사유와 동일한 글씨 */}
+          {summary.unsatisfiedReasons.length > 0 && (
+            <div className="flex flex-col items-center gap-1 mb-4 max-lg:text-center">
+              {summary.unsatisfiedReasons.map((reason) => (
+                <span key={reason} className="text-button-m text-alert">
+                  {reason}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/*
           영어패스제 유의사항 문구
         */}
-        {data.englishPassed === false && (
-          <div className="flex flex-col items-center gap-1 mb-4 max-lg:text-center">
-            <span className="text-button-m text-primary-60">
-              *유의: 외국어패스가 미충족이므로, 100%를 달성해도 졸업이 아닌 수료 상태입니다. (FAQ 확인)
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* 영역별 이수 현황 */}
-      <div
-        ref={areaRef}
-        data-report-section="areas"
-        className={`flex flex-col gap-6 items-center ${areaInView ? 'animate-fade-in-up' : 'opacity-0'}`}
-      >
-        <div className="flex flex-col gap-2 items-center max-lg:text-center">
-          <h3 className="text-heading-5 lg:text-heading-3 text-coolgray-90">영역별 이수 현황</h3>
-          <p className="text-body-s lg:text-body-m text-coolgray-60">
-            아래에서 원하는 영역 탭을 클릭해 자세한 정보를 확인하세요.
-          </p>
+          {data.englishPassed === false && (
+            <div className="flex flex-col items-center gap-1 mb-4 max-lg:text-center">
+              <span className="text-button-m text-primary-60">
+                *유의: 외국어패스가 미충족이므로, 100%를 달성해도 졸업이 아닌 수료 상태입니다. (FAQ 확인)
+              </span>
+            </div>
+          )}
         </div>
-        {/* 카드가 화면보다 많으면 가로로 스크롤한다. (모바일에서 특히 필요) */}
+
+        {/* 영역별 이수 현황 */}
         <div
-          data-report-section="overview-cards"
-          className="w-full lg:w-auto max-w-full flex gap-3 overflow-x-auto max-lg:pb-2"
+          ref={areaRef}
+          data-report-section="areas"
+          className={`flex flex-col gap-6 items-center ${areaInView ? 'animate-fade-in-up' : 'opacity-0'}`}
         >
-          {areaOverviews.map((area) => (
-            <CourseSummaryCard
-              key={area.courseType}
-              courseType={area.courseType}
-              progress={area.achievementRate}
-              remainingCredits={area.remainingCredits}
-              status={area.satisfied ? 'PASS' : 'FAIL'}
-              isVisible={areaInView}
-            />
-          ))}
+          <div className="flex flex-col gap-2 items-center max-lg:text-center">
+            <h3 className="text-heading-5 lg:text-heading-3 text-coolgray-90">영역별 이수 현황</h3>
+            <p className="text-body-s lg:text-body-m text-coolgray-60">
+              아래에서 원하는 영역 탭을 클릭해 자세한 정보를 확인하세요.
+            </p>
+          </div>
+          {/* 카드가 화면보다 많으면 가로로 스크롤한다. (모바일에서 특히 필요) */}
+          <div
+            data-report-section="overview-cards"
+            className="w-full lg:w-auto max-w-full flex gap-3 overflow-x-auto max-lg:pb-2"
+          >
+            {areaOverviews.map((area) => (
+              <CourseSummaryCard
+                key={area.courseType}
+                courseType={area.courseType}
+                progress={area.achievementRate}
+                remainingCredits={area.remainingCredits}
+                status={area.satisfied ? 'PASS' : 'FAIL'}
+                isVisible={areaInView}
+              />
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* 탭뷰 */}
-      <div
-        ref={tabRef}
-        data-report-section="details"
-        className={`w-full py-4 px-0 lg:px-10 border-b border-coolgray-20 ${tabInView ? 'animate-fade-in-up' : 'opacity-0'}`}
-      >
-        <CourseTabView courseTypes={courseTypes} previewDetails={preview?.details} />
-      </div>
+        {/* 탭뷰 */}
+        <div
+          ref={tabRef}
+          data-report-section="details"
+          className={`w-full py-4 px-0 lg:px-10 border-b border-coolgray-20 ${tabInView ? 'animate-fade-in-up' : 'opacity-0'}`}
+        >
+          <CourseTabView courseTypes={courseTypes} previewDetails={preview?.details} />
+        </div>
 
-      {/* 버튼 */}
-      <div
-        ref={buttonRef}
-        data-report-section="actions"
-        className={`flex flex-col lg:flex-row items-center gap-4 justify-center ${buttonInView ? 'animate-fade-in-up' : 'opacity-0'}`}
-      >
-        {preview?.onRestart ? (
-          <Button className="w-60 max-w-full" onClick={preview.onRestart}>
-            다시 하기
-          </Button>
-        ) : (
-          <>
-            <Button
-              variant="outlined"
-              className="w-60 max-w-full"
-              onClick={preview?.onEdit ?? (() => navigate('/my-page/academic-records'))}
-            >
-              내 학업 정보 수정
+        {/* 버튼 */}
+        <div
+          ref={buttonRef}
+          data-report-section="actions"
+          className={`flex flex-col lg:flex-row items-center gap-4 justify-center ${buttonInView ? 'animate-fade-in-up' : 'opacity-0'}`}
+        >
+          {preview?.onRestart ? (
+            <Button className="w-60 max-w-full" onClick={preview.onRestart}>
+              다시 하기
             </Button>
-            {/* 커리큘럼 기능은 아직 미개발이라 페이지 이동 대신 준비 중 토스트로 안내한다. */}
-            <Button className="w-60 max-w-full" onClick={() => toast(READY_MESSAGE)}>
-              커리큘럼 확인하기
-            </Button>
-          </>
-        )}
-      </div>
+          ) : (
+            <>
+              <Button
+                variant="outlined"
+                className="w-60 max-w-full"
+                onClick={preview?.onEdit ?? (() => navigate('/my-page/academic-records'))}
+              >
+                내 학업 정보 수정
+              </Button>
+              {/* 커리큘럼 기능은 아직 미개발이라 페이지 이동 대신 준비 중 토스트로 안내한다. */}
+              <Button className="w-60 max-w-full" onClick={() => toast(READY_MESSAGE)}>
+                커리큘럼 확인하기
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </>
   );

@@ -102,4 +102,5 @@ export const REPORT_EXAMPLE: TGetReportSummaryResult = {
   }),
   hasUnsupportedMajor: false,
   englishPassed: true,
+  additionalNotices: [],
 };

@@ -1,5 +1,5 @@
 /** [졸업 판정 > 리포트] 요건 세트별 추가 확인사항 안내 */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import Button from '@/components/common/button';
 import type { TGetReportSummaryResult } from '@/types/report/TGetReportSummary';
@@ -31,25 +31,28 @@ export default function AdditionalRequirementNotice({
   previewMode?: boolean;
   onDismiss?: () => void;
 }) {
-  const [visibleNotices, setVisibleNotices] = useState<TNotice[]>([]);
-
-  useEffect(() => {
-    const dismissedIds = new Set(forceShow ? [] : readDismissedIds());
-    setVisibleNotices(notices.filter((notice) => !dismissedIds.has(notice.requirementSetId)));
-  }, [forceShow, notices]);
+  const [dismissedIds, setDismissedIds] = useState(() => new Set(readDismissedIds()));
+  const [closedIds, setClosedIds] = useState(() => new Set<number>());
+  const visibleNotices = notices.filter(
+    (notice) => !closedIds.has(notice.requirementSetId) && (forceShow || !dismissedIds.has(notice.requirementSetId)),
+  );
 
   if (visibleNotices.length === 0) return null;
 
   const close = () => {
-    setVisibleNotices([]);
+    setClosedIds((current) => new Set([...current, ...visibleNotices.map((notice) => notice.requirementSetId)]));
     onDismiss?.();
   };
   const dismissPermanently = () => {
     if (!previewMode) {
       try {
-        const existing = new Set(readDismissedIds());
-        visibleNotices.forEach((notice) => existing.add(notice.requirementSetId));
-        localStorage.setItem(STORAGE_KEY, JSON.stringify([...existing]));
+        const updated = new Set([
+          ...dismissedIds,
+          ...readDismissedIds(),
+          ...visibleNotices.map((notice) => notice.requirementSetId),
+        ]);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...updated]));
+        setDismissedIds(updated);
       } catch {
         // 저장소 사용이 제한된 환경에서도 현재 조회의 안내는 닫을 수 있다.
       }
@@ -72,11 +75,7 @@ export default function AdditionalRequirementNotice({
                   {[
                     notice.collegeName,
                     notice.departmentName,
-                    notice.track === 'ADVANCED'
-                      ? '심화과정'
-                      : notice.track === 'GENERAL'
-                        ? '일반과정'
-                        : null,
+                    notice.track === 'ADVANCED' ? '심화과정' : notice.track === 'GENERAL' ? '일반과정' : null,
                     notice.yearStart && notice.yearEnd
                       ? `${notice.yearStart === notice.yearEnd ? notice.yearStart : `${notice.yearStart}-${notice.yearEnd}`}학년도 입학 대상 안내`
                       : null,
@@ -90,11 +89,7 @@ export default function AdditionalRequirementNotice({
           </div>
         </div>
         <div className="mt-4 flex gap-2">
-          <Button
-            variant="outlined"
-            className="pointer-events-auto flex-1 px-2 py-2 text-body-xs"
-            onClick={close}
-          >
+          <Button variant="outlined" className="pointer-events-auto flex-1 px-2 py-2 text-body-xs" onClick={close}>
             닫기
           </Button>
           <Button className="pointer-events-auto flex-1 px-2 py-2 text-body-xs" onClick={dismissPermanently}>
