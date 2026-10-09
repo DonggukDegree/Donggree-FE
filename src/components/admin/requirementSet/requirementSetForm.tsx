@@ -3,9 +3,10 @@
  * 학과·적용년도·활성 여부 등 세트 정보를 입력하고, 하단 목록에서 고른 규칙들을 묶어 저장한다.
  * 기존 세트를 불러와 수정할 수도 있으며, 세트 조회 필터는 filterSlot으로 이 폼 안에 배치된다.
  */
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 
 import Button from '@/components/common/button';
+import AdditionalRequirementNotice from '@/components/report/additionalRequirementNotice';
 import { ADMIN_INPUT_CLASS } from '@/constants/inputStyles';
 import {
   REQUIREMENT_TRACK_DESCRIPTION,
@@ -26,6 +27,7 @@ export type TRequirementSetFormState = {
   track: TRequirementTrack;
   version: string;
   description: string;
+  studentNotice: string;
   sheetImageUrl: string;
   active: boolean;
 };
@@ -68,6 +70,10 @@ export default function RequirementSetForm({
   filterSlot,
 }: IRequirementSetFormProps) {
   const isEditMode = form.id !== null;
+  const [isNoticePreviewOpen, setIsNoticePreviewOpen] = useState(false);
+  const previewYearStart = Number(form.yearStart);
+  const previewYearEnd = Number(form.yearEnd);
+  const previewNotice = form.studentNotice.trim();
 
   return (
     <section className="flex flex-col gap-5 rounded-2xl border border-coolgray-10 bg-white p-8 shadow-sm">
@@ -248,6 +254,35 @@ export default function RequirementSetForm({
           />
         </label>
 
+        <div className="flex flex-col gap-1.5 lg:col-span-3">
+          <div className="flex items-center justify-between gap-3">
+            <label htmlFor="requirement-set-student-notice" className="text-body-s font-semibold text-coolgray-90">
+              학생 리포트 추가 확인사항
+            </label>
+            <Button
+              type="button"
+              variant={previewNotice ? 'outlined' : 'disabled'}
+              disabled={!previewNotice}
+              className="px-3 py-2 text-body-xs"
+              onClick={() => setIsNoticePreviewOpen(true)}
+            >
+              미리보기
+            </Button>
+          </div>
+          <textarea
+            id="requirement-set-student-notice"
+            value={form.studentNotice}
+            disabled={isSaving}
+            placeholder="비워두면 팝업을 표시하지 않습니다. 입력한 내용은 졸업 리포트 조회 시 화면 왼쪽 위에 표시됩니다."
+            onChange={(event) => onChange('studentNotice', event.target.value)}
+            className={`${INPUT_CLASS} min-h-32 resize-y whitespace-pre-wrap`}
+          />
+          <span className="text-body-xs text-coolgray-60">
+            저장된 안내는 해당 졸업 세트가 적용되는 학생에게만 표시됩니다. 다시 보지 않기를 선택한 브라우저에서는 같은
+            세트의 안내를 다시 표시하지 않습니다.
+          </span>
+        </div>
+
         <label className="flex flex-col gap-1.5">
           <span className="text-body-s font-semibold text-coolgray-90">시트 이미지 URL</span>
           <input
@@ -259,6 +294,24 @@ export default function RequirementSetForm({
           />
         </label>
       </div>
+      {isNoticePreviewOpen && (
+        <AdditionalRequirementNotice
+          notices={[
+            {
+              requirementSetId: form.id ?? -1,
+              collegeName: form.collegeName.trim() || null,
+              departmentName: form.departmentName.trim() || null,
+              track: form.track,
+              yearStart: Number.isInteger(previewYearStart) && previewYearStart > 0 ? previewYearStart : null,
+              yearEnd: Number.isInteger(previewYearEnd) && previewYearEnd > 0 ? previewYearEnd : null,
+              content: previewNotice,
+            },
+          ]}
+          forceShow
+          previewMode
+          onDismiss={() => setIsNoticePreviewOpen(false)}
+        />
+      )}
     </section>
   );
 }

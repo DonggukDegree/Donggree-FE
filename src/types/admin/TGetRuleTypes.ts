@@ -6,6 +6,7 @@ import type { TCourseType } from '@/types/course';
 export type TRuleTypeName =
   | 'TOTAL_CREDITS'
   | 'GPA'
+  | 'TEACHING_APTITUDE'
   | 'MIN_CREDITS'
   | 'REQUIRED_COURSE'
   | 'ENGLISH_COURSE'
