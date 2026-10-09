@@ -22,7 +22,9 @@ export const EMPTY_RULE_DRAFT: Omit<TGraduationRuleDraft, 'clientId'> = {
   description: '',
   minCredits: '',
   minGpa: '',
+  gpaScope: 'TOTAL',
   minCount: '',
+  creditAdjustments: [],
   courseType: '',
   areaNames: [],
   subCategories: '',
@@ -205,7 +207,22 @@ export const toRuleDraft = (rule: TAdminGraduationRule): TGraduationRuleDraft =>
     description: rule.description ?? '',
     minCredits: readString(config.minCredits),
     minGpa: readString(config.minGpa),
+    gpaScope: config.gpaScope === 'MAJOR' ? 'MAJOR' : 'TOTAL',
     minCount: readString(config.minCount),
+    creditAdjustments: Array.isArray(config.creditAdjustments)
+      ? config.creditAdjustments.flatMap((item, index) => {
+          if (typeof item !== 'object' || item === null) return [];
+          const adjustment = item as Record<string, unknown>;
+          return [
+            {
+              clientId: `credit-adjustment-${rule.id}-${index}`,
+              requiredCourseCodes: readStringArray(adjustment.requiredCourseCodes).join(', '),
+              replacementCourseCodes: readStringArray(adjustment.replacementCourseCodes).join(', '),
+              credits: readString(adjustment.credits),
+            },
+          ];
+        })
+      : [],
     courseType: readString(config.courseType) as TCourseType | '',
     areaNames: readStringArray(config.areaNames),
     subCategories: readStringArray(config.subCategories).join(', '),
@@ -239,6 +256,7 @@ export const toRequirementSetForm = (
     track: TRequirementTrack;
     version: number;
     description: string | null;
+    studentNotice: string | null;
     sheetImageUrl: string | null;
     active: boolean;
   },
@@ -253,6 +271,7 @@ export const toRequirementSetForm = (
   track: set.track,
   version: String(set.version),
   description: set.description ?? '',
+  studentNotice: set.studentNotice ?? '',
   sheetImageUrl: set.sheetImageUrl ?? '',
   active: set.active,
 });

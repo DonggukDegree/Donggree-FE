@@ -30,6 +30,15 @@ export type TGetReportSummaryResult = {
   hasUnsupportedMajor: boolean;
   // 영어패스제 결과
   englishPassed: boolean | null;
+  additionalNotices: {
+    requirementSetId: number;
+    collegeName: string | null;
+    departmentName: string | null;
+    track: 'ALL' | 'GENERAL' | 'ADVANCED' | null;
+    yearStart: number;
+    yearEnd: number;
+    content: string;
+  }[];
 };
 
 export type TGetReportSummaryResponse = TCommonResponse<TGetReportSummaryResult>;

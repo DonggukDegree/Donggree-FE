@@ -37,6 +37,7 @@ const EMPTY_SET_FORM: TRequirementSetFormState = {
   track: 'ALL',
   version: '',
   description: '',
+  studentNotice: '',
   sheetImageUrl: '',
   active: true,
 };
@@ -182,6 +183,7 @@ export default function useRequirementSetEditor() {
       yearEnd,
       track: form.track,
       description: optionalText(form.description),
+      studentNotice: optionalText(form.studentNotice),
       sheetImageUrl: optionalText(form.sheetImageUrl),
       active: form.active,
       graduationRuleIds: Array.from(ruleIds),

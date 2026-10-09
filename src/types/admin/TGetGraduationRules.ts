@@ -5,6 +5,12 @@ import type { TRuleTypeName } from './TGetRuleTypes';
 
 export type TGraduationRuleConfig = Record<string, unknown>;
 
+export type TCreditAdjustment = {
+  requiredCourseCodes: string[];
+  replacementCourseCodes: string[];
+  credits: number;
+};
+
 // GET /api/admin/graduation-rules 응답 항목
 export type TAdminGraduationRule = {
   id: number;

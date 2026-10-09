@@ -21,7 +21,9 @@ export type TGraduationRuleDraft = {
   description: string;
   minCredits: string;
   minGpa: string;
+  gpaScope: 'TOTAL' | 'MAJOR';
   minCount: string;
+  creditAdjustments: TCreditAdjustmentDraft[];
   courseType: TCourseType | '';
   // MIN_CREDITS 선택자 5종. areaNames만 area-types 다중선택이고, 나머지는 콤마 구분 입력이다.
   // (pdf* 는 성적표 PDF의 원문 문자열이라 프론트가 선택지를 확정할 수 없다)
@@ -43,8 +45,15 @@ export type TGraduationRuleDraft = {
   requiredCourseSetsText: string;
 };
 
+export type TCreditAdjustmentDraft = {
+  clientId: string;
+  requiredCourseCodes: string;
+  replacementCourseCodes: string;
+  credits: string;
+};
+
 export type TGraduationRuleDraftField = keyof TGraduationRuleDraft;
-export type TGraduationRuleDraftValue = string | string[] | TCourseType[] | TMajorRole[];
+export type TGraduationRuleDraftValue = string | string[] | TCourseType[] | TMajorRole[] | TCreditAdjustmentDraft[];
 
 interface IGraduationRuleFormProps {
   areaTypes: TAdminAreaType[];

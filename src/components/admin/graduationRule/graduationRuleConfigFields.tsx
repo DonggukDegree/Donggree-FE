@@ -6,10 +6,12 @@
 import { FieldLabel, TextInput } from '@/components/admin/common/adminFormControls';
 import MultiSelectDropdown from '@/components/admin/common/multiSelectDropdown';
 import type {
+  TCreditAdjustmentDraft,
   TGraduationRuleDraft,
   TGraduationRuleDraftField,
   TGraduationRuleDraftValue,
 } from '@/components/admin/graduationRule/graduationRuleForm';
+import Button from '@/components/common/button';
 import SelectChevron from '@/components/common/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
 import type { TAdminAreaType } from '@/types/admin/TGetAdminAreaTypes';
@@ -107,13 +109,39 @@ export default function GraduationRuleConfigFields({
       )}
 
       {selectedRuleType?.typeName === 'GPA' && (
+        <div className="grid max-w-xl gap-3 md:grid-cols-2">
+          <label className="flex flex-col gap-1.5">
+            <FieldLabel>평점 기준</FieldLabel>
+            <select
+              value={draft.gpaScope}
+              disabled={isSaving}
+              onChange={(event) => onFieldChange('gpaScope', event.target.value)}
+              className={`${ADMIN_INPUT_CLASS} ${SELECT_RESET_CLASS}`}
+            >
+              <option value="TOTAL">총 평점</option>
+              <option value="MAJOR">전공 평점(주전공)</option>
+            </select>
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <FieldLabel>최소 평점평균</FieldLabel>
+            <TextInput
+              value={draft.minGpa}
+              disabled={isSaving}
+              placeholder="2.0"
+              onChange={(value) => onFieldChange('minGpa', value)}
+            />
+          </label>
+        </div>
+      )}
+
+      {selectedRuleType?.typeName === 'TEACHING_APTITUDE' && (
         <label className="flex max-w-xs flex-col gap-1.5">
-          <FieldLabel>최소 평점평균</FieldLabel>
+          <FieldLabel>최소 합격 횟수</FieldLabel>
           <TextInput
-            value={draft.minGpa}
+            value={draft.minCount}
             disabled={isSaving}
-            placeholder="2.0"
-            onChange={(value) => onFieldChange('minGpa', value)}
+            placeholder="2"
+            onChange={(value) => onFieldChange('minCount', value)}
           />
         </label>
       )}
@@ -232,6 +260,104 @@ export default function GraduationRuleConfigFields({
                 onChange={(value) => onFieldChange('minCount', value)}
               />
             </label>
+          </div>
+          <div className="flex flex-col gap-3 border-t border-coolgray-20 pt-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <FieldLabel>대체 이수 시 목표학점 감면 (선택)</FieldLabel>
+                <p className="mt-1 text-body-xs text-coolgray-60">
+                  원 필수과목은 미이수이고 대체과목을 이수하면 지정 학점만큼 목표를 낮춥니다.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outlined"
+                disabled={isSaving}
+                className="px-3 py-2 text-body-xs"
+                onClick={() =>
+                  onFieldChange('creditAdjustments', [
+                    ...draft.creditAdjustments,
+                    {
+                      clientId: crypto.randomUUID(),
+                      requiredCourseCodes: '',
+                      replacementCourseCodes: '',
+                      credits: '',
+                    },
+                  ])
+                }
+              >
+                + 행 추가
+              </Button>
+            </div>
+            {draft.creditAdjustments.length === 0 ? (
+              <p className="text-body-xs text-coolgray-50">대체 인정 규칙이 있으면 행을 추가해 입력하세요.</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {draft.creditAdjustments.map((adjustment) => {
+                  const updateAdjustment = (field: keyof TCreditAdjustmentDraft, value: string) => {
+                    onFieldChange(
+                      'creditAdjustments',
+                      draft.creditAdjustments.map((row) =>
+                        row.clientId === adjustment.clientId ? { ...row, [field]: value } : row,
+                      ),
+                    );
+                  };
+
+                  return (
+                    <div
+                      key={adjustment.clientId}
+                      className="grid items-end gap-3 rounded-lg bg-white p-3 md:grid-cols-[1fr_1fr_8rem_auto]"
+                    >
+                      <label className="flex flex-col gap-1.5">
+                        <FieldLabel>요구 과목 코드</FieldLabel>
+                        <TextInput
+                          value={adjustment.requiredCourseCodes}
+                          disabled={isSaving}
+                          placeholder="예: ABC1001"
+                          onChange={(value) => updateAdjustment('requiredCourseCodes', value)}
+                        />
+                      </label>
+                      <label className="flex flex-col gap-1.5">
+                        <FieldLabel>대체 가능 과목 코드</FieldLabel>
+                        <TextInput
+                          value={adjustment.replacementCourseCodes}
+                          disabled={isSaving}
+                          placeholder="여러 과목은 쉼표로 구분"
+                          onChange={(value) => updateAdjustment('replacementCourseCodes', value)}
+                        />
+                      </label>
+                      <label className="flex flex-col gap-1.5">
+                        <FieldLabel>감면 학점</FieldLabel>
+                        <TextInput
+                          value={adjustment.credits}
+                          disabled={isSaving}
+                          placeholder="3"
+                          onChange={(value) => updateAdjustment('credits', value)}
+                        />
+                      </label>
+                      <Button
+                        type="button"
+                        variant="outlined"
+                        disabled={isSaving}
+                        className="px-3 py-2 text-body-xs"
+                        onClick={() =>
+                          onFieldChange(
+                            'creditAdjustments',
+                            draft.creditAdjustments.filter((row) => row.clientId !== adjustment.clientId),
+                          )
+                        }
+                      >
+                        삭제
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            <span className="text-body-xs text-coolgray-60">
+              대체 과목 코드는 쉼표로 여러 개 입력할 수 있습니다. 필수과목 규칙에도 동일한 대체 과목 코드를 등록해야
+              필수 이수로 인정됩니다.
+            </span>
           </div>
         </div>
       )}

@@ -22,6 +22,7 @@ export type TAdminRequirementSetSummary = {
 };
 
 export type TAdminRequirementSetDetail = TAdminRequirementSetSummary & {
+  studentNotice: string | null;
   graduationRuleIds: number[];
 };
 
@@ -32,6 +33,7 @@ export type TRequirementSetCreateRequest = {
   yearEnd: number;
   track: TRequirementTrack;
   description: string | null;
+  studentNotice: string | null;
   sheetImageUrl: string | null;
   active: boolean;
   graduationRuleIds: number[];

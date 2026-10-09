@@ -9,7 +9,7 @@
 import { toast } from 'sonner';
 
 import type { TGraduationRuleDraft } from '@/components/admin/graduationRule/graduationRuleForm';
-import type { TGraduationRuleConfig } from '@/types/admin/TGetGraduationRules';
+import type { TCreditAdjustment, TGraduationRuleConfig } from '@/types/admin/TGetGraduationRules';
 import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
 import type { TGraduationRuleUpsertItem } from '@/types/admin/TPutGraduationRules';
 import {
@@ -43,7 +43,16 @@ const buildRuleConfig = (
       toast.error(`${rowLabel}의 최소 평점평균을 입력해주세요.`);
       return null;
     }
-    return { minGpa };
+    return { minGpa, gpaScope: draft.gpaScope };
+  }
+
+  if (ruleType.typeName === 'TEACHING_APTITUDE') {
+    const minCount = toPositiveInteger(draft.minCount);
+    if (!minCount) {
+      toast.error(`${rowLabel}의 최소 합격 횟수를 입력해주세요.`);
+      return null;
+    }
+    return { minCount };
   }
 
   // MIN_CREDITS: 채운 선택자를 모두 만족하는 과목만 집계한다(선택자 간 AND).
@@ -66,6 +75,30 @@ const buildRuleConfig = (
     const pdfCourseTypeNames = splitList(draft.pdfCourseTypeNames);
     const pdfAreaNames = splitList(draft.pdfAreaNames);
     const courseCodes = splitList(draft.courseCodes);
+    let creditAdjustments: TCreditAdjustment[] | undefined;
+    const populatedAdjustments = draft.creditAdjustments.filter(
+      (adjustment) =>
+        adjustment.requiredCourseCodes.trim() || adjustment.replacementCourseCodes.trim() || adjustment.credits.trim(),
+    );
+    if (populatedAdjustments.length > 0) {
+      const adjustments = populatedAdjustments.map((adjustment) => ({
+        requiredCourseCodes: splitList(adjustment.requiredCourseCodes),
+        replacementCourseCodes: splitList(adjustment.replacementCourseCodes),
+        credits: toPositiveInteger(adjustment.credits),
+      }));
+      if (
+        adjustments.some(
+          (adjustment) =>
+            adjustment.requiredCourseCodes.length === 0 ||
+            adjustment.replacementCourseCodes.length === 0 ||
+            adjustment.credits === null,
+        )
+      ) {
+        toast.error(`${rowLabel}의 대체과목 코드와 감면 학점을 확인해주세요.`);
+        return null;
+      }
+      creditAdjustments = adjustments as TCreditAdjustment[];
+    }
 
     // 이수구분·선택자를 하나도 지정하지 않는 것은 서버가 '제한 없음'(= 전체 수강 이력 대상)으로
     // 정의한 정상 설정이다(MinCreditsEvaluator javadoc). 스펙에 없는 제약을 프론트가 만들지 않는다.
@@ -77,6 +110,7 @@ const buildRuleConfig = (
       ...(pdfCourseTypeNames.length > 0 ? { pdfCourseTypeNames } : {}),
       ...(pdfAreaNames.length > 0 ? { pdfAreaNames } : {}),
       ...(courseCodes.length > 0 ? { courseCodes } : {}),
+      ...(creditAdjustments ? { creditAdjustments } : {}),
       applicableMajorRoles: draft.applicableMajorRoles,
       ...(minCredits ? { minCredits } : {}),
       ...(minCount ? { minCount } : {}),
