@@ -47,7 +47,10 @@ export default function AdminReportPreview() {
       </section>
 
       {data ? (
-        <GraduationReport data={data.report} preview={{ details: data.details, onRestart: restart }} />
+        <GraduationReport
+          data={data.report}
+          preview={{ details: data.details, onRestart: restart, showAdditionalNotice: true }}
+        />
       ) : (
         <form
           className="p-4 lg:p-20 flex flex-col gap-6"

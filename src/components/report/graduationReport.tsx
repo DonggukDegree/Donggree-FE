@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import Chart from '@/assets/icons/chart.svg?react';
 import Warning from '@/assets/icons/warning.svg?react';
 import Button from '@/components/common/button';
+import AdditionalRequirementNotice from '@/components/report/additionalRequirementNotice';
 import CourseSummaryCard from '@/components/report/courseSummaryCard';
 import CourseTabView from '@/components/report/courseTabView';
 import ProgressBar from '@/components/report/progressBar';
@@ -20,7 +21,12 @@ import { trackOncePerVisit } from '@/utils/analytics';
 interface IGraduationReportProps {
   data: TGetReportSummaryResult;
   // 미리보기는 실제 화면의 버튼을 유지하고, 동작은 필요한 시연 콜백으로 바꿀 수 있다.
-  preview?: { details: TReportPreviewDetails; onRestart?: () => void; onEdit?: () => void };
+  preview?: {
+    details: TReportPreviewDetails;
+    onRestart?: () => void;
+    onEdit?: () => void;
+    showAdditionalNotice?: boolean;
+  };
 }
 
 export default function GraduationReport({ data, preview }: IGraduationReportProps) {
@@ -69,7 +75,15 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
   const courseTypes = areaOverviews.map((area) => area.courseType);
 
   return (
-    <div className="flex flex-col p-4 lg:p-20 gap-10 lg:gap-15">
+    <>
+      {(!isPreview || preview?.showAdditionalNotice) && (
+        <AdditionalRequirementNotice
+          notices={data.additionalNotices ?? []}
+          forceShow={isPreview}
+          previewMode={isPreview}
+        />
+      )}
+      <div className="flex flex-col p-4 lg:p-20 gap-10 lg:gap-15">
       {/* 헤더 */}
       <div
         ref={headerRef}
@@ -210,6 +224,7 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
           </>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
