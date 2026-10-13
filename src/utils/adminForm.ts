@@ -23,6 +23,7 @@ export const EMPTY_RULE_DRAFT: Omit<TGraduationRuleDraft, 'clientId'> = {
   minCredits: '',
   minGpa: '',
   gpaScope: 'TOTAL',
+  creditSource: '',
   minCount: '',
   creditAdjustments: [],
   courseType: '',
@@ -207,7 +208,8 @@ export const toRuleDraft = (rule: TAdminGraduationRule): TGraduationRuleDraft =>
     description: rule.description ?? '',
     minCredits: readString(config.minCredits),
     minGpa: readString(config.minGpa),
-    gpaScope: config.gpaScope === 'MAJOR' ? 'MAJOR' : 'TOTAL',
+    gpaScope: config.gpaScope === 'MAJOR' || config.gpaScope === 'TEACHING' ? config.gpaScope : 'TOTAL',
+    creditSource: config.creditSource === 'TEACHING_SUMMARY' ? 'TEACHING_SUMMARY' : '',
     minCount: readString(config.minCount),
     creditAdjustments: Array.isArray(config.creditAdjustments)
       ? config.creditAdjustments.flatMap((item, index) => {

@@ -21,7 +21,8 @@ export type TGraduationRuleDraft = {
   description: string;
   minCredits: string;
   minGpa: string;
-  gpaScope: 'TOTAL' | 'MAJOR';
+  gpaScope: 'TOTAL' | 'MAJOR' | 'TEACHING';
+  creditSource: '' | 'TEACHING_SUMMARY';
   minCount: string;
   creditAdjustments: TCreditAdjustmentDraft[];
   courseType: TCourseType | '';

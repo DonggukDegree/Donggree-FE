@@ -61,6 +61,21 @@ const buildRuleConfig = (
   // (임계값이 둘 다 없으면 서버가 판정 시점에 IllegalStateException을 던지므로 여기서 먼저 막는다)
   if (ruleType.typeName === 'MIN_CREDITS') {
     const minCredits = toPositiveInteger(draft.minCredits);
+    if (draft.creditSource === 'TEACHING_SUMMARY' && ruleType.courseType === 'FIRST_MAJOR') {
+      if (!minCredits) {
+        toast.error(`${rowLabel}의 교직 최소 학점을 입력해주세요.`);
+        return null;
+      }
+      if (draft.applicableMajorRoles.length === 0) {
+        toast.error(`${rowLabel}의 규칙 적용 대상을 하나 이상 선택해주세요.`);
+        return null;
+      }
+      if (ruleType.courseType !== 'FIRST_MAJOR') {
+        toast.error('교직 요약 학점 규칙은 제1전공 규칙 종류에서만 사용할 수 있습니다.');
+        return null;
+      }
+      return { creditSource: 'TEACHING_SUMMARY', minCredits, applicableMajorRoles: draft.applicableMajorRoles };
+    }
     const minCount = toPositiveInteger(draft.minCount);
     if (!minCredits && !minCount) {
       toast.error(`${rowLabel}의 최소 학점 또는 최소 과목 수 중 하나는 입력해주세요.`);
