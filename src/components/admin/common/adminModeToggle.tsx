@@ -4,9 +4,9 @@
  */
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import Toggle from '@/components/common/toggle';
+import Toggle from '@/components/common/inputs/toggle';
 import useCurrentRole from '@/hooks/auth/useCurrentRole';
-import { isAdminRole } from '@/utils/authRole';
+import { isAdminRole } from '@/utils/auth/authRole';
 
 // ADMIN/SUPER_ADMIN 사용자에게만 보이는 학생/관리자 화면 전환 토글.
 export default function AdminModeToggle() {

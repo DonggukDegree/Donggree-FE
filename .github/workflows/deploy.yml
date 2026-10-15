@@ -41,7 +41,7 @@ jobs:
           docker run --rm -v "$PWD:/app" -w /app \
             -e VITE_API_URL -e VITE_GA_ID \
             node:22-alpine \
-            sh -c "npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build"
+            sh -c "npm install -g pnpm@11.5.0 && pnpm install --frozen-lockfile && pnpm build"
 
       - name: Swap dist contents (inode 유지 — caddy bind mount 보존)
         run: |

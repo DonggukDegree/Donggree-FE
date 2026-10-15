@@ -4,8 +4,8 @@ import { gsap } from 'gsap';
 import { useRef, useState } from 'react';
 
 import Upload from '@/assets/icons/upload.svg?react';
-import Button from '@/components/common/button';
-import Loading from '@/components/common/loading';
+import Loading from '@/components/common/feedback/loading';
+import Button from '@/components/common/inputs/button';
 import GraduationReport from '@/components/report/graduationReport';
 import { REPORT_EXAMPLE, REPORT_EXAMPLE_DETAILS } from '@/constants/home/reportExample';
 
@@ -255,7 +255,7 @@ export default function HomeReportAutodemo({ onStageChange }: IHomeReportAutodem
               </p>
               <div ref={analyzeButtonRef}>
                 <Button
-                  className="px-15 max-w-full text-body-m lg:text-body-l"
+                  className="px-15 max-w-full"
                   variant={fileSelected ? 'primary' : 'disabled'}
                   disabled={!fileSelected}
                   onClick={() => {

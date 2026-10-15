@@ -1,0 +1,246 @@
+/**
+ * [관리자 > 졸업 요건 관리] 졸업 규칙 폼 → API 변환
+ * 규칙 종류(typeName)별 설정값 검증과 rule_config 조립을 담당한다.
+ * 컨트롤러 훅(useGraduationRuleEditor)에서 분리해 왔다 — 선택자가 늘수록 이 부분만 길어지는데,
+ * 훅에 같이 두면 상태 관리 코드가 검증 코드에 묻힌다.
+ *
+ * 검증 결과만 반환한다. 사용자 안내와 저장 중단은 편집 훅이 담당한다.
+ */
+import type { TGraduationRuleDraft } from '@/types/admin/forms/graduationRuleForm';
+import type { TRuleConfigByType, TValidatedRuleConfig } from '@/types/admin/graduationRule/graduationRuleConfig';
+import type { TCreditAdjustment } from '@/types/admin/graduationRule/TGetGraduationRules';
+import type { TAdminRuleType } from '@/types/admin/graduationRule/TGetRuleTypes';
+import type { TGraduationRuleUpsertItem } from '@/types/admin/graduationRule/TPutGraduationRules';
+import type { TValidationResult } from '@/types/validation';
+import {
+  hasEmptyRequiredCourseGroup,
+  nullableList,
+  optionalText,
+  parseRequiredCourseSets,
+  splitList,
+  toNumber,
+  toPositiveInteger,
+} from '@/utils/admin/adminForm';
+
+const success = <T>(value: T): TValidationResult<T> => ({ ok: true, value });
+
+// 규칙 종류(typeName)별로 폼 입력값을 검증해 API용 ruleConfig를 조립한다. 실패 원인만 반환.
+const buildRuleConfig = (
+  draft: TGraduationRuleDraft,
+  ruleType: TAdminRuleType,
+  rowLabel: string,
+): TValidationResult<TValidatedRuleConfig> => {
+  if (ruleType.typeName === 'TOTAL_CREDITS') {
+    const minCredits = toPositiveInteger(draft.minCredits);
+    if (!minCredits) {
+      return { ok: false, error: `${rowLabel}의 최소 취득학점을 입력해주세요.` };
+    }
+    return success<TRuleConfigByType['TOTAL_CREDITS']>({ minCredits });
+  }
+
+  if (ruleType.typeName === 'GPA') {
+    const minGpa = toNumber(draft.minGpa);
+    if (minGpa === null || minGpa <= 0) {
+      return { ok: false, error: `${rowLabel}의 최소 평점평균을 입력해주세요.` };
+    }
+    return success<TRuleConfigByType['GPA']>({ minGpa, gpaScope: draft.gpaScope });
+  }
+
+  if (ruleType.typeName === 'TEACHING_APTITUDE') {
+    const minCount = toPositiveInteger(draft.minCount);
+    if (!minCount) {
+      return { ok: false, error: `${rowLabel}의 최소 합격 횟수를 입력해주세요.` };
+    }
+    return success<TRuleConfigByType['TEACHING_APTITUDE']>({ minCount });
+  }
+
+  // MIN_CREDITS: 채운 선택자를 모두 만족하는 과목만 집계한다(선택자 간 AND).
+  // 한 선택자 안의 배열 값들끼리는 OR이고, 비운 선택자는 그 항목에 제약을 걸지 않는다.
+  // 임계값 2종도 AND라 지정한 것을 모두 충족해야 하며, 최소 하나는 있어야 한다.
+  // (임계값이 둘 다 없으면 서버가 판정 시점에 IllegalStateException을 던지므로 여기서 먼저 막는다)
+  if (ruleType.typeName === 'MIN_CREDITS') {
+    const minCredits = toPositiveInteger(draft.minCredits);
+    if (draft.creditSource === 'TEACHING_SUMMARY' && ruleType.courseType === 'FIRST_MAJOR') {
+      if (!minCredits) {
+        return { ok: false, error: `${rowLabel}의 교직 최소 학점을 입력해주세요.` };
+      }
+      if (draft.applicableMajorRoles.length === 0) {
+        return { ok: false, error: `${rowLabel}의 규칙 적용 대상을 하나 이상 선택해주세요.` };
+      }
+      if (ruleType.courseType !== 'FIRST_MAJOR') {
+        return { ok: false, error: '교직 요약 학점 규칙은 제1전공 규칙 종류에서만 사용할 수 있습니다.' };
+      }
+      return success<TRuleConfigByType['MIN_CREDITS']>({
+        creditSource: 'TEACHING_SUMMARY',
+        minCredits,
+        applicableMajorRoles: draft.applicableMajorRoles,
+      });
+    }
+    const minCount = toPositiveInteger(draft.minCount);
+    if (!minCredits && !minCount) {
+      return { ok: false, error: `${rowLabel}의 최소 학점 또는 최소 과목 수 중 하나는 입력해주세요.` };
+    }
+    if (draft.applicableMajorRoles.length === 0) {
+      return { ok: false, error: `${rowLabel}의 규칙 적용 대상을 하나 이상 선택해주세요.` };
+    }
+
+    const subCategories = splitList(draft.subCategories);
+    const pdfCourseTypeNames = splitList(draft.pdfCourseTypeNames);
+    const pdfAreaNames = splitList(draft.pdfAreaNames);
+    const courseCodes = splitList(draft.courseCodes);
+    let creditAdjustments: TCreditAdjustment[] | undefined;
+    const populatedAdjustments = draft.creditAdjustments.filter(
+      (adjustment) =>
+        adjustment.requiredCourseCodes.trim() || adjustment.replacementCourseCodes.trim() || adjustment.credits.trim(),
+    );
+    if (populatedAdjustments.length > 0) {
+      const adjustments = populatedAdjustments.map((adjustment) => ({
+        requiredCourseCodes: splitList(adjustment.requiredCourseCodes),
+        replacementCourseCodes: splitList(adjustment.replacementCourseCodes),
+        credits: toPositiveInteger(adjustment.credits),
+      }));
+      if (
+        adjustments.some(
+          (adjustment) =>
+            adjustment.requiredCourseCodes.length === 0 ||
+            adjustment.replacementCourseCodes.length === 0 ||
+            adjustment.credits === null,
+        )
+      ) {
+        return { ok: false, error: `${rowLabel}의 대체과목 코드와 감면 학점을 확인해주세요.` };
+      }
+      creditAdjustments = adjustments as TCreditAdjustment[];
+    }
+
+    // 이수구분·선택자를 하나도 지정하지 않는 것은 서버가 '제한 없음'(= 전체 수강 이력 대상)으로
+    // 정의한 정상 설정이다(MinCreditsEvaluator javadoc). 스펙에 없는 제약을 프론트가 만들지 않는다.
+    // 비어 있는 키는 null로 보내지 않고 아예 뺀다. (제약 없음 = 키 부재)
+    return success<TRuleConfigByType['MIN_CREDITS']>({
+      ...(draft.courseType ? { courseType: draft.courseType } : {}),
+      ...(draft.areaNames.length > 0 ? { areaNames: draft.areaNames } : {}),
+      ...(subCategories.length > 0 ? { subCategories } : {}),
+      ...(pdfCourseTypeNames.length > 0 ? { pdfCourseTypeNames } : {}),
+      ...(pdfAreaNames.length > 0 ? { pdfAreaNames } : {}),
+      ...(courseCodes.length > 0 ? { courseCodes } : {}),
+      ...(creditAdjustments ? { creditAdjustments } : {}),
+      applicableMajorRoles: draft.applicableMajorRoles,
+      ...(minCredits ? { minCredits } : {}),
+      ...(minCount ? { minCount } : {}),
+    });
+  }
+
+  if (ruleType.typeName === 'REQUIRED_COURSE') {
+    const requiredCourseSets = parseRequiredCourseSets(draft.requiredCourseSetsText);
+    if (requiredCourseSets.length === 0) {
+      return { ok: false, error: `${rowLabel}의 필수 과목코드를 입력해주세요.` };
+    }
+    if (hasEmptyRequiredCourseGroup(draft.requiredCourseSetsText)) {
+      return { ok: false, error: `${rowLabel}의 & 양쪽에 과목코드를 입력해주세요.` };
+    }
+    const [firstSet] = requiredCourseSets;
+    const courseCodes = requiredCourseSets.length === 1 && firstSet?.length === 1 ? firstSet[0] : undefined;
+    if (draft.applicableMajorRoles.length === 0) {
+      return { ok: false, error: `${rowLabel}의 규칙 적용 대상을 하나 이상 선택해주세요.` };
+    }
+    return success<TRuleConfigByType['REQUIRED_COURSE']>({
+      // 쉼표만 사용하는 기존 규칙은 재저장해도 courseCodes 형식을 유지한다.
+      ...(courseCodes ? { courseCodes } : { requiredCourseSets }),
+      exemptEnglishLevels: nullableList(draft.exemptEnglishLevels),
+      requiredEnglishLevels: nullableList(draft.requiredEnglishLevels),
+      applicableMajorRoles: draft.applicableMajorRoles,
+    });
+  }
+
+  if (ruleType.typeName === 'ENGLISH_COURSE') {
+    const minCount = toPositiveInteger(draft.minCount);
+    if (!minCount) {
+      return { ok: false, error: `${rowLabel}의 최소 이수 개수를 입력해주세요.` };
+    }
+    if (draft.applicableMajorRoles.length === 0) {
+      return { ok: false, error: `${rowLabel}의 규칙 적용 대상을 하나 이상 선택해주세요.` };
+    }
+    return success<TRuleConfigByType['ENGLISH_COURSE']>({
+      courseTypes: draft.courseTypes.length > 0 ? draft.courseTypes : null,
+      minCount,
+      applicableMajorRoles: draft.applicableMajorRoles,
+    });
+  }
+
+  if (ruleType.typeName === 'PREREQUISITE') {
+    const targetCourseCodes = splitList(draft.targetCourseCodes);
+    const prerequisiteCourseCodes = splitList(draft.prerequisiteCourseCodes);
+    if (targetCourseCodes.length === 0 || prerequisiteCourseCodes.length === 0) {
+      return { ok: false, error: `${rowLabel}의 대상/선이수 과목코드를 입력해주세요.` };
+    }
+    if (draft.conditionField && !draft.conditionValue.trim()) {
+      return { ok: false, error: `${rowLabel}의 조건 값을 입력해주세요.` };
+    }
+    return success<TRuleConfigByType['PREREQUISITE']>({
+      targetCourseCodes,
+      prerequisiteCourseCodes,
+      conditionField: draft.conditionField || null,
+      conditionValue: draft.conditionField ? draft.conditionValue.trim() : null,
+    });
+  }
+
+  if (ruleType.typeName === 'SCIENCE_CONFLICT') {
+    return success<TRuleConfigByType['SCIENCE_CONFLICT']>({});
+  }
+
+  // THESIS: 과목 세트가 없으면 적용 역할의 주전공 또는 복수1 논문·시험 결과로 판정한다.
+  // 기존 {} 규칙은 읽기 호환만 유지하며, 신규·수정 시에는 적용 대상을 반드시 전송한다.
+  // exemptCourseCodes를 채우면 면제 학생유형에 전체 면제 대신 그 과목만 이수한 것으로 간주한다(부분 면제).
+  if (ruleType.typeName === 'THESIS') {
+    if (draft.applicableMajorRoles.length === 0) {
+      return { ok: false, error: `${rowLabel}의 규칙 적용 대상을 하나 이상 선택해주세요.` };
+    }
+    const exemptStudentTypes = splitList(draft.exemptStudentTypes);
+    const exemptCourseCodes = splitList(draft.exemptCourseCodes);
+    const requiredCourseSets = parseRequiredCourseSets(draft.requiredCourseSetsText);
+    if (hasEmptyRequiredCourseGroup(draft.requiredCourseSetsText)) {
+      return { ok: false, error: `${rowLabel}의 & 양쪽에 과목코드를 입력해주세요.` };
+    }
+    if (exemptCourseCodes.length > 0 && exemptStudentTypes.length === 0) {
+      return { ok: false, error: `${rowLabel}의 면제 과목코드를 쓰려면 면제 학생유형도 입력해주세요.` };
+    }
+    return success<TRuleConfigByType['THESIS']>({
+      applicableMajorRoles: draft.applicableMajorRoles,
+      ...(exemptStudentTypes.length > 0 ? { exemptStudentTypes } : {}),
+      ...(exemptCourseCodes.length > 0 ? { exemptCourseCodes } : {}),
+      ...(requiredCourseSets.length > 0 ? { requiredCourseSets } : {}),
+    });
+  }
+
+  // 알 수 없는 규칙 종류는 검증할 수 없으므로 방어적으로 null을 반환한다.
+  return { ok: false, error: null };
+};
+
+// 폼 draft 한 건을 업서트 요청 항목으로 변환한다. 검증 실패 시 오류 결과 반환.
+export const buildRuleUpsertItem = (
+  draft: TGraduationRuleDraft,
+  index: number,
+  ruleTypes: TAdminRuleType[],
+): TValidationResult<TGraduationRuleUpsertItem> => {
+  const rowLabel = `${index + 1}번째 규칙`;
+  const ruleTypeId = toPositiveInteger(draft.ruleTypeId);
+  const ruleType = ruleTypeId ? ruleTypes.find((type) => type.id === ruleTypeId) : null;
+  const ruleName = draft.ruleName.trim();
+
+  if (!ruleTypeId || !ruleType) {
+    return { ok: false, error: `${rowLabel}의 규칙 종류를 선택해주세요.` };
+  }
+  if (!ruleName) {
+    return { ok: false, error: `${rowLabel}의 규칙명을 입력해주세요.` };
+  }
+
+  const ruleConfig = buildRuleConfig(draft, ruleType, rowLabel);
+  if (!ruleConfig.ok) return ruleConfig;
+
+  return success({
+    id: draft.id,
+    ruleTypeId,
+    ruleName,
+    ruleConfig: ruleConfig.value,
+    description: optionalText(draft.description),
+  });
+};

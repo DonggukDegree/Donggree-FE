@@ -5,10 +5,10 @@
  */
 import { useRef } from 'react';
 
+import Logo from '@/assets/brand/logo.svg?react';
 import Kakao from '@/assets/kakao.svg?react';
-import Logo from '@/assets/logo.svg?react';
-import { trackEvent } from '@/utils/analytics';
-import { startLoginAttempt } from '@/utils/loginAttempt';
+import { trackEvent } from '@/utils/analytics/analytics';
+import { startLoginAttempt } from '@/utils/auth/loginAttempt';
 
 export default function Login() {
   const leaving = useRef(false);

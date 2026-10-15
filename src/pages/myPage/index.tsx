@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import Edit from '@/assets/icons/edit.svg?react';
 import Setting from '@/assets/icons/setting.svg?react';
 import User from '@/assets/icons/user.svg?react';
-import Button from '@/components/common/button';
+import Button from '@/components/common/inputs/button';
 import useLogout from '@/hooks/auth/useLogout';
 import useInView from '@/hooks/useInView';
 

@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 import Chart from '@/assets/icons/chart.svg?react';
 import Warning from '@/assets/icons/warning.svg?react';
-import Button from '@/components/common/button';
+import Button from '@/components/common/inputs/button';
 import AdditionalRequirementNotice from '@/components/report/additionalRequirementNotice';
 import CourseSummaryCard from '@/components/report/courseSummaryCard';
 import CourseTabView from '@/components/report/courseTabView';
@@ -16,7 +16,8 @@ import useInView from '@/hooks/useInView';
 import { useModalStore } from '@/stores/modalStore';
 import type { TReportPreviewDetails } from '@/types/admin/TPostReportPreview';
 import type { TGetReportSummaryResult } from '@/types/report/TGetReportSummary';
-import { trackOncePerVisit } from '@/utils/analytics';
+import { trackOncePerVisit } from '@/utils/analytics/analytics';
+import horizontalScrollHintRef, { HORIZONTAL_SCROLL_HINT_CLASS } from '@/utils/report/horizontalScrollHint';
 
 interface IGraduationReportProps {
   data: TGetReportSummaryResult;
@@ -173,8 +174,9 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
           </div>
           {/* 카드가 화면보다 많으면 가로로 스크롤한다. (모바일에서 특히 필요) */}
           <div
+            ref={horizontalScrollHintRef}
             data-report-section="overview-cards"
-            className="w-full lg:w-auto max-w-full flex gap-3 overflow-x-auto max-lg:pb-2"
+            className={`w-full lg:w-auto max-w-full flex gap-3 overflow-x-auto max-lg:pb-2 ${HORIZONTAL_SCROLL_HINT_CLASS}`}
           >
             {areaOverviews.map((area) => (
               <CourseSummaryCard

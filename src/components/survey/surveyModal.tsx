@@ -1,7 +1,7 @@
 /** [홈 > 만족도 조사] 로그인당 안내 모달과 브라우저 기준 다시 보지 않음 */
 import { useEffect, useRef } from 'react';
 
-import Button from '@/components/common/button';
+import Button from '@/components/common/inputs/button';
 import { SATISFACTION_SURVEY_URL } from '@/constants/links';
 import { useModalStore } from '@/stores/modalStore';
 import { dismissSurveyPermanently } from '@/utils/surveyPrompt';

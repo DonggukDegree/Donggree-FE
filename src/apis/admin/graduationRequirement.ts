@@ -1,8 +1,14 @@
 import axiosInstance from '@/apis/axiosInstance';
+import type {
+  TGetGraduationRulesResponse,
+  TGraduationRuleFilters,
+} from '@/types/admin/graduationRule/TGetGraduationRules';
+import type { TGetRuleTypesResponse } from '@/types/admin/graduationRule/TGetRuleTypes';
+import type {
+  TGraduationRuleUpsertRequest,
+  TPutGraduationRulesResponse,
+} from '@/types/admin/graduationRule/TPutGraduationRules';
 import type { TGetCollegesResponse, TGetDepartmentsResponse } from '@/types/admin/TGetAcademicOrganizations';
-import type { TGetGraduationRulesResponse, TGraduationRuleFilters } from '@/types/admin/TGetGraduationRules';
-import type { TGetRuleTypesResponse } from '@/types/admin/TGetRuleTypes';
-import type { TGraduationRuleUpsertRequest, TPutGraduationRulesResponse } from '@/types/admin/TPutGraduationRules';
 import type {
   TGetRequirementSetDetailResponse,
   TGetRequirementSetsResponse,

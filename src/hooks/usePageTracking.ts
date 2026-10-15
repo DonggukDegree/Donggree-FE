@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 
 import { router } from '@/routes';
-import { trackPageView } from '@/utils/analytics';
+import { trackPageView } from '@/utils/analytics/analytics';
 
 export default function usePageTracking() {
   useEffect(() => {

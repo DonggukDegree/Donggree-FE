@@ -2,13 +2,13 @@
  * [관리자 > 과목 관리] 과목 분류 수정 폼의 한 행
  * 신규/수정 배지, 과목코드·적용년도·이수구분·이수 영역 등의 입력칸, 행 삭제 버튼으로 이루어진다.
  */
+import SelectChevron from '@/components/common/inputs/selectChevron';
+import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
+import type { TAdminAreaType } from '@/types/admin/courseClassification/TGetAdminAreaTypes';
 import type {
   TCourseClassificationDraft,
   TCourseClassificationFormState,
-} from '@/components/admin/courseClassification/courseClassificationForm';
-import SelectChevron from '@/components/common/selectChevron';
-import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
-import type { TAdminAreaType } from '@/types/admin/TGetAdminAreaTypes';
+} from '@/types/admin/forms/courseClassificationForm';
 import { COURSE_LABEL, COURSE_TYPES } from '@/types/course';
 
 const BODY_CELL_CLASS = 'px-3 py-3 align-top';

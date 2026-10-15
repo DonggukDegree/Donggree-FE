@@ -8,7 +8,7 @@ import type { ComponentType, ReactNode, SVGProps } from 'react';
 import { create } from 'zustand';
 
 import type { TErrorSource } from '@/constants/analytics';
-import { createAttemptId } from '@/utils/analytics';
+import { createAttemptId } from '@/utils/analytics/analytics';
 
 type TModalType = 'alert' | 'onboarding' | 'confirm' | 'survey';
 

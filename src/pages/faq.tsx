@@ -5,7 +5,7 @@
 import { useState } from 'react';
 
 import Messages from '@/assets/icons/messages.svg?react';
-import Loading from '@/components/common/loading';
+import Loading from '@/components/common/feedback/loading';
 import FaqAccordionItem from '@/components/faq/faqAccordionItem';
 import FaqTagChips from '@/components/faq/faqTagChips';
 import useFaqs from '@/hooks/faq/useFaqs';

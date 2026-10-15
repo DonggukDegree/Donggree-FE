@@ -3,8 +3,8 @@
  * 페이지 상단의 입력 영역. 목록에서 '수정'을 누르면 그 글이 여기로 올라오고, 아니면 새 글을 등록한다.
  */
 import { FieldLabel, TextInput } from '@/components/admin/common/adminFormControls';
-import Button from '@/components/common/button';
-import SelectChevron from '@/components/common/selectChevron';
+import Button from '@/components/common/inputs/button';
+import SelectChevron from '@/components/common/inputs/selectChevron';
 import { FAQ_TAG_DESCRIPTION, FAQ_TAG_LABEL, FAQ_TAGS } from '@/constants/faq';
 import { ADMIN_INPUT_BASE_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
 import { FAQ_TITLE_MAX_LENGTH, type TFaqFormState } from '@/hooks/admin/editors/useFaqEditor';

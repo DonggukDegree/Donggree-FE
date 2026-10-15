@@ -3,14 +3,14 @@ import { useEffect, useRef } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 import Warning from '@/assets/icons/warning.svg?react';
-import Loading from '@/components/common/loading';
+import Loading from '@/components/common/feedback/loading';
 import GraduationReport from '@/components/report/graduationReport';
 import { ERROR_CODE } from '@/constants/errorCodes';
 import { UNSUPPORTED_CURRICULUM_MODAL } from '@/constants/report/reportModals';
 import useReportSummary from '@/hooks/report/useReportSummary';
 import NotFound from '@/pages/exception/notFound';
 import { useModalStore } from '@/stores/modalStore';
-import { analyticsError } from '@/utils/analyticsError';
+import { analyticsError } from '@/utils/analytics/analyticsError';
 import { getErrorCode } from '@/utils/error';
 
 export default function Graduation() {

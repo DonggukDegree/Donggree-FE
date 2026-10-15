@@ -2,9 +2,9 @@
 import { useEffect } from 'react';
 
 import Warning from '@/assets/icons/warning.svg?react';
-import Button from '@/components/common/button';
+import Button from '@/components/common/inputs/button';
 import type { TErrorSource } from '@/constants/analytics';
-import { trackErrorShown } from '@/utils/analyticsError';
+import { trackErrorShown } from '@/utils/analytics/analyticsError';
 
 interface IServerErrorProps {
   error?: unknown;

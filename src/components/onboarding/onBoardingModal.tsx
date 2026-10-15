@@ -5,8 +5,8 @@
  */
 import { useState } from 'react';
 
-import Button from '@/components/common/button';
-import TextField from '@/components/common/textField';
+import Button from '@/components/common/inputs/button';
+import TextField from '@/components/common/inputs/textField';
 import { TERMS_OF_SERVICE_URL } from '@/constants/links';
 import useOnboarding from '@/hooks/auth/useOnboarding';
 import { useModalStore } from '@/stores/modalStore';

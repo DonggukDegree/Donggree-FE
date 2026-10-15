@@ -15,7 +15,7 @@ import {
 import { toast } from 'sonner';
 
 import type { TResponseError, TUseMutationCustomOptions, TUseQueryCustomOptions } from '@/types/common';
-import { trackErrorShown } from '@/utils/analyticsError';
+import { trackErrorShown } from '@/utils/analytics/analyticsError';
 
 export function useCoreQuery<TQueryFnData, TData = TQueryFnData>(
   keyName: QueryKey,

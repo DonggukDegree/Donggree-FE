@@ -1,12 +1,24 @@
 /** [홈 > 리포트 체험] 리포트 미리보기 */
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 
-import HomeReportAutodemo, { type TDemoStage } from '@/components/home/homeReportAutodemo';
+import type { TDemoStage } from '@/components/home/homeReportAutodemo';
+import useInView from '@/hooks/useInView';
+
+const HomeReportAutodemo = lazy(() => import('@/components/home/homeReportAutodemo'));
 
 const STEPS = ['PDF 업로드', '자동 분석', '리포트 확인'] as const;
+const DEMO_PLACEHOLDER = (
+  <div className="home-demo-column" aria-hidden="true">
+    <div className="home-demo-shell">
+      <div className="home-demo-toolbar" />
+      <div className="home-demo-screen" />
+    </div>
+  </div>
+);
 
 export default function HomeReportPreview() {
   const [stage, setStage] = useState<TDemoStage>('upload');
+  const [previewRef, isPreviewVisible] = useInView(0);
   const currentStep = stage === 'upload' ? 0 : stage === 'analyzing' ? 1 : 2;
 
   return (
@@ -38,7 +50,16 @@ export default function HomeReportPreview() {
             ))}
           </ol>
         </div>
-        <HomeReportAutodemo onStageChange={setStage} />
+        {/* 시연 영역의 크기를 먼저 확보하고, 화면에 접근할 때 실제 리포트 코드를 받는다. */}
+        <div ref={previewRef} className="min-w-0">
+          {isPreviewVisible ? (
+            <Suspense fallback={DEMO_PLACEHOLDER}>
+              <HomeReportAutodemo onStageChange={setStage} />
+            </Suspense>
+          ) : (
+            DEMO_PLACEHOLDER
+          )}
+        </div>
       </div>
     </section>
   );

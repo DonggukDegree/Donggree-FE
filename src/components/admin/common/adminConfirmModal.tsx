@@ -3,7 +3,7 @@
  * 과목 분류·졸업 규칙·졸업 세트 저장처럼 DB에 즉시 반영되는 작업 직전에 내용을 한 번 더 보여 준다.
  * 내용은 modalStore.openConfirm으로 넣고, 확인을 누르면 넘겨받은 onConfirm이 실행된다.
  */
-import Button from '@/components/common/button';
+import Button from '@/components/common/inputs/button';
 import { useModalStore } from '@/stores/modalStore';
 
 export default function AdminConfirmModal() {

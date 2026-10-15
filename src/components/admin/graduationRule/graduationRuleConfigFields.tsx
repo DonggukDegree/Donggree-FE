@@ -3,28 +3,18 @@
  * 규칙 폼 한 행 안에서 typeName(TOTAL_CREDITS·GPA·PREREQUISITE 등)에 따라 필요한 입력만 보여 준다.
  * 여기서 채운 값이 저장 직전 ruleConfig(JSON)로 조립된다.
  */
-import { FieldLabel, TextInput } from '@/components/admin/common/adminFormControls';
-import MultiSelectDropdown from '@/components/admin/common/multiSelectDropdown';
-import type {
-  TCreditAdjustmentDraft,
-  TGraduationRuleDraft,
-  TGraduationRuleDraftField,
-  TGraduationRuleDraftValue,
-} from '@/components/admin/graduationRule/graduationRuleForm';
-import Button from '@/components/common/button';
-import SelectChevron from '@/components/common/selectChevron';
-import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
-import type { TAdminAreaType } from '@/types/admin/TGetAdminAreaTypes';
-import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
-import { MAJOR_ROLE_LABEL, MAJOR_ROLES, type TMajorRole } from '@/types/admin/TMajorRole';
-import { COURSE_LABEL, COURSE_TYPES, type TCourseType } from '@/types/course';
-
-const COURSE_TYPE_OPTIONS = COURSE_TYPES.map((courseType) => ({ value: courseType, label: COURSE_LABEL[courseType] }));
-const MAJOR_ROLE_OPTIONS = MAJOR_ROLES.map((role) => ({ value: role, label: MAJOR_ROLE_LABEL[role] }));
-const TEACHING_AREA_OPTIONS = [
-  { value: '교직선택', label: '교직선택 (직선)' },
-  { value: '교직필수', label: '교직필수 (직필)' },
-];
+import EnglishCourseFields from '@/components/admin/graduationRule/fields/courses/englishCourseFields';
+import PrerequisiteFields from '@/components/admin/graduationRule/fields/courses/prerequisiteFields';
+import RequiredCourseFields from '@/components/admin/graduationRule/fields/courses/requiredCourseFields';
+import ScienceConflictFields from '@/components/admin/graduationRule/fields/courses/scienceConflictFields';
+import GpaFields from '@/components/admin/graduationRule/fields/credits/gpaFields';
+import MinCreditsFields from '@/components/admin/graduationRule/fields/credits/minCreditsFields';
+import TotalCreditsFields from '@/components/admin/graduationRule/fields/credits/totalCreditsFields';
+import TeachingAptitudeFields from '@/components/admin/graduationRule/fields/qualification/teachingAptitudeFields';
+import ThesisFields from '@/components/admin/graduationRule/fields/qualification/thesisFields';
+import type { TAdminAreaType } from '@/types/admin/courseClassification/TGetAdminAreaTypes';
+import type { TGraduationRuleDraft, TGraduationRuleFieldChange } from '@/types/admin/forms/graduationRuleForm';
+import type { TAdminRuleType } from '@/types/admin/graduationRule/TGetRuleTypes';
 
 interface IGraduationRuleConfigFieldsProps {
   selectedRuleType: TAdminRuleType | null;
@@ -32,7 +22,7 @@ interface IGraduationRuleConfigFieldsProps {
   areaTypes: TAdminAreaType[];
   isSaving: boolean;
   // 이미 clientId가 바인딩된 변경 핸들러. 필드와 값만 넘기면 된다.
-  onFieldChange: (field: TGraduationRuleDraftField, value: TGraduationRuleDraftValue) => void;
+  onFieldChange: TGraduationRuleFieldChange;
 }
 
 // 규칙 종류(typeName)에 따라 달라지는 ruleConfig 입력칸. 종류별로 필요한 필드만 노출한다.
@@ -43,39 +33,6 @@ export default function GraduationRuleConfigFields({
   isSaving,
   onFieldChange,
 }: IGraduationRuleConfigFieldsProps) {
-  const areaNameOptions = [
-    ...areaTypes.map((areaType) => ({ value: areaType.areaName, label: areaType.areaName })),
-    ...TEACHING_AREA_OPTIONS.filter((option) => !areaTypes.some((areaType) => areaType.areaName === option.value)),
-  ];
-
-  const toggleAreaName = (areaName: string) => {
-    onFieldChange(
-      'areaNames',
-      draft.areaNames.includes(areaName)
-        ? draft.areaNames.filter((value) => value !== areaName)
-        : [...draft.areaNames, areaName],
-    );
-  };
-
-  const toggleCourseType = (courseType: TCourseType) => {
-    onFieldChange(
-      'courseTypes',
-      draft.courseTypes.includes(courseType)
-        ? draft.courseTypes.filter((value) => value !== courseType)
-        : [...draft.courseTypes, courseType],
-    );
-  };
-
-  const toggleMajorRole = (role: TMajorRole) => {
-    if (draft.applicableMajorRoles.length === 1 && draft.applicableMajorRoles.includes(role)) return;
-    onFieldChange(
-      'applicableMajorRoles',
-      draft.applicableMajorRoles.includes(role)
-        ? draft.applicableMajorRoles.filter((value) => value !== role)
-        : [...draft.applicableMajorRoles, role],
-    );
-  };
-
   return (
     <div className="mt-4 rounded-xl bg-primary-30/40 p-4">
       {!selectedRuleType && (
@@ -104,54 +61,15 @@ export default function GraduationRuleConfigFields({
         )}
 
       {selectedRuleType?.typeName === 'TOTAL_CREDITS' && (
-        <label className="flex max-w-xs flex-col gap-1.5">
-          <FieldLabel>최소 취득학점</FieldLabel>
-          <TextInput
-            value={draft.minCredits}
-            disabled={isSaving}
-            placeholder="130"
-            onChange={(value) => onFieldChange('minCredits', value)}
-          />
-        </label>
+        <TotalCreditsFields draft={draft} isSaving={isSaving} onFieldChange={onFieldChange} />
       )}
 
       {selectedRuleType?.typeName === 'GPA' && (
-        <div className="grid max-w-xl gap-3 md:grid-cols-2">
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>평점 기준</FieldLabel>
-            <select
-              value={draft.gpaScope}
-              disabled={isSaving}
-              onChange={(event) => onFieldChange('gpaScope', event.target.value)}
-              className={`${ADMIN_INPUT_CLASS} ${SELECT_RESET_CLASS}`}
-            >
-              <option value="TOTAL">총 평점</option>
-              <option value="MAJOR">전공 평점(주전공)</option>
-              <option value="TEACHING">교직 평점</option>
-            </select>
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>최소 평점평균</FieldLabel>
-            <TextInput
-              value={draft.minGpa}
-              disabled={isSaving}
-              placeholder="2.0"
-              onChange={(value) => onFieldChange('minGpa', value)}
-            />
-          </label>
-        </div>
+        <GpaFields draft={draft} isSaving={isSaving} onFieldChange={onFieldChange} />
       )}
 
       {selectedRuleType?.typeName === 'TEACHING_APTITUDE' && (
-        <label className="flex max-w-xs flex-col gap-1.5">
-          <FieldLabel>최소 합격 횟수</FieldLabel>
-          <TextInput
-            value={draft.minCount}
-            disabled={isSaving}
-            placeholder="2"
-            onChange={(value) => onFieldChange('minCount', value)}
-          />
-        </label>
+        <TeachingAptitudeFields draft={draft} isSaving={isSaving} onFieldChange={onFieldChange} />
       )}
 
       {/*
@@ -161,409 +79,28 @@ export default function GraduationRuleConfigFields({
         pdf* 선택자는 성적표 PDF의 원문 문자열이라 값 목록을 프론트가 확정할 수 없어 콤마 입력으로 받는다.
       */}
       {selectedRuleType?.typeName === 'MIN_CREDITS' && (
-        <div className="flex flex-col gap-3">
-          {selectedRuleType.courseType === 'FIRST_MAJOR' && (
-            <label className="flex max-w-xs flex-col gap-1.5">
-              <FieldLabel>학점 집계 기준</FieldLabel>
-              <select
-                value={draft.creditSource}
-                disabled={isSaving}
-                onChange={(event) => onFieldChange('creditSource', event.target.value)}
-                className={`${ADMIN_INPUT_CLASS} ${SELECT_RESET_CLASS}`}
-              >
-                <option value="">수강 과목에서 집계</option>
-                <option value="TEACHING_SUMMARY">PDF 교직 요약 학점</option>
-              </select>
-            </label>
-          )}
-          {draft.creditSource === 'TEACHING_SUMMARY' && selectedRuleType.courseType === 'FIRST_MAJOR' ? (
-            <>
-              <p className="text-body-xs text-coolgray-60">
-                PDF 하단의 직필·직선 합계 학점을 사용합니다. 교직 영역별 학점 기준과는 별도로 설정할 수 있습니다.
-              </p>
-              <label className="flex max-w-xs flex-col gap-1.5">
-                <FieldLabel>최소 교직 학점</FieldLabel>
-                <TextInput
-                  value={draft.minCredits}
-                  disabled={isSaving}
-                  placeholder="22"
-                  onChange={(value) => onFieldChange('minCredits', value)}
-                />
-              </label>
-              <label className="flex w-full flex-col gap-1.5">
-                <FieldLabel>규칙 적용 대상</FieldLabel>
-                <MultiSelectDropdown
-                  options={MAJOR_ROLE_OPTIONS}
-                  selectedValues={draft.applicableMajorRoles}
-                  onToggle={toggleMajorRole}
-                  allLabel="적용 대상 선택"
-                  disabled={isSaving}
-                />
-              </label>
-            </>
-          ) : (
-            <>
-              <p className="text-body-xs text-coolgray-60">
-                채운 조건을 <b>모두 만족하는</b> 과목만 집계합니다(선택자 간 AND). 한 칸에 콤마로 여러 값을 넣으면 그중{' '}
-                <b>하나만 맞아도</b> 됩니다(값 사이 OR). <b>비운 칸은 제한 없음</b>입니다. 임계값(최소 학점 · 최소 과목
-                수)은 지정한 것을 모두 충족해야 하며 최소 하나는 필요합니다.
-              </p>
-              <label className="flex w-full flex-col gap-1.5">
-                <FieldLabel>규칙 적용 대상</FieldLabel>
-                <MultiSelectDropdown
-                  options={MAJOR_ROLE_OPTIONS}
-                  selectedValues={draft.applicableMajorRoles}
-                  onToggle={toggleMajorRole}
-                  allLabel="적용 대상 선택"
-                  disabled={isSaving}
-                />
-                <span className="text-body-xs text-coolgray-60">
-                  어떤 학생의 어느 전공에 적용할지를 정합니다. 기본값은 단일전공이며 하나 이상 반드시 선택합니다.
-                </span>
-              </label>
-              <div className="grid gap-3 md:grid-cols-3">
-                <label className="flex flex-col gap-1.5">
-                  <FieldLabel>이수구분</FieldLabel>
-                  <div className="relative">
-                    <select
-                      value={draft.courseType}
-                      disabled={isSaving}
-                      onChange={(event) => onFieldChange('courseType', event.target.value)}
-                      className={`${ADMIN_INPUT_CLASS} ${SELECT_RESET_CLASS}`}
-                    >
-                      <option value="">지정 안 함</option>
-                      {COURSE_TYPES.map((courseType) => (
-                        <option key={courseType} value={courseType}>
-                          {COURSE_LABEL[courseType]}
-                        </option>
-                      ))}
-                    </select>
-                    <SelectChevron />
-                  </div>
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <FieldLabel>영역명 (선택자)</FieldLabel>
-                  <MultiSelectDropdown
-                    options={areaNameOptions}
-                    selectedValues={draft.areaNames}
-                    onToggle={toggleAreaName}
-                    allLabel="제한 없음"
-                    disabled={isSaving}
-                  />
-                  <span className="text-body-xs text-coolgray-60">
-                    제1전공 교직 과목 기준은 교직선택(직선) 또는 교직필수(직필) 영역으로 선택할 수 있습니다.
-                  </span>
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <FieldLabel>소분류 (선택자)</FieldLabel>
-                  <TextInput
-                    value={draft.subCategories}
-                    disabled={isSaving}
-                    placeholder="실험, 개론"
-                    onChange={(value) => onFieldChange('subCategories', value)}
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <FieldLabel>PDF 이수구분 (선택자)</FieldLabel>
-                  <TextInput
-                    value={draft.pdfCourseTypeNames}
-                    disabled={isSaving}
-                    placeholder="공교, 전공, 전필, 직선, 직필"
-                    onChange={(value) => onFieldChange('pdfCourseTypeNames', value)}
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <FieldLabel>PDF 영역 (선택자)</FieldLabel>
-                  <TextInput
-                    value={draft.pdfAreaNames}
-                    disabled={isSaving}
-                    placeholder="기초, 전문"
-                    onChange={(value) => onFieldChange('pdfAreaNames', value)}
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <FieldLabel>학수번호 (선택자)</FieldLabel>
-                  <TextInput
-                    value={draft.courseCodes}
-                    disabled={isSaving}
-                    placeholder="DAI* (끝의 *는 접두어 일치)"
-                    onChange={(value) => onFieldChange('courseCodes', value)}
-                  />
-                </label>
-              </div>
-
-              {/* 임계값은 선택자와 성격이 달라 줄을 나눠 둔다. */}
-              <div className="grid gap-3 border-t border-coolgray-20 pt-3 md:grid-cols-3">
-                <label className="flex flex-col gap-1.5">
-                  <FieldLabel>최소 학점 (임계값)</FieldLabel>
-                  <TextInput
-                    value={draft.minCredits}
-                    disabled={isSaving}
-                    placeholder="17"
-                    onChange={(value) => onFieldChange('minCredits', value)}
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <FieldLabel>최소 과목 수 (임계값)</FieldLabel>
-                  <TextInput
-                    value={draft.minCount}
-                    disabled={isSaving}
-                    placeholder="1"
-                    onChange={(value) => onFieldChange('minCount', value)}
-                  />
-                </label>
-              </div>
-              <div className="flex flex-col gap-3 border-t border-coolgray-20 pt-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <FieldLabel>대체 이수 시 목표학점 감면 (선택)</FieldLabel>
-                    <p className="mt-1 text-body-xs text-coolgray-60">
-                      원 필수과목은 미이수이고 대체과목을 이수하면 지정 학점만큼 목표를 낮춥니다.
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outlined"
-                    disabled={isSaving}
-                    className="px-3 py-2 text-body-xs"
-                    onClick={() =>
-                      onFieldChange('creditAdjustments', [
-                        ...draft.creditAdjustments,
-                        {
-                          clientId: crypto.randomUUID(),
-                          requiredCourseCodes: '',
-                          replacementCourseCodes: '',
-                          credits: '',
-                        },
-                      ])
-                    }
-                  >
-                    + 행 추가
-                  </Button>
-                </div>
-                {draft.creditAdjustments.length === 0 ? (
-                  <p className="text-body-xs text-coolgray-50">대체 인정 규칙이 있으면 행을 추가해 입력하세요.</p>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {draft.creditAdjustments.map((adjustment) => {
-                      const updateAdjustment = (field: keyof TCreditAdjustmentDraft, value: string) => {
-                        onFieldChange(
-                          'creditAdjustments',
-                          draft.creditAdjustments.map((row) =>
-                            row.clientId === adjustment.clientId ? { ...row, [field]: value } : row,
-                          ),
-                        );
-                      };
-
-                      return (
-                        <div
-                          key={adjustment.clientId}
-                          className="grid items-end gap-3 rounded-lg bg-white p-3 md:grid-cols-[1fr_1fr_8rem_auto]"
-                        >
-                          <label className="flex flex-col gap-1.5">
-                            <FieldLabel>요구 과목 코드</FieldLabel>
-                            <TextInput
-                              value={adjustment.requiredCourseCodes}
-                              disabled={isSaving}
-                              placeholder="예: ABC1001"
-                              onChange={(value) => updateAdjustment('requiredCourseCodes', value)}
-                            />
-                          </label>
-                          <label className="flex flex-col gap-1.5">
-                            <FieldLabel>대체 가능 과목 코드</FieldLabel>
-                            <TextInput
-                              value={adjustment.replacementCourseCodes}
-                              disabled={isSaving}
-                              placeholder="여러 과목은 쉼표로 구분"
-                              onChange={(value) => updateAdjustment('replacementCourseCodes', value)}
-                            />
-                          </label>
-                          <label className="flex flex-col gap-1.5">
-                            <FieldLabel>감면 학점</FieldLabel>
-                            <TextInput
-                              value={adjustment.credits}
-                              disabled={isSaving}
-                              placeholder="3"
-                              onChange={(value) => updateAdjustment('credits', value)}
-                            />
-                          </label>
-                          <Button
-                            type="button"
-                            variant="outlined"
-                            disabled={isSaving}
-                            className="px-3 py-2 text-body-xs"
-                            onClick={() =>
-                              onFieldChange(
-                                'creditAdjustments',
-                                draft.creditAdjustments.filter((row) => row.clientId !== adjustment.clientId),
-                              )
-                            }
-                          >
-                            삭제
-                          </Button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-                <span className="text-body-xs text-coolgray-60">
-                  대체 과목 코드는 쉼표로 여러 개 입력할 수 있습니다. 필수과목 규칙에도 동일한 대체 과목 코드를 등록해야
-                  필수 이수로 인정됩니다.
-                </span>
-              </div>
-            </>
-          )}
-        </div>
+        <MinCreditsFields
+          draft={draft}
+          selectedRuleType={selectedRuleType}
+          areaTypes={areaTypes}
+          isSaving={isSaving}
+          onFieldChange={onFieldChange}
+        />
       )}
 
       {selectedRuleType?.typeName === 'REQUIRED_COURSE' && (
-        <div className="grid gap-3 md:grid-cols-3">
-          <label className="flex flex-col gap-1.5 md:col-span-3 md:max-w-xl">
-            <FieldLabel>규칙 적용 대상</FieldLabel>
-            <MultiSelectDropdown
-              options={MAJOR_ROLE_OPTIONS}
-              selectedValues={draft.applicableMajorRoles}
-              onToggle={toggleMajorRole}
-              allLabel="적용 대상 선택"
-              disabled={isSaving}
-            />
-            <span className="text-body-xs text-coolgray-60">
-              어떤 학생의 어느 전공에 이 필수과목 규칙을 적용할지 선택합니다. 기본값은 단일전공이며 하나 이상 반드시
-              선택합니다.
-            </span>
-          </label>
-          <label className="flex flex-col gap-1.5 md:col-span-3">
-            <FieldLabel>필수 과목 세트</FieldLabel>
-            <textarea
-              value={draft.requiredCourseSetsText}
-              disabled={isSaving}
-              placeholder={'물리1학수번호 & 물리2학수번호\n생물1학수번호 & 생물2학수번호'}
-              onChange={(event) => onFieldChange('requiredCourseSetsText', event.target.value)}
-              className={`${ADMIN_INPUT_CLASS} min-h-24 resize-y`}
-            />
-            <span className="text-body-xs text-coolgray-60">
-              쉼표(,)는 하나만 이수(OR), &amp;는 모두 이수(AND), 줄바꿈은 세트 중 하나 완성(OR)을 뜻합니다. 한 과목이나
-              대체 과목만 필요하면 기존처럼 학수번호를 쉼표로 입력하세요.
-            </span>
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>면제 영어레벨</FieldLabel>
-            <TextInput
-              value={draft.exemptEnglishLevels}
-              disabled={isSaving}
-              placeholder="S0, S4"
-              onChange={(value) => onFieldChange('exemptEnglishLevels', value)}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>적용 영어레벨</FieldLabel>
-            <TextInput
-              value={draft.requiredEnglishLevels}
-              disabled={isSaving}
-              placeholder="S4"
-              onChange={(value) => onFieldChange('requiredEnglishLevels', value)}
-            />
-          </label>
-        </div>
+        <RequiredCourseFields draft={draft} isSaving={isSaving} onFieldChange={onFieldChange} />
       )}
 
       {selectedRuleType?.typeName === 'ENGLISH_COURSE' && (
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="flex flex-col gap-1.5 md:col-span-2 md:max-w-xl">
-            <FieldLabel>규칙 적용 대상</FieldLabel>
-            <MultiSelectDropdown
-              options={MAJOR_ROLE_OPTIONS}
-              selectedValues={draft.applicableMajorRoles}
-              onToggle={toggleMajorRole}
-              allLabel="적용 대상 선택"
-              disabled={isSaving}
-            />
-            <span className="text-body-xs text-coolgray-60">
-              신규 규칙의 기본값은 단일전공이며 하나 이상 반드시 선택합니다. 적용 대상이 없던 기존 영어강의 규칙은
-              단일전공과 복수전공자의 주전공 선택을 유지합니다.
-            </span>
-          </label>
-          <p className="text-body-xs text-coolgray-60 md:col-span-2">
-            이수구분을 비우면 복수전공을 포함한 전체 이수 과목에서 영어강의를 셉니다. 제1전공은 주전공 적용 시에는
-            주전공 과목을, 복수전공자의 복수전공 적용 시에는 복수1 과목을 뜻합니다. 제2전공을 직접 선택해도 복수1 과목을
-            셉니다. 여러 이수구분을 선택하면 합산하며, 학점이 아닌 과목 수로 비교합니다.
-          </p>
-          <p className="text-body-xs text-coolgray-60 md:col-span-2">
-            영어강의 비대상자 면제는 유지합니다. 복수전공 학과의 추가 요건은 성적표의 전체 영어강의 이수 완료 표시만으로
-            통과시키지 않고 실제 과목 수로 확인합니다.
-          </p>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>대상 이수구분</FieldLabel>
-            <MultiSelectDropdown
-              options={COURSE_TYPE_OPTIONS}
-              selectedValues={draft.courseTypes}
-              onToggle={toggleCourseType}
-              allLabel="전체 이수구분"
-              disabled={isSaving}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>최소 이수 개수</FieldLabel>
-            <TextInput
-              value={draft.minCount}
-              disabled={isSaving}
-              placeholder="2"
-              onChange={(value) => onFieldChange('minCount', value)}
-            />
-          </label>
-        </div>
+        <EnglishCourseFields draft={draft} isSaving={isSaving} onFieldChange={onFieldChange} />
       )}
 
       {selectedRuleType?.typeName === 'PREREQUISITE' && (
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>대상 과목코드</FieldLabel>
-            <TextInput
-              value={draft.targetCourseCodes}
-              disabled={isSaving}
-              placeholder="RGC1081"
-              onChange={(value) => onFieldChange('targetCourseCodes', value)}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>선이수 과목코드</FieldLabel>
-            <TextInput
-              value={draft.prerequisiteCourseCodes}
-              disabled={isSaving}
-              placeholder="RGC1080"
-              onChange={(value) => onFieldChange('prerequisiteCourseCodes', value)}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>조건 필드</FieldLabel>
-            <div className="relative">
-              <select
-                value={draft.conditionField}
-                disabled={isSaving}
-                onChange={(event) => onFieldChange('conditionField', event.target.value)}
-                className={`${ADMIN_INPUT_CLASS} ${SELECT_RESET_CLASS}`}
-              >
-                <option value="">없음</option>
-                <option value="englishLevel">영어 레벨</option>
-              </select>
-              <SelectChevron />
-            </div>
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>조건 값</FieldLabel>
-            <TextInput
-              value={draft.conditionValue}
-              disabled={isSaving}
-              placeholder="S4"
-              onChange={(value) => onFieldChange('conditionValue', value)}
-            />
-          </label>
-        </div>
+        <PrerequisiteFields draft={draft} isSaving={isSaving} onFieldChange={onFieldChange} />
       )}
 
-      {selectedRuleType?.typeName === 'SCIENCE_CONFLICT' && (
-        <p className="text-body-s text-coolgray-60">입력값이 없는 고정 규칙입니다. 저장 시 빈 객체가 전송됩니다.</p>
-      )}
+      {selectedRuleType?.typeName === 'SCIENCE_CONFLICT' && <ScienceConflictFields />}
 
       {/*
         THESIS: 필수 과목 세트를 채우면 그 과목 이수로 판정하고(컴퓨터·AI학부 종합설계),
@@ -571,62 +108,7 @@ export default function GraduationRuleConfigFields({
         적용 학과는 규칙이 아니라 졸업 요건 세트가 정하므로 여기에 학과 입력은 없다.
       */}
       {selectedRuleType?.typeName === 'THESIS' && (
-        <div className="grid gap-3">
-          <label className="flex flex-col gap-1.5 md:max-w-xl">
-            <FieldLabel>규칙 적용 대상</FieldLabel>
-            <MultiSelectDropdown
-              options={MAJOR_ROLE_OPTIONS}
-              selectedValues={draft.applicableMajorRoles}
-              onToggle={toggleMajorRole}
-              allLabel="적용 대상 선택"
-              disabled={isSaving}
-            />
-            <span className="text-body-xs text-coolgray-60">
-              신규 규칙의 기본값은 단일전공이며 하나 이상 반드시 선택합니다. 적용 대상이 없던 기존 논문·시험 규칙은
-              단일전공과 복수전공자의 주전공 선택을 유지합니다.
-            </span>
-          </label>
-          <p className="text-body-xs text-coolgray-60">
-            필수 과목 세트를 <b>비워 두면</b> 성적표의 졸업논문·시험 심사 합격으로 판정합니다. 주전공 적용 시에는 주전공
-            결과를, 복수전공자의 복수전공 적용 시에는 복수1 결과를 확인합니다. 채우면 해당 전공 역할의 과목 이수로
-            판정합니다. 면제 학생유형은 두 경우 모두 우선 적용됩니다.
-          </p>
-          <p className="text-body-xs text-coolgray-60">
-            면제 과목코드를 <b>비워 두면</b> 면제 학생유형은 이 규칙 전체를 면제받습니다. 채우면 <b>그 과목만</b> 이수한
-            것으로 간주하고 나머지 과목은 그대로 요구합니다.
-          </p>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>면제 학생유형</FieldLabel>
-            <TextInput
-              value={draft.exemptStudentTypes}
-              disabled={isSaving}
-              placeholder="학석사연계과정"
-              onChange={(value) => onFieldChange('exemptStudentTypes', value)}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>면제 과목코드</FieldLabel>
-            <TextInput
-              value={draft.exemptCourseCodes}
-              disabled={isSaving}
-              placeholder="CSE4067, CSC4019, DAI*"
-              onChange={(value) => onFieldChange('exemptCourseCodes', value)}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>필수 과목 세트</FieldLabel>
-            <textarea
-              value={draft.requiredCourseSetsText}
-              disabled={isSaving}
-              placeholder={'한 줄이 하나의 세트입니다.\n예: CSE4066,CSC4018 & CSE4067,CSC4019'}
-              onChange={(event) => onFieldChange('requiredCourseSetsText', event.target.value)}
-              className={`${ADMIN_INPUT_CLASS} min-h-24 resize-y`}
-            />
-            <span className="text-body-xs text-coolgray-60">
-              쉼표(,)는 하나만 이수(OR), &amp;는 모두 이수(AND), 줄바꿈은 세트 중 하나 완성(OR)을 뜻합니다.
-            </span>
-          </label>
-        </div>
+        <ThesisFields draft={draft} isSaving={isSaving} onFieldChange={onFieldChange} />
       )}
     </div>
   );

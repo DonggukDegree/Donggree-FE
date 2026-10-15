@@ -6,14 +6,15 @@
  */
 import { useState } from 'react';
 
-import type { TChipVariant } from '@/components/common/chip';
-import Loading from '@/components/common/loading';
+import type { TChipVariant } from '@/components/common/feedback/chip';
+import Loading from '@/components/common/feedback/loading';
 import AreaDetailCard from '@/components/report/areaDetailCard';
 import useReportDetail from '@/hooks/report/useReportDetail';
 import type { TReportPreviewDetails } from '@/types/admin/TPostReportPreview';
 import { COURSE_LABEL, type TCourseType } from '@/types/course';
 import type { TGetReportDetailResult, TReportItemStatus } from '@/types/report/TGetReportDetail';
-import { trackEvent } from '@/utils/analytics';
+import { trackEvent } from '@/utils/analytics/analytics';
+import horizontalScrollHintRef, { HORIZONTAL_SCROLL_HINT_CLASS } from '@/utils/report/horizontalScrollHint';
 
 // 과목 이수 상태 → 칩 variant 매핑
 const STATUS_TO_CHIP: Record<TReportItemStatus, TChipVariant> = {
@@ -41,9 +42,12 @@ export default function CourseTabView({ courseTypes, previewDetails }: ICourseTa
 
   return (
     <div className="flex flex-col gap-7 px-0 lg:px-8 py-4">
-      <div className="w-full border-b border-coolgray-20">
-        {/* 탭이 한 줄에 안 들어가는 모바일에서는 가운데 정렬 대신 가로 스크롤한다. */}
-        <div className="flex max-lg:justify-start lg:justify-center gap-4 lg:gap-8 max-lg:overflow-x-auto">
+      <div
+        ref={horizontalScrollHintRef}
+        className={`w-full border-b border-coolgray-20 overflow-x-auto ${HORIZONTAL_SCROLL_HINT_CLASS}`}
+      >
+        {/* 폭이 충분하면 가운데 정렬하고, 넘치면 첫 탭부터 잘림 없이 스크롤한다. */}
+        <div className="flex w-max min-w-full justify-center gap-4 lg:gap-8">
           {courseTypes.map((course) => (
             <button
               key={course}
@@ -79,7 +83,10 @@ function CourseTabPanel({ data }: { data?: TGetReportDetailResult }) {
   if (!data) return <p className="py-10 text-center text-body-l text-coolgray-60">정보를 불러오지 못했어요.</p>;
   return (
     <div className="flex flex-col gap-7 animate-fade-in">
-      <div className="flex gap-3 overflow-x-auto max-lg:pb-2">
+      <div
+        ref={horizontalScrollHintRef}
+        className={`flex gap-3 overflow-x-auto max-lg:pb-2 ${HORIZONTAL_SCROLL_HINT_CLASS}`}
+      >
         {data.areaDetails.map((area) => (
           <AreaDetailCard
             key={area.areaName}
@@ -106,26 +113,26 @@ function CourseTabPanel({ data }: { data?: TGetReportDetailResult }) {
           <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">미충족 사유</span>
           {data.unsatisfiedReasons.length > 0 ? (
             data.unsatisfiedReasons.map((reason) => (
-              <span key={reason} className="text-button-m text-alert">
+              <span key={reason} className="text-button-s max-lg:leading-5 lg:text-button-m text-alert">
                 {reason}
               </span>
             ))
           ) : (
-            <span className="text-button-m text-coolgray-90">해당사항 없음</span>
+            <span className="text-button-s lg:text-button-m text-coolgray-90">해당사항 없음</span>
           )}
         </div>
 
         <div className="flex-1 border border-coolgray-20 p-4 flex flex-col gap-2">
           <span className="text-heading-6 lg:text-heading-5 text-coolgray-90">영역 이수 현황</span>
-          <div className="flex justify-between gap-2 text-heading-6 text-coolgray-90">
+          <div className="flex justify-between gap-2 text-button-s lg:text-heading-6 text-coolgray-90">
             <span>이수 학점</span>
             <span>{data.creditStatus.earnedCredits}학점</span>
           </div>
-          <div className="flex justify-between gap-2 text-heading-6 text-coolgray-90">
+          <div className="flex justify-between gap-2 text-button-s lg:text-heading-6 text-coolgray-90">
             <span>목표 이수 학점</span>
             <span>{data.creditStatus.targetCredits}학점</span>
           </div>
-          <div className="flex justify-between gap-2 text-heading-6 text-coolgray-90">
+          <div className="flex justify-between gap-2 text-button-s lg:text-heading-6 text-coolgray-90">
             <span>잔여 학점</span>
             <span className="text-primary-60">{data.creditStatus.remainingCredits}학점</span>
           </div>

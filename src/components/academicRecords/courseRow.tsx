@@ -5,8 +5,8 @@
  * 어떤 열이 있는지는 constants/report/academicRecords의 COLUMNS가 정한다.
  */
 import RowDeleteButton from '@/components/academicRecords/rowDeleteButton';
-import Select from '@/components/common/select';
-import TextField from '@/components/common/textField';
+import Select from '@/components/common/inputs/select';
+import TextField from '@/components/common/inputs/textField';
 import {
   ACTION_COLUMN_WIDTH,
   ALLOWED_GRADES,
@@ -14,7 +14,7 @@ import {
   COURSE_TYPE_OPTIONS,
   type TCourseField,
 } from '@/constants/report/academicRecords';
-import type { TEditCourse } from '@/hooks/report/useAcademicRecordsEditor';
+import type { TEditCourse } from '@/types/report/academicRecordsForm';
 
 interface ICourseRowProps {
   course: TEditCourse;

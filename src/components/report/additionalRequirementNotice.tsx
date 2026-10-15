@@ -1,7 +1,7 @@
 /** [졸업 판정 > 리포트] 요건 세트별 추가 확인사항 안내 */
 import { useState } from 'react';
 
-import Button from '@/components/common/button';
+import Button from '@/components/common/inputs/button';
 import type { TGetReportSummaryResult } from '@/types/report/TGetReportSummary';
 
 type TNotice = Omit<TGetReportSummaryResult['additionalNotices'][number], 'yearStart' | 'yearEnd'> & {

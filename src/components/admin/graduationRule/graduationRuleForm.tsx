@@ -5,56 +5,16 @@
  */
 import { FieldLabel, TextInput } from '@/components/admin/common/adminFormControls';
 import GraduationRuleConfigFields from '@/components/admin/graduationRule/graduationRuleConfigFields';
-import Button from '@/components/common/button';
-import SelectChevron from '@/components/common/selectChevron';
+import Button from '@/components/common/inputs/button';
+import SelectChevron from '@/components/common/inputs/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
-import type { TAdminAreaType } from '@/types/admin/TGetAdminAreaTypes';
-import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
-import type { TMajorRole } from '@/types/admin/TMajorRole';
-import type { TCourseType } from '@/types/course';
-
-export type TGraduationRuleDraft = {
-  clientId: string;
-  id: number | null;
-  ruleTypeId: string;
-  ruleName: string;
-  description: string;
-  minCredits: string;
-  minGpa: string;
-  gpaScope: 'TOTAL' | 'MAJOR' | 'TEACHING';
-  creditSource: '' | 'TEACHING_SUMMARY';
-  minCount: string;
-  creditAdjustments: TCreditAdjustmentDraft[];
-  courseType: TCourseType | '';
-  // MIN_CREDITS 선택자 5종. areaNames만 area-types 다중선택이고, 나머지는 콤마 구분 입력이다.
-  // (pdf* 는 성적표 PDF의 원문 문자열이라 프론트가 선택지를 확정할 수 없다)
-  areaNames: string[];
-  subCategories: string;
-  pdfCourseTypeNames: string;
-  pdfAreaNames: string;
-  courseCodes: string;
-  exemptEnglishLevels: string;
-  requiredEnglishLevels: string;
-  applicableMajorRoles: TMajorRole[];
-  courseTypes: TCourseType[];
-  targetCourseCodes: string;
-  prerequisiteCourseCodes: string;
-  conditionField: '' | 'englishLevel';
-  conditionValue: string;
-  exemptStudentTypes: string;
-  exemptCourseCodes: string;
-  requiredCourseSetsText: string;
-};
-
-export type TCreditAdjustmentDraft = {
-  clientId: string;
-  requiredCourseCodes: string;
-  replacementCourseCodes: string;
-  credits: string;
-};
-
-export type TGraduationRuleDraftField = keyof TGraduationRuleDraft;
-export type TGraduationRuleDraftValue = string | string[] | TCourseType[] | TMajorRole[] | TCreditAdjustmentDraft[];
+import type { TAdminAreaType } from '@/types/admin/courseClassification/TGetAdminAreaTypes';
+import type {
+  TGraduationRuleDraft,
+  TGraduationRuleDraftChange,
+  TGraduationRuleFieldChange,
+} from '@/types/admin/forms/graduationRuleForm';
+import type { TAdminRuleType } from '@/types/admin/graduationRule/TGetRuleTypes';
 
 interface IGraduationRuleFormProps {
   areaTypes: TAdminAreaType[];
@@ -63,7 +23,7 @@ interface IGraduationRuleFormProps {
   isSaving: boolean;
   onAddNew: () => void;
   onRemove: (clientId: string) => void;
-  onChange: (clientId: string, field: TGraduationRuleDraftField, value: TGraduationRuleDraftValue) => void;
+  onChange: TGraduationRuleDraftChange;
   onSubmit: () => void;
 }
 
@@ -78,7 +38,7 @@ interface IGraduationRuleFormRowProps {
   draft: TGraduationRuleDraft;
   isSaving: boolean;
   onRemove: (clientId: string) => void;
-  onChange: (clientId: string, field: TGraduationRuleDraftField, value: TGraduationRuleDraftValue) => void;
+  onChange: TGraduationRuleDraftChange;
 }
 
 function GraduationRuleFormRow({
@@ -92,7 +52,7 @@ function GraduationRuleFormRow({
   const selectedRuleType = ruleTypes.find((ruleType) => String(ruleType.id) === draft.ruleTypeId) ?? null;
 
   // clientId를 미리 바인딩한 변경 핸들러. 공통 필드와 설정 필드에서 공유한다.
-  const update = (field: TGraduationRuleDraftField, value: TGraduationRuleDraftValue) => {
+  const update: TGraduationRuleFieldChange = (field, value) => {
     onChange(draft.clientId, field, value);
   };
 

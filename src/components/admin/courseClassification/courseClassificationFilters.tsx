@@ -6,8 +6,8 @@
  */
 import AdminFilterBar, { FilterField } from '@/components/admin/common/adminFilterBar';
 import MultiSelectDropdown from '@/components/admin/common/multiSelectDropdown';
-import TextField from '@/components/common/textField';
-import type { TAdminAreaType } from '@/types/admin/TGetAdminAreaTypes';
+import TextField from '@/components/common/inputs/textField';
+import type { TAdminAreaType } from '@/types/admin/courseClassification/TGetAdminAreaTypes';
 import { COURSE_LABEL, COURSE_TYPES, type TCourseType } from '@/types/course';
 
 interface ICourseClassificationFiltersProps {

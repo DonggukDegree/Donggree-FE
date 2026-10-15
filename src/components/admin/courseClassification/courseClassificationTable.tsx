@@ -2,7 +2,7 @@
  * [관리자 > 과목 관리] 과목 분류 조회 결과 목록
  * 페이지 하단의 표. 필터로 조회한 과목을 보여 주고, 체크박스로 고른 행이 위 수정 폼에 편집 대상으로 올라간다.
  */
-import type { TAdminCourseClassification } from '@/types/admin/TGetCourseClassifications';
+import type { TAdminCourseClassification } from '@/types/admin/courseClassification/TGetCourseClassifications';
 import { COURSE_LABEL } from '@/types/course';
 
 interface ICourseClassificationTableProps {

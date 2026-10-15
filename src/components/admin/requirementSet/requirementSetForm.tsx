@@ -5,7 +5,7 @@
  */
 import { type ReactNode, useState } from 'react';
 
-import Button from '@/components/common/button';
+import Button from '@/components/common/inputs/button';
 import AdditionalRequirementNotice from '@/components/report/additionalRequirementNotice';
 import { ADMIN_INPUT_CLASS } from '@/constants/inputStyles';
 import {
@@ -13,24 +13,10 @@ import {
   REQUIREMENT_TRACK_LABEL,
   REQUIREMENT_TRACKS,
 } from '@/constants/requirementTrack';
+import type { TRequirementSetFormState } from '@/types/admin/forms/requirementSetForm';
 import type { TAdminCollege, TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
 import type { TAdminRequirementSetSummary, TRequirementTrack } from '@/types/admin/TRequirementSets';
-import { getDepartmentLabel } from '@/utils/academicOrganization';
-
-export type TRequirementSetFormState = {
-  id: number | null;
-  departmentId: number | null;
-  collegeName: string;
-  departmentName: string;
-  yearStart: string;
-  yearEnd: string;
-  track: TRequirementTrack;
-  version: string;
-  description: string;
-  studentNotice: string;
-  sheetImageUrl: string;
-  active: boolean;
-};
+import { getDepartmentLabel } from '@/utils/admin/academicOrganization';
 
 interface IRequirementSetFormProps {
   colleges: TAdminCollege[];

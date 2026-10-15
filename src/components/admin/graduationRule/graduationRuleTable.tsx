@@ -4,7 +4,7 @@
  * 세트 관리 탭에서는 체크가 곧 '이 세트에 포함할 규칙' 선택이 된다(mode='set').
  */
 import TruncatedCell from '@/components/admin/common/truncatedCell';
-import type { TAdminGraduationRule } from '@/types/admin/TGetGraduationRules';
+import type { TAdminGraduationRule } from '@/types/admin/graduationRule/TGetGraduationRules';
 import { COURSE_LABEL } from '@/types/course';
 
 interface IGraduationRuleTableProps {

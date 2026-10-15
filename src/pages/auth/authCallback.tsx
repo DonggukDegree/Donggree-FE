@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { getUserInfo } from '@/apis/user/user';
-import Loading from '@/components/common/loading';
+import Loading from '@/components/common/feedback/loading';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useAuthStore } from '@/stores/authStore';
 import {
@@ -14,10 +14,10 @@ import {
   syncAnalyticsIdentity,
   trackEvent,
   trackPageView,
-} from '@/utils/analytics';
-import { analyticsError } from '@/utils/analyticsError';
-import { getRoleFromAccessToken, isAdminRole } from '@/utils/authRole';
-import { consumeLoginAttempt } from '@/utils/loginAttempt';
+} from '@/utils/analytics/analytics';
+import { analyticsError } from '@/utils/analytics/analyticsError';
+import { getRoleFromAccessToken, isAdminRole } from '@/utils/auth/authRole';
+import { consumeLoginAttempt } from '@/utils/auth/loginAttempt';
 import { resetSurveyPromptForLogin } from '@/utils/surveyPrompt';
 
 // 카카오 OAuth 로그인 성공 후 백엔드가 리다이렉트하는 콜백 페이지.

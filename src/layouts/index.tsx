@@ -11,10 +11,10 @@
 import { Suspense } from 'react';
 import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 
-import Footer from '@/components/common/footer';
-import Header from '@/components/common/header';
-import Loading from '@/components/common/loading';
-import ModalProvider from '@/components/common/modalProvider';
+import Loading from '@/components/common/feedback/loading';
+import ModalProvider from '@/components/common/overlays/modalProvider';
+import Footer from '@/layouts/footer';
+import Header from '@/layouts/header';
 
 export default function Layout() {
   const { pathname } = useLocation();
