@@ -1,23 +1,19 @@
 /**
  * [관리자 > 졸업 요건 관리 > 졸업 규칙 관리] 탭 컨트롤러 훅
  * 필터 상태 · 수정 대상(draft) 선택 · 저장 확인 모달 · 저장을 담당한다.
- * 규칙 종류별 설정값 검증과 rule_config 조립은 utils/graduationRuleConfig가 맡는다.
+ * 규칙 종류별 설정값 검증과 rule_config 조립은 utils/admin/graduationRuleConfig가 맡는다.
  * 하단 규칙 목록 조회는 세트 관리 탭도 함께 쓰므로 이 훅이 소유하고 결과를 그대로 넘겨준다.
  */
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import type {
-  TGraduationRuleDraft,
-  TGraduationRuleDraftField,
-  TGraduationRuleDraftValue,
-} from '@/components/admin/graduationRule/graduationRuleForm';
 import useUpsertGraduationRules from '@/hooks/admin/mutations/useUpsertGraduationRules';
 import useAdminAreaTypes from '@/hooks/admin/queries/useAdminAreaTypes';
 import useAdminGraduationRules from '@/hooks/admin/queries/useAdminGraduationRules';
 import useAdminRequirementSets from '@/hooks/admin/queries/useAdminRequirementSets';
 import useAdminRuleTypes from '@/hooks/admin/queries/useAdminRuleTypes';
 import { useModalStore } from '@/stores/modalStore';
+import type { TGraduationRuleDraft, TGraduationRuleDraftChange } from '@/types/admin/forms/graduationRuleForm';
 import type { TGraduationRuleFilters } from '@/types/admin/graduationRule/TGetGraduationRules';
 import type { TGraduationRuleUpsertItem } from '@/types/admin/graduationRule/TPutGraduationRules';
 import type { TCourseType } from '@/types/course';
@@ -104,7 +100,7 @@ export default function useGraduationRuleEditor() {
     setDrafts((prev) => prev.filter((draft) => draft.clientId !== clientId));
   };
 
-  const changeDraft = (clientId: string, field: TGraduationRuleDraftField, value: TGraduationRuleDraftValue) => {
+  const changeDraft: TGraduationRuleDraftChange = (clientId, field, value) => {
     setDrafts((prev) =>
       prev.map((draft) => {
         if (draft.clientId !== clientId) return draft;
@@ -189,9 +185,12 @@ export default function useGraduationRuleEditor() {
 
     const items: TGraduationRuleUpsertItem[] = [];
     for (const [index, draft] of drafts.entries()) {
-      const item = buildRuleUpsertItem(draft, index, ruleTypes);
-      if (!item) return;
-      items.push(item);
+      const result = buildRuleUpsertItem(draft, index, ruleTypes);
+      if (!result.ok) {
+        if (result.error) toast.error(result.error);
+        return;
+      }
+      items.push(result.value);
     }
 
     const createCount = items.filter((item) => item.id === null).length;

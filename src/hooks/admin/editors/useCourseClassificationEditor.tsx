@@ -7,16 +7,16 @@
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import type {
-  TCourseClassificationDraft,
-  TCourseClassificationFormState,
-} from '@/components/admin/courseClassification/courseClassificationForm';
 import useUpsertCourseClassifications from '@/hooks/admin/mutations/useUpsertCourseClassifications';
 import useAdminAreaTypes from '@/hooks/admin/queries/useAdminAreaTypes';
 import useAdminCourseClassifications from '@/hooks/admin/queries/useAdminCourseClassifications';
 import { useModalStore } from '@/stores/modalStore';
 import type { TCourseClassificationFilters } from '@/types/admin/courseClassification/TGetCourseClassifications';
 import type { TCourseClassificationUpsertItem } from '@/types/admin/courseClassification/TPutCourseClassifications';
+import type {
+  TCourseClassificationDraft,
+  TCourseClassificationFormState,
+} from '@/types/admin/forms/courseClassificationForm';
 import { COURSE_LABEL, type TCourseType } from '@/types/course';
 import {
   EMPTY_COURSE_CLASSIFICATION_DRAFT,

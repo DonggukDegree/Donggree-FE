@@ -14,7 +14,7 @@ import {
   COURSE_TYPE_OPTIONS,
   type TCourseField,
 } from '@/constants/report/academicRecords';
-import type { TEditCourse } from '@/hooks/report/useAcademicRecordsEditor';
+import type { TEditCourse } from '@/types/report/academicRecordsForm';
 
 interface ICourseRowProps {
   course: TEditCourse;

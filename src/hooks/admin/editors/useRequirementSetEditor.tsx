@@ -8,7 +8,6 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { getAdminDepartments, getAdminRequirementSetDetail } from '@/apis/admin/graduationRequirement';
-import type { TRequirementSetFormState } from '@/components/admin/requirementSet/requirementSetForm';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { REQUIREMENT_TRACK_LABEL } from '@/constants/requirementTrack';
 import useSaveRequirementSet from '@/hooks/admin/mutations/useSaveRequirementSet';
@@ -16,6 +15,7 @@ import useAdminColleges from '@/hooks/admin/queries/useAdminColleges';
 import useAdminDepartments from '@/hooks/admin/queries/useAdminDepartments';
 import useAdminRequirementSets from '@/hooks/admin/queries/useAdminRequirementSets';
 import { useModalStore } from '@/stores/modalStore';
+import type { TRequirementSetFormState } from '@/types/admin/forms/requirementSetForm';
 import type { TAdminGraduationRule } from '@/types/admin/graduationRule/TGetGraduationRules';
 import type {
   TRequirementSetCreateRequest,

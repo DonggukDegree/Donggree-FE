@@ -6,26 +6,12 @@
 import CourseClassificationFormRow from '@/components/admin/courseClassification/courseClassificationFormRow';
 import Button from '@/components/common/inputs/button';
 import type { TAdminAreaType } from '@/types/admin/courseClassification/TGetAdminAreaTypes';
-import type { TCourseType } from '@/types/course';
+import type {
+  TCourseClassificationDraft,
+  TCourseClassificationFormState,
+} from '@/types/admin/forms/courseClassificationForm';
 
 // 과목 분류 폼 한 행의 입력 상태(UI 전용). 모든 값은 입력 편의를 위해 문자열로 다룬다.
-export type TCourseClassificationFormState = {
-  id: number | null;
-  courseCode: string;
-  tag: string;
-  studentYearStart: string;
-  studentYearEnd: string;
-  courseType: TCourseType | '';
-  areaTypeId: string;
-  subCategory: string;
-  subjectDomain: string;
-};
-
-// 폼에서 관리하는 개별 행. clientId로 행을 구분한다.
-export type TCourseClassificationDraft = TCourseClassificationFormState & {
-  clientId: string;
-};
-
 interface ICourseClassificationFormProps {
   areaTypes: TAdminAreaType[];
   drafts: TCourseClassificationDraft[];

@@ -9,7 +9,7 @@ import RowDeleteButton from '@/components/academicRecords/rowDeleteButton';
 import Button from '@/components/common/inputs/button';
 import TextField from '@/components/common/inputs/textField';
 import { ACTION_COLUMN_WIDTH, COLUMNS, type TCourseField } from '@/constants/report/academicRecords';
-import type { TEditSemester } from '@/hooks/report/useAcademicRecordsEditor';
+import type { TEditSemester } from '@/types/report/academicRecordsForm';
 
 interface ISemesterSectionProps {
   semester: TEditSemester;

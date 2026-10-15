@@ -13,24 +13,10 @@ import {
   REQUIREMENT_TRACK_LABEL,
   REQUIREMENT_TRACKS,
 } from '@/constants/requirementTrack';
+import type { TRequirementSetFormState } from '@/types/admin/forms/requirementSetForm';
 import type { TAdminCollege, TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
 import type { TAdminRequirementSetSummary, TRequirementTrack } from '@/types/admin/TRequirementSets';
 import { getDepartmentLabel } from '@/utils/admin/academicOrganization';
-
-export type TRequirementSetFormState = {
-  id: number | null;
-  departmentId: number | null;
-  collegeName: string;
-  departmentName: string;
-  yearStart: string;
-  yearEnd: string;
-  track: TRequirementTrack;
-  version: string;
-  description: string;
-  studentNotice: string;
-  sheetImageUrl: string;
-  active: boolean;
-};
 
 interface IRequirementSetFormProps {
   colleges: TAdminCollege[];

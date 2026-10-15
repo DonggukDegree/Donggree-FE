@@ -1,12 +1,11 @@
+import type { TValidatedRuleConfig } from '@/types/admin/graduationRule/graduationRuleConfig';
 import type { TCommonResponse } from '@/types/common';
-
-import type { TGraduationRuleConfig } from './TGetGraduationRules';
 
 export type TGraduationRuleUpsertItem = {
   id: number | null;
   ruleTypeId: number;
   ruleName: string;
-  ruleConfig: TGraduationRuleConfig;
+  ruleConfig: TValidatedRuleConfig;
   description: string | null;
 };
 

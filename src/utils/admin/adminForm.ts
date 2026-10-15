@@ -4,10 +4,10 @@
  * 저장 직전에 API 스키마(숫자·null·중첩 배열)로 바꾼다. 그 변환과 서버→폼 역변환을 여기 모았다.
  * 컨트롤러 훅(hooks/admin/use*Editor)들이 공유하므로 페이지가 아닌 utils에 둔다.
  */
-import type { TCourseClassificationDraft } from '@/components/admin/courseClassification/courseClassificationForm';
-import type { TGraduationRuleDraft } from '@/components/admin/graduationRule/graduationRuleForm';
-import type { TRequirementSetFormState } from '@/components/admin/requirementSet/requirementSetForm';
 import type { TAdminCourseClassification } from '@/types/admin/courseClassification/TGetCourseClassifications';
+import type { TCourseClassificationDraft } from '@/types/admin/forms/courseClassificationForm';
+import type { TGraduationRuleDraft } from '@/types/admin/forms/graduationRuleForm';
+import type { TRequirementSetFormState } from '@/types/admin/forms/requirementSetForm';
 import type { TAdminGraduationRule } from '@/types/admin/graduationRule/TGetGraduationRules';
 import { MAJOR_ROLES, type TMajorRole } from '@/types/admin/graduationRule/TMajorRole';
 import type { TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
