@@ -4,12 +4,22 @@
  * - variant 'inline'    : 화면 일부(탭 패널·카드 안)만 갱신될 때 쓰는 작은 로딩.
  * 두 경우 모두 같은 스피너를 써서 로딩 표현이 화면마다 달라지지 않게 한다.
  */
+import { useLayoutEffect, useRef } from 'react';
+
 interface ILoadingProps {
   variant?: 'page' | 'inline';
 }
 
 export default function Loading({ variant = 'page' }: ILoadingProps) {
   const isPage = variant === 'page';
+  const spinnerRef = useRef<SVGSVGElement>(null);
+
+  useLayoutEffect(() => {
+    // 인증·성적표·요약 조회로 컴포넌트가 교체돼도 문서 타임라인의 회전 위치를 이어받는다.
+    for (const animation of spinnerRef.current?.getAnimations() ?? []) {
+      animation.startTime = 0;
+    }
+  }, []);
 
   return (
     <div
@@ -18,6 +28,7 @@ export default function Loading({ variant = 'page' }: ILoadingProps) {
       aria-label="불러오는 중"
     >
       <svg
+        ref={spinnerRef}
         className={`animate-spin ${isPage ? 'h-10 w-10 lg:h-20 lg:w-20' : 'h-6 w-6 lg:h-10 lg:w-10'}`}
         viewBox="0 0 80 80"
         fill="none"
