@@ -8,9 +8,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
+import Logo from '@/assets/brand/logo.svg?react';
 import Headset from '@/assets/headset.svg?react';
-import Logo from '@/assets/logo.svg?react';
-import UserThumb from '@/assets/userThumb.svg?react';
+import UserThumb from '@/assets/profile/userThumb.svg?react';
 import AdminModeToggle from '@/components/admin/common/adminModeToggle';
 import { KAKAO_CHAT_URL } from '@/constants/links';
 

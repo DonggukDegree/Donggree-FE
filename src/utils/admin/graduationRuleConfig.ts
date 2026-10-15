@@ -9,9 +9,9 @@
 import { toast } from 'sonner';
 
 import type { TGraduationRuleDraft } from '@/components/admin/graduationRule/graduationRuleForm';
-import type { TCreditAdjustment, TGraduationRuleConfig } from '@/types/admin/TGetGraduationRules';
-import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
-import type { TGraduationRuleUpsertItem } from '@/types/admin/TPutGraduationRules';
+import type { TCreditAdjustment, TGraduationRuleConfig } from '@/types/admin/graduationRule/TGetGraduationRules';
+import type { TAdminRuleType } from '@/types/admin/graduationRule/TGetRuleTypes';
+import type { TGraduationRuleUpsertItem } from '@/types/admin/graduationRule/TPutGraduationRules';
 import {
   hasEmptyRequiredCourseGroup,
   nullableList,
@@ -20,7 +20,7 @@ import {
   splitList,
   toNumber,
   toPositiveInteger,
-} from '@/utils/adminForm';
+} from '@/utils/admin/adminForm';
 
 // 규칙 종류(typeName)별로 폼 입력값을 검증해 API용 ruleConfig를 조립한다. 누락 시 toast 후 null.
 const buildRuleConfig = (

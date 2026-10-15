@@ -9,8 +9,8 @@ import { useCoreMutation } from '@/hooks/customQuery';
 import { useModalStore } from '@/stores/modalStore';
 import type { TPostOnboardingRequest } from '@/types/auth/TPostOnboarding';
 import type { TResponseError } from '@/types/common';
-import { trackEvent } from '@/utils/analytics';
-import { trackErrorShown } from '@/utils/analyticsError';
+import { trackEvent } from '@/utils/analytics/analytics';
+import { trackErrorShown } from '@/utils/analytics/analyticsError';
 import { getErrorCode, getErrorMessage } from '@/utils/error';
 
 // 온보딩 정보 저장 훅

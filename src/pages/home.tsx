@@ -4,8 +4,8 @@ import '@/components/home/home.css';
 import { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import Logo from '@/assets/logo.svg?react';
-import Button from '@/components/common/button';
+import Logo from '@/assets/brand/logo.svg?react';
+import Button from '@/components/common/inputs/button';
 import HomeOrbitVisual from '@/components/home/homeOrbitVisual';
 import HomeReportPreview from '@/components/home/homeReportPreview';
 import HomeSteps from '@/components/home/homeSteps';

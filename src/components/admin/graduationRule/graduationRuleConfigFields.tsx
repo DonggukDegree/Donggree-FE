@@ -11,12 +11,12 @@ import type {
   TGraduationRuleDraftField,
   TGraduationRuleDraftValue,
 } from '@/components/admin/graduationRule/graduationRuleForm';
-import Button from '@/components/common/button';
-import SelectChevron from '@/components/common/selectChevron';
+import Button from '@/components/common/inputs/button';
+import SelectChevron from '@/components/common/inputs/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
-import type { TAdminAreaType } from '@/types/admin/TGetAdminAreaTypes';
-import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
-import { MAJOR_ROLE_LABEL, MAJOR_ROLES, type TMajorRole } from '@/types/admin/TMajorRole';
+import type { TAdminAreaType } from '@/types/admin/courseClassification/TGetAdminAreaTypes';
+import type { TAdminRuleType } from '@/types/admin/graduationRule/TGetRuleTypes';
+import { MAJOR_ROLE_LABEL, MAJOR_ROLES, type TMajorRole } from '@/types/admin/graduationRule/TMajorRole';
 import { COURSE_LABEL, COURSE_TYPES, type TCourseType } from '@/types/course';
 
 const COURSE_TYPE_OPTIONS = COURSE_TYPES.map((courseType) => ({ value: courseType, label: COURSE_LABEL[courseType] }));

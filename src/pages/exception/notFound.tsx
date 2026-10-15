@@ -6,10 +6,10 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import Rocket from '@/assets/icons/rocket.svg?react';
-import Button from '@/components/common/button';
+import Button from '@/components/common/inputs/button';
 import type { TErrorSource } from '@/constants/analytics';
-import { trackOncePerVisit } from '@/utils/analytics';
-import { analyticsError } from '@/utils/analyticsError';
+import { trackOncePerVisit } from '@/utils/analytics/analytics';
+import { analyticsError } from '@/utils/analytics/analyticsError';
 
 export default function NotFound({ error, source = 'not_found' }: { error?: unknown; source?: TErrorSource }) {
   const { state } = useLocation();

@@ -4,7 +4,7 @@
  * 행의 '수정'을 누르면 위 폼으로 올라가고, '삭제'는 확인 모달을 거친 뒤 지운다.
  */
 import TruncatedCell from '@/components/admin/common/truncatedCell';
-import Button from '@/components/common/button';
+import Button from '@/components/common/inputs/button';
 import { FAQ_TAG_LABEL } from '@/constants/faq';
 import type { TFaq } from '@/types/support/TFaq';
 

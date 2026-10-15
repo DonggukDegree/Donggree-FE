@@ -5,8 +5,8 @@
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import Logo from '@/assets/brand/logo.svg?react';
 import Github from '@/assets/github.svg?react';
-import Logo from '@/assets/logo.svg?react';
 import {
   KAKAO_CHAT_URL,
   PRIVACY_POLICY_URL,

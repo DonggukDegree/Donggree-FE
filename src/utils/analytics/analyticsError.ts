@@ -1,6 +1,6 @@
 /** [공통 > 분석] 오류 원문을 제외한 고정 코드·실제 HTTP 상태 */
 import type { TErrorSource } from '@/constants/analytics';
-import { trackEvent, trackOncePerVisit } from '@/utils/analytics';
+import { trackEvent, trackOncePerVisit } from '@/utils/analytics/analytics';
 import { getErrorCode, getErrorStatus } from '@/utils/error';
 
 export const analyticsError = (source: TErrorSource, error?: unknown) => {

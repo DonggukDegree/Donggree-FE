@@ -1,8 +1,8 @@
 /** [관리자 > PDF 리포트 테스트] 업로드 → 사용자와 동일한 리포트 → 다시 하기 */
 import { useRef, useState } from 'react';
 
-import Button from '@/components/common/button';
-import Loading from '@/components/common/loading';
+import Loading from '@/components/common/feedback/loading';
+import Button from '@/components/common/inputs/button';
 import GraduationReport from '@/components/report/graduationReport';
 import { ERROR_CODE } from '@/constants/errorCodes';
 import { TRANSCRIPT_ERROR_MODAL, UNSUPPORTED_CURRICULUM_MODAL } from '@/constants/report/reportModals';

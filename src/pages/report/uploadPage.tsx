@@ -9,12 +9,12 @@ import { toast } from 'sonner';
 
 import Inbox from '@/assets/icons/inbox.svg?react';
 import Upload from '@/assets/icons/upload.svg?react';
-import uploadInfo1 from '@/assets/uploadInfo1.svg';
-import uploadInfo2 from '@/assets/uploadInfo2.svg';
-import uploadInfo3 from '@/assets/uploadInfo3.svg';
-import Button from '@/components/common/button';
+import uploadInfo1 from '@/assets/upload/uploadInfo1.svg';
+import uploadInfo2 from '@/assets/upload/uploadInfo2.svg';
+import uploadInfo3 from '@/assets/upload/uploadInfo3.svg';
+import Button from '@/components/common/inputs/button';
 import useUploadTranscript from '@/hooks/report/useUploadTranscript';
-import { trackEvent } from '@/utils/analytics';
+import { trackEvent } from '@/utils/analytics/analytics';
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);

@@ -15,8 +15,8 @@ import useUpsertCourseClassifications from '@/hooks/admin/mutations/useUpsertCou
 import useAdminAreaTypes from '@/hooks/admin/queries/useAdminAreaTypes';
 import useAdminCourseClassifications from '@/hooks/admin/queries/useAdminCourseClassifications';
 import { useModalStore } from '@/stores/modalStore';
-import type { TCourseClassificationFilters } from '@/types/admin/TGetCourseClassifications';
-import type { TCourseClassificationUpsertItem } from '@/types/admin/TPutCourseClassifications';
+import type { TCourseClassificationFilters } from '@/types/admin/courseClassification/TGetCourseClassifications';
+import type { TCourseClassificationUpsertItem } from '@/types/admin/courseClassification/TPutCourseClassifications';
 import { COURSE_LABEL, type TCourseType } from '@/types/course';
 import {
   EMPTY_COURSE_CLASSIFICATION_DRAFT,
@@ -26,7 +26,7 @@ import {
   toggleCourseType,
   toggleNumber,
   toPositiveInteger,
-} from '@/utils/adminForm';
+} from '@/utils/admin/adminForm';
 
 // 폼 draft 한 건을 업서트 요청 항목으로 변환한다. 검증 실패 시 toast 후 null.
 const buildUpsertItem = (draft: TCourseClassificationDraft, index: number): TCourseClassificationUpsertItem | null => {

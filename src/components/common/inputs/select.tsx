@@ -3,7 +3,7 @@
  * 학업 정보 관리 화면의 이수구분·성적 선택처럼 고정 목록에서 하나를 고를 때 쓴다.
  * 값이 비어 있으면 placeholder 옵션이 보이고, 네이티브 화살표는 숨긴 뒤 공용 꺽쇠를 겹쳐 그린다.
  */
-import SelectChevron from '@/components/common/selectChevron';
+import SelectChevron from '@/components/common/inputs/selectChevron';
 import { SELECT_RESET_CLASS } from '@/constants/inputStyles';
 
 interface ISelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {

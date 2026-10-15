@@ -16,15 +16,15 @@ import useAdminColleges from '@/hooks/admin/queries/useAdminColleges';
 import useAdminDepartments from '@/hooks/admin/queries/useAdminDepartments';
 import useAdminRequirementSets from '@/hooks/admin/queries/useAdminRequirementSets';
 import { useModalStore } from '@/stores/modalStore';
-import type { TAdminGraduationRule } from '@/types/admin/TGetGraduationRules';
+import type { TAdminGraduationRule } from '@/types/admin/graduationRule/TGetGraduationRules';
 import type {
   TRequirementSetCreateRequest,
   TRequirementSetFilters,
   TRequirementSetUpdateRequest,
   TRequirementTrack,
 } from '@/types/admin/TRequirementSets';
-import { findDepartmentForForm } from '@/utils/academicOrganization';
-import { optionalText, toPositiveInteger, toRequirementSetForm } from '@/utils/adminForm';
+import { findDepartmentForForm } from '@/utils/admin/academicOrganization';
+import { optionalText, toPositiveInteger, toRequirementSetForm } from '@/utils/admin/adminForm';
 
 const EMPTY_SET_FORM: TRequirementSetFormState = {
   id: null,

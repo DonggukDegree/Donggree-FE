@@ -3,7 +3,7 @@
  * 탭뷰(CourseTabView) 안에서 이수 영역 하나를 담당한다.
  * 영역의 충족 여부·목표/이수 학점과, 그 영역에 속한 과목 목록을 칩과 함께 보여 준다.
  */
-import Chip, { type TChipVariant } from '@/components/common/chip';
+import Chip, { type TChipVariant } from '@/components/common/feedback/chip';
 
 interface ISubject {
   name: string;

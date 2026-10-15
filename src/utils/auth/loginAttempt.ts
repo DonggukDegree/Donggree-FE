@@ -1,5 +1,5 @@
 /** [로그인 > 분석] 계정 정보 없는 단기 시도 연결. 종료 결과 미관찰은 실패로 추정하지 않는다. */
-import { createAttemptId } from '@/utils/analytics';
+import { createAttemptId } from '@/utils/analytics/analytics';
 
 const KEY = 'analytics.loginAttempt';
 const MAX_AGE = 30 * 60 * 1000;

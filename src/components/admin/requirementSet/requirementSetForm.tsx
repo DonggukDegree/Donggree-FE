@@ -5,7 +5,7 @@
  */
 import { type ReactNode, useState } from 'react';
 
-import Button from '@/components/common/button';
+import Button from '@/components/common/inputs/button';
 import AdditionalRequirementNotice from '@/components/report/additionalRequirementNotice';
 import { ADMIN_INPUT_CLASS } from '@/constants/inputStyles';
 import {
@@ -15,7 +15,7 @@ import {
 } from '@/constants/requirementTrack';
 import type { TAdminCollege, TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
 import type { TAdminRequirementSetSummary, TRequirementTrack } from '@/types/admin/TRequirementSets';
-import { getDepartmentLabel } from '@/utils/academicOrganization';
+import { getDepartmentLabel } from '@/utils/admin/academicOrganization';
 
 export type TRequirementSetFormState = {
   id: number | null;

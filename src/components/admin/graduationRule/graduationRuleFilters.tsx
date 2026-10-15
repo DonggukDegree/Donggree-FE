@@ -8,14 +8,14 @@
  */
 import AdminFilterBar, { FilterField } from '@/components/admin/common/adminFilterBar';
 import MultiSelectDropdown from '@/components/admin/common/multiSelectDropdown';
-import SelectChevron from '@/components/common/selectChevron';
+import SelectChevron from '@/components/common/inputs/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
 import { REQUIREMENT_TRACK_LABEL } from '@/constants/requirementTrack';
+import type { TAdminRuleType } from '@/types/admin/graduationRule/TGetRuleTypes';
 import type { TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
-import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
 import type { TAdminRequirementSetSummary } from '@/types/admin/TRequirementSets';
 import { COURSE_LABEL, COURSE_TYPES, type TCourseType } from '@/types/course';
-import { getDepartmentLabel } from '@/utils/academicOrganization';
+import { getDepartmentLabel } from '@/utils/admin/academicOrganization';
 
 interface IGraduationRuleFiltersProps {
   ruleTypes: TAdminRuleType[];

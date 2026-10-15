@@ -7,10 +7,10 @@
 import type { TCourseClassificationDraft } from '@/components/admin/courseClassification/courseClassificationForm';
 import type { TGraduationRuleDraft } from '@/components/admin/graduationRule/graduationRuleForm';
 import type { TRequirementSetFormState } from '@/components/admin/requirementSet/requirementSetForm';
+import type { TAdminCourseClassification } from '@/types/admin/courseClassification/TGetCourseClassifications';
+import type { TAdminGraduationRule } from '@/types/admin/graduationRule/TGetGraduationRules';
+import { MAJOR_ROLES, type TMajorRole } from '@/types/admin/graduationRule/TMajorRole';
 import type { TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
-import type { TAdminCourseClassification } from '@/types/admin/TGetCourseClassifications';
-import type { TAdminGraduationRule } from '@/types/admin/TGetGraduationRules';
-import { MAJOR_ROLES, type TMajorRole } from '@/types/admin/TMajorRole';
 import type { TRequirementTrack } from '@/types/admin/TRequirementSets';
 import type { TCourseType } from '@/types/course';
 

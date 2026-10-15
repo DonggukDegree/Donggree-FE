@@ -4,8 +4,8 @@ import { gsap } from 'gsap';
 import { useRef, useState } from 'react';
 
 import Upload from '@/assets/icons/upload.svg?react';
-import Button from '@/components/common/button';
-import Loading from '@/components/common/loading';
+import Loading from '@/components/common/feedback/loading';
+import Button from '@/components/common/inputs/button';
 import GraduationReport from '@/components/report/graduationReport';
 import { REPORT_EXAMPLE, REPORT_EXAMPLE_DETAILS } from '@/constants/home/reportExample';
 

@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { putAdminCourseClassifications } from '@/apis/admin/courseClassification';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useCoreMutation } from '@/hooks/customQuery';
-import type { TCourseClassificationUpsertRequest } from '@/types/admin/TPutCourseClassifications';
+import type { TCourseClassificationUpsertRequest } from '@/types/admin/courseClassification/TPutCourseClassifications';
 
 // 과목 분류 등록/수정 통합 저장 훅. 저장 성공 후 과목 분류 조회 캐시를 모두 무효화한다.
 export default function useUpsertCourseClassifications() {

@@ -4,8 +4,8 @@
  * '수정하기'를 누르면 한 번에 저장(업서트)된다. 행 하나의 입력은 CourseClassificationFormRow가 그린다.
  */
 import CourseClassificationFormRow from '@/components/admin/courseClassification/courseClassificationFormRow';
-import Button from '@/components/common/button';
-import type { TAdminAreaType } from '@/types/admin/TGetAdminAreaTypes';
+import Button from '@/components/common/inputs/button';
+import type { TAdminAreaType } from '@/types/admin/courseClassification/TGetAdminAreaTypes';
 import type { TCourseType } from '@/types/course';
 
 // 과목 분류 폼 한 행의 입력 상태(UI 전용). 모든 값은 입력 편의를 위해 문자열로 다룬다.

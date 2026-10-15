@@ -1,7 +1,6 @@
+import type { TRuleTypeName } from '@/types/admin/graduationRule/TGetRuleTypes';
 import type { TCommonResponse } from '@/types/common';
 import type { TCourseType } from '@/types/course';
-
-import type { TRuleTypeName } from './TGetRuleTypes';
 
 export type TGraduationRuleConfig = Record<string, unknown>;
 

@@ -7,7 +7,7 @@
  */
 import type { ReactNode } from 'react';
 
-import TextField from '@/components/common/textField';
+import TextField from '@/components/common/inputs/textField';
 
 // 관리자 폼 필드의 라벨 텍스트.
 export function FieldLabel({ children }: { children: ReactNode }) {

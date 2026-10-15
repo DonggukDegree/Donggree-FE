@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import { ALLOWED_GRADES } from '@/constants/report/academicRecords';
 import useUpdateCourses from '@/hooks/report/useUpdateCourses';
 import type { TGetUserReportsResult, TSemesterCourses } from '@/types/report/TGetUserReports';
-import { trackEvent } from '@/utils/analytics';
+import { trackEvent } from '@/utils/analytics/analytics';
 
 // 편집 화면이 다루는 수강 이력 한 줄. 입력 편의를 위해 재수강은 'O'/'X' 문자열로 다룬다.
 export type TEditCourse = {

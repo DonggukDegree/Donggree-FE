@@ -6,8 +6,8 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 import Warning from '@/assets/icons/warning.svg?react';
-import Button from '@/components/common/button';
-import { trackEvent } from '@/utils/analytics';
+import Button from '@/components/common/inputs/button';
+import { trackEvent } from '@/utils/analytics/analytics';
 
 interface IErrorBoundaryProps {
   children: ReactNode;

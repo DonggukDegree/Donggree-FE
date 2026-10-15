@@ -8,8 +8,8 @@ import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useCoreMutation } from '@/hooks/customQuery';
 import type { TResponseError } from '@/types/common';
 import type { TPatchReportRequest } from '@/types/report/TPatchReport';
-import { trackEvent } from '@/utils/analytics';
-import { trackErrorShown } from '@/utils/analyticsError';
+import { trackEvent } from '@/utils/analytics/analytics';
+import { trackErrorShown } from '@/utils/analytics/analyticsError';
 import { getErrorCode, getErrorMessage, getErrorStatus } from '@/utils/error';
 
 // 수강 이력 전체 치환(수정·추가·삭제) 훅.

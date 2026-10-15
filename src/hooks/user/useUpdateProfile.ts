@@ -7,7 +7,7 @@ import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useCoreMutation } from '@/hooks/customQuery';
 import type { TResponseError } from '@/types/common';
 import type { TPatchProfileRequest } from '@/types/user/TPatchProfile';
-import { trackErrorShown } from '@/utils/analyticsError';
+import { trackErrorShown } from '@/utils/analytics/analyticsError';
 import { getErrorCode, getErrorMessage } from '@/utils/error';
 
 // 프로필 수정 훅.

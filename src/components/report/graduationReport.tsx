@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 import Chart from '@/assets/icons/chart.svg?react';
 import Warning from '@/assets/icons/warning.svg?react';
-import Button from '@/components/common/button';
+import Button from '@/components/common/inputs/button';
 import AdditionalRequirementNotice from '@/components/report/additionalRequirementNotice';
 import CourseSummaryCard from '@/components/report/courseSummaryCard';
 import CourseTabView from '@/components/report/courseTabView';
@@ -16,7 +16,7 @@ import useInView from '@/hooks/useInView';
 import { useModalStore } from '@/stores/modalStore';
 import type { TReportPreviewDetails } from '@/types/admin/TPostReportPreview';
 import type { TGetReportSummaryResult } from '@/types/report/TGetReportSummary';
-import { trackOncePerVisit } from '@/utils/analytics';
+import { trackOncePerVisit } from '@/utils/analytics/analytics';
 
 interface IGraduationReportProps {
   data: TGetReportSummaryResult;

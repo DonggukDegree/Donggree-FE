@@ -11,11 +11,11 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Toaster } from 'sonner';
 
-import ErrorBoundary from '@/components/common/errorBoundary';
+import ErrorBoundary from '@/components/common/feedback/errorBoundary';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@/constants/queryOptions';
 import { observeAnalyticsIdentity } from '@/hooks/useAnalyticsIdentity';
 import { router } from '@/routes';
-import { initGA, trackPageView } from '@/utils/analytics';
+import { initGA, trackPageView } from '@/utils/analytics/analytics';
 
 import App from './App.tsx';
 

@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 
-import Loading from '@/components/common/loading';
+import Loading from '@/components/common/feedback/loading';
 import useUserReports from '@/hooks/report/useUserReports';
 import NotFound from '@/pages/exception/notFound';
 import ServerError from '@/pages/exception/serverError';

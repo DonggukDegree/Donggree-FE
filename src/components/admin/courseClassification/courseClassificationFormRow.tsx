@@ -6,9 +6,9 @@ import type {
   TCourseClassificationDraft,
   TCourseClassificationFormState,
 } from '@/components/admin/courseClassification/courseClassificationForm';
-import SelectChevron from '@/components/common/selectChevron';
+import SelectChevron from '@/components/common/inputs/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
-import type { TAdminAreaType } from '@/types/admin/TGetAdminAreaTypes';
+import type { TAdminAreaType } from '@/types/admin/courseClassification/TGetAdminAreaTypes';
 import { COURSE_LABEL, COURSE_TYPES } from '@/types/course';
 
 const BODY_CELL_CLASS = 'px-3 py-3 align-top';

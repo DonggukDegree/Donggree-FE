@@ -18,11 +18,17 @@ import useAdminGraduationRules from '@/hooks/admin/queries/useAdminGraduationRul
 import useAdminRequirementSets from '@/hooks/admin/queries/useAdminRequirementSets';
 import useAdminRuleTypes from '@/hooks/admin/queries/useAdminRuleTypes';
 import { useModalStore } from '@/stores/modalStore';
-import type { TGraduationRuleFilters } from '@/types/admin/TGetGraduationRules';
-import type { TGraduationRuleUpsertItem } from '@/types/admin/TPutGraduationRules';
+import type { TGraduationRuleFilters } from '@/types/admin/graduationRule/TGetGraduationRules';
+import type { TGraduationRuleUpsertItem } from '@/types/admin/graduationRule/TPutGraduationRules';
 import type { TCourseType } from '@/types/course';
-import { EMPTY_RULE_DRAFT, toggleCourseType, toggleNumber, toPositiveInteger, toRuleDraft } from '@/utils/adminForm';
-import { buildRuleUpsertItem } from '@/utils/graduationRuleConfig';
+import {
+  EMPTY_RULE_DRAFT,
+  toggleCourseType,
+  toggleNumber,
+  toPositiveInteger,
+  toRuleDraft,
+} from '@/utils/admin/adminForm';
+import { buildRuleUpsertItem } from '@/utils/admin/graduationRuleConfig';
 
 export default function useGraduationRuleEditor() {
   const ruleDraftIndex = useRef(0);

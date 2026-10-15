@@ -6,11 +6,11 @@
 import { useEffect } from 'react';
 
 import AdminConfirmModal from '@/components/admin/common/adminConfirmModal';
-import Modal from '@/components/common/modal';
+import Modal from '@/components/common/overlays/modal';
 import OnBoardingModal from '@/components/onboarding/onBoardingModal';
 import SurveyModal from '@/components/survey/surveyModal';
 import { useModalStore } from '@/stores/modalStore';
-import { trackOncePerVisit } from '@/utils/analytics';
+import { trackOncePerVisit } from '@/utils/analytics/analytics';
 
 export default function ModalProvider() {
   const { type, alertContent } = useModalStore();

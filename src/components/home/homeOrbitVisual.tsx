@@ -3,7 +3,7 @@ import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import { useRef, useState } from 'react';
 
-import Icon from '@/assets/icon.svg?react';
+import Icon from '@/assets/brand/icon.svg?react';
 import Chart from '@/assets/icons/chart.svg?react';
 import Inbox from '@/assets/icons/inbox.svg?react';
 import Rocket from '@/assets/icons/rocket.svg?react';

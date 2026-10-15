@@ -5,12 +5,12 @@
  */
 import { FieldLabel, TextInput } from '@/components/admin/common/adminFormControls';
 import GraduationRuleConfigFields from '@/components/admin/graduationRule/graduationRuleConfigFields';
-import Button from '@/components/common/button';
-import SelectChevron from '@/components/common/selectChevron';
+import Button from '@/components/common/inputs/button';
+import SelectChevron from '@/components/common/inputs/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
-import type { TAdminAreaType } from '@/types/admin/TGetAdminAreaTypes';
-import type { TAdminRuleType } from '@/types/admin/TGetRuleTypes';
-import type { TMajorRole } from '@/types/admin/TMajorRole';
+import type { TAdminAreaType } from '@/types/admin/courseClassification/TGetAdminAreaTypes';
+import type { TAdminRuleType } from '@/types/admin/graduationRule/TGetRuleTypes';
+import type { TMajorRole } from '@/types/admin/graduationRule/TMajorRole';
 import type { TCourseType } from '@/types/course';
 
 export type TGraduationRuleDraft = {

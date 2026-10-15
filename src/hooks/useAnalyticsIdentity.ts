@@ -7,8 +7,8 @@ import { getUserInfo } from '@/apis/user/user';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useCoreQuery } from '@/hooks/customQuery';
 import { hasSessionHint, useAuthStore } from '@/stores/authStore';
-import { resetAnalyticsIdentity, syncAnalyticsIdentity } from '@/utils/analytics';
-import { getMemberIdFromAccessToken, getRoleFromAccessToken, isAdminRole } from '@/utils/authRole';
+import { resetAnalyticsIdentity, syncAnalyticsIdentity } from '@/utils/analytics/analytics';
+import { getMemberIdFromAccessToken, getRoleFromAccessToken, isAdminRole } from '@/utils/auth/authRole';
 
 // React effect보다 먼저 차단해 로그아웃·계정 전환 직후의 자동 전송도 막는다.
 export const observeAnalyticsIdentity = (queryClient: QueryClient) =>

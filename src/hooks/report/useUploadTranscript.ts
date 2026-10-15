@@ -10,8 +10,8 @@ import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { CREDIT_GAP_MODAL, TRANSCRIPT_ERROR_MODAL } from '@/constants/report/reportModals';
 import { useCoreMutation } from '@/hooks/customQuery';
 import { useModalStore } from '@/stores/modalStore';
-import { createAttemptId, getAnalyticsIdentityGeneration, trackEvent } from '@/utils/analytics';
-import { analyticsError, trackErrorShown } from '@/utils/analyticsError';
+import { createAttemptId, getAnalyticsIdentityGeneration, trackEvent } from '@/utils/analytics/analytics';
+import { analyticsError, trackErrorShown } from '@/utils/analytics/analyticsError';
 import { getErrorCode, getErrorMessage, getErrorStatus } from '@/utils/error';
 
 type TSubmission = { file: File; attemptId: string; generation: number };

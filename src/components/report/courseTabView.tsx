@@ -6,14 +6,14 @@
  */
 import { useState } from 'react';
 
-import type { TChipVariant } from '@/components/common/chip';
-import Loading from '@/components/common/loading';
+import type { TChipVariant } from '@/components/common/feedback/chip';
+import Loading from '@/components/common/feedback/loading';
 import AreaDetailCard from '@/components/report/areaDetailCard';
 import useReportDetail from '@/hooks/report/useReportDetail';
 import type { TReportPreviewDetails } from '@/types/admin/TPostReportPreview';
 import { COURSE_LABEL, type TCourseType } from '@/types/course';
 import type { TGetReportDetailResult, TReportItemStatus } from '@/types/report/TGetReportDetail';
-import { trackEvent } from '@/utils/analytics';
+import { trackEvent } from '@/utils/analytics/analytics';
 
 // 과목 이수 상태 → 칩 variant 매핑
 const STATUS_TO_CHIP: Record<TReportItemStatus, TChipVariant> = {

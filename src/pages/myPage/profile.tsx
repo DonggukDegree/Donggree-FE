@@ -12,11 +12,11 @@ import { toast } from 'sonner';
 
 import User from '@/assets/icons/user.svg?react';
 import Warning from '@/assets/icons/warning.svg?react';
-import ProfileImage from '@/assets/profileImage.svg?react';
-import Button from '@/components/common/button';
-import Chip from '@/components/common/chip';
-import Loading from '@/components/common/loading';
-import TextField from '@/components/common/textField';
+import ProfileImage from '@/assets/profile/profileImage.svg?react';
+import Chip from '@/components/common/feedback/chip';
+import Loading from '@/components/common/feedback/loading';
+import Button from '@/components/common/inputs/button';
+import TextField from '@/components/common/inputs/textField';
 import { READY_MESSAGE } from '@/constants/links';
 import useInView from '@/hooks/useInView';
 import useDeleteAccount from '@/hooks/user/useDeleteAccount';
