@@ -255,7 +255,7 @@ export default function HomeReportAutodemo({ onStageChange }: IHomeReportAutodem
               </p>
               <div ref={analyzeButtonRef}>
                 <Button
-                  className="px-15 max-w-full text-body-m lg:text-body-l"
+                  className="px-15 max-w-full"
                   variant={fileSelected ? 'primary' : 'disabled'}
                   disabled={!fileSelected}
                   onClick={() => {

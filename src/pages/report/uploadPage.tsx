@@ -157,7 +157,7 @@ export default function UploadPage() {
           </p>
         </div>
         <Button
-          className="px-15 max-w-full text-body-m lg:text-body-l"
+          className="px-15 max-w-full"
           variant={file && !isPending ? 'primary' : 'disabled'}
           disabled={!file || isPending}
           onClick={handleSubmit}

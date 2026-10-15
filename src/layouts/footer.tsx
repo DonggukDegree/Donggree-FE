@@ -46,7 +46,7 @@ export default function Footer() {
         간격은 gap 단축 속성 대신 gap-x/gap-y로만 쓴다. 단축과 개별 속성이 섞이면
         Tailwind에서 어느 쪽이 이길지 보장되지 않기 때문. (lg 값은 기존 gap-5와 동일)
       */}
-      <div className="w-full flex flex-wrap items-center justify-center text-button-m text-coolgray-60 gap-x-3 gap-y-1 lg:gap-x-5 lg:gap-y-5 border-t border-b border-coolgray-30 py-6 lg:py-9">
+      <div className="w-full flex flex-wrap items-center justify-center text-body-xs lg:text-button-m text-coolgray-60 gap-x-1 gap-y-1 lg:gap-x-5 lg:gap-y-5 border-t border-b border-coolgray-30 py-4 lg:py-9">
         {NAV_ITEMS.map((item) => {
           // 실제 페이지로 연결.
           if (item.type === 'link') {

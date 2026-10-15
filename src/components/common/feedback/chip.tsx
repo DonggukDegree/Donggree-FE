@@ -8,6 +8,8 @@ interface IChipProps {
   variant: TChipVariant;
   // 기본 라벨(충족/불충족/선택) 대신 커스텀 텍스트를 쓰고 싶을 때 사용한다.
   label?: string;
+  // 좁은 리포트 카드에서는 모바일 글자와 좌우 여백을 함께 줄인다.
+  compactOnMobile?: boolean;
 }
 
 const CHIP_LABEL: Record<TChipVariant, string> = {
@@ -22,9 +24,13 @@ const CHIP_STYLE: Record<TChipVariant, string> = {
   selected: 'bg-coolgray-10 text-coolgray-60',
 };
 
-export default function Chip({ variant, label }: IChipProps) {
+export default function Chip({ variant, label, compactOnMobile = false }: IChipProps) {
   return (
-    <span className={`text-body-s rounded-[12px] px-3 py-0.5 ${CHIP_STYLE[variant]}`}>
+    <span
+      className={`rounded-[12px] py-0.5 ${
+        compactOnMobile ? 'shrink-0 whitespace-nowrap text-body-xs px-2 lg:text-body-s lg:px-3' : 'text-body-s px-3'
+      } ${CHIP_STYLE[variant]}`}
+    >
       {label ?? CHIP_LABEL[variant]}
     </span>
   );

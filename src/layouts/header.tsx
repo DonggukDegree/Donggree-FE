@@ -195,7 +195,7 @@ export default function Header() {
               onClick={() => setIsMenuOpen(false)}
               className={`${DRAWER_ITEM_CLASS} flex items-center gap-2 text-coolgray-90`}
             >
-              <UserThumb className="w-6 h-6" />
+              <UserThumb className="w-5 h-5" />
               <span>마이페이지</span>
             </Link>
 
