@@ -11,9 +11,6 @@ importers:
       '@gsap/react':
         specifier: ^2.1.2
         version: 2.1.2(gsap@3.15.0)(react@19.2.5)
-      '@tailwindcss/vite':
-        specifier: ^4.2.4
-        version: 4.2.4(vite@8.0.9(@types/node@24.12.2)(jiti@2.6.1))
       '@tanstack/react-query':
         specifier: ^5.100.14
         version: 5.100.14(react@19.2.5)
@@ -35,12 +32,6 @@ importers:
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      tailwindcss:
-        specifier: ^4.2.4
-        version: 4.2.4
-      vite-plugin-svgr:
-        specifier: ^5.2.0
-        version: 5.2.0(typescript@6.0.3)(vite@8.0.9(@types/node@24.12.2)(jiti@2.6.1))
       zustand:
         specifier: ^5.0.12
         version: 5.0.12(@types/react@19.2.14)(react@19.2.5)
@@ -48,6 +39,9 @@ importers:
       '@eslint/js':
         specifier: ^9.39.4
         version: 9.39.4
+      '@tailwindcss/vite':
+        specifier: ^4.2.4
+        version: 4.2.4(vite@8.0.9(@types/node@24.12.2)(jiti@2.6.1))
       '@tanstack/react-query-devtools':
         specifier: ^5.100.14
         version: 5.100.14(@tanstack/react-query@5.100.14(react@19.2.5))(react@19.2.5)
@@ -60,12 +54,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.14)
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^8.59.0
-        version: 8.59.0(@typescript-eslint/parser@8.59.0(eslint@9.39.4(jiti@2.6.1))(typescript@6.0.3))(eslint@9.39.4(jiti@2.6.1))(typescript@6.0.3)
-      '@typescript-eslint/parser':
-        specifier: ^8.59.0
-        version: 8.59.0(eslint@9.39.4(jiti@2.6.1))(typescript@6.0.3)
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.9(@types/node@24.12.2)(jiti@2.6.1))
@@ -99,15 +87,21 @@ importers:
       prettier:
         specifier: ^3.8.3
         version: 3.8.3
+      tailwindcss:
+        specifier: ^4.2.4
+        version: 4.2.4
       typescript:
         specifier: ~6.0.2
         version: 6.0.3
       typescript-eslint:
-        specifier: ^8.58.2
+        specifier: ^8.59.0
         version: 8.59.0(eslint@9.39.4(jiti@2.6.1))(typescript@6.0.3)
       vite:
         specifier: ^8.0.9
         version: 8.0.9(@types/node@24.12.2)(jiti@2.6.1)
+      vite-plugin-svgr:
+        specifier: ^5.2.0
+        version: 5.2.0(typescript@6.0.3)(vite@8.0.9(@types/node@24.12.2)(jiti@2.6.1))
 
 packages:
 
