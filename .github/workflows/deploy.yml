@@ -39,6 +39,7 @@ jobs:
           [ -f .env ] && source .env
           set +a
           docker run --rm -v "$PWD:/app" -w /app \
+            -e CI=true \
             -e VITE_API_URL -e VITE_GA_ID \
             node:22-alpine \
             sh -c "npm install -g pnpm@11.5.0 && pnpm install --frozen-lockfile && pnpm build"
