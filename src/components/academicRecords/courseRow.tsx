@@ -71,6 +71,7 @@ export default function CourseRow({ course, hasDualMajor1, editMode, isSaving, o
         value={course[column.key]}
         disabled={isSaving}
         onChange={(event) => onChange(column.key, event.target.value)}
+        {...(column.key === 'courseCode' && { maxLength: 8, pattern: '[A-Z0-9]{1,8}' })}
         {...(column.key === 'credits' && { type: 'number', min: 0 })}
       />
     );

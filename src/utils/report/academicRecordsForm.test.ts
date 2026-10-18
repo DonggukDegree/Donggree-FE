@@ -67,6 +67,26 @@ describe('수강 이력 변환과 검증', () => {
     expect(buildCourseUpdate(semesters(changes))).toMatchObject({ ok: false });
   });
 
+  it.each(['7777700', '12345678', 'DEV11079', 'iot4005'])('8자리 이내 코드를 대문자로 보존: %s', (courseCode) => {
+    expect(buildCourseUpdate(semesters({ courseCode }))).toMatchObject({
+      ok: true,
+      value: { courses: [{ courseCode: courseCode.toUpperCase() }] },
+    });
+  });
+
+  it.each(['SSC2008-02', 'ABC123456', '한글', 'ABC 123'])('형식 위반 코드 차단: %s', (courseCode) => {
+    expect(buildCourseUpdate(semesters({ courseCode }))).toMatchObject({ ok: false });
+  });
+
+  it('같은 학기·학수번호의 서로 다른 교류 과목을 모두 보존', () => {
+    const input = semesters({ courseCode: '777700', courseName: '교류1' });
+    input[0]!.courses.push({ ...input[0]!.courses[0]!, id: 'c2', courseName: '교류2' });
+    expect(buildCourseUpdate(input)).toMatchObject({
+      ok: true,
+      value: { courses: [{ courseName: '교류1' }, { courseName: '교류2' }] },
+    });
+  });
+
   it('입력 객체를 변경하지 않음', () => {
     const input = semesters();
     const original = structuredClone(input);

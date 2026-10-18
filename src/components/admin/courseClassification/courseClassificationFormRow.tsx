@@ -92,6 +92,19 @@ export default function CourseClassificationFormRow({
           </select>
           <SelectChevron />
         </div>
+        <label className="mt-2 flex flex-col gap-1 text-body-xs">
+          평가방식
+          <select
+            value={draft.gradingSystem}
+            disabled={isSaving}
+            onChange={(event) => onChange(draft.clientId, 'gradingSystem', event.target.value)}
+            className={`${ADMIN_INPUT_CLASS} ${SELECT_RESET_CLASS}`}
+          >
+            <option value="UNKNOWN">미확인</option>
+            <option value="GRADED">등급평가</option>
+            <option value="PASS_FAIL">P/F</option>
+          </select>
+        </label>
       </td>
       <td className={BODY_CELL_CLASS}>
         <div className="relative">

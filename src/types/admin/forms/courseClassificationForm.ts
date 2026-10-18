@@ -11,6 +11,7 @@ export type TCourseClassificationFormState = {
   areaTypeId: string;
   subCategory: string;
   subjectDomain: string;
+  gradingSystem: string;
 };
 
 // 폼에서 관리하는 개별 행. clientId로 행을 구분한다.
