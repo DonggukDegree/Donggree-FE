@@ -28,6 +28,7 @@ import {
   MyPage,
   OnBoarding,
   Profile,
+  SchoolEmailVerification,
   UploadPage,
 } from '@/routes/lazyPages';
 import ProtectedRoute from '@/routes/protectedRoute';
@@ -54,6 +55,7 @@ export const router = createBrowserRouter([
             children: [
               { index: true, element: <MyPage /> },
               { path: 'profile', element: <Profile /> },
+              { path: 'school-email-verification', element: <SchoolEmailVerification /> },
               { path: 'academic-records', element: <AcademicRecords /> },
             ],
           },

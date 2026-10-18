@@ -13,10 +13,10 @@ import { toast } from 'sonner';
 import User from '@/assets/icons/user.svg?react';
 import Warning from '@/assets/icons/warning.svg?react';
 import ProfileImage from '@/assets/profile/profileImage.svg?react';
-import Chip from '@/components/common/feedback/chip';
 import Loading from '@/components/common/feedback/loading';
 import Button from '@/components/common/inputs/button';
 import TextField from '@/components/common/inputs/textField';
+import ProfileVerification from '@/components/myPage/profileVerification';
 import { READY_MESSAGE } from '@/constants/links';
 import useInView from '@/hooks/useInView';
 import useDeleteAccount from '@/hooks/user/useDeleteAccount';
@@ -168,14 +168,11 @@ function ProfileUserForm({ user, onDeleteAccount }: IProfileUserFormProps) {
           </div>
         </div>
 
-        <div className="w-full lg:w-auto flex flex-1 flex-col items-start gap-6 p-4">
-          {/* 본인 인증 상태 칩 (맨 위, 왼쪽 정렬) */}
-          <Chip
-            variant={identityVerified ? 'satisfied' : 'unsatisfied'}
-            label={identityVerified ? '본인 인증 완료' : '본인 인증 미완료'}
-          />
+        <div className="w-full lg:w-auto flex flex-1 flex-col items-center lg:items-start gap-6 p-4">
+          {/* 모바일에서는 인증 상태와 입력창 묶음을 중앙에 배치한다. */}
+          <ProfileVerification identityVerified={identityVerified} />
 
-          <div className="w-full lg:w-auto flex flex-col items-start gap-1">
+          <div className="w-full max-w-80 lg:w-auto flex flex-col items-start gap-1">
             <p className="text-body-m text-coolgray-90">학번</p>
             <TextField
               placeholder="학번을 입력해주세요"
@@ -188,7 +185,7 @@ function ProfileUserForm({ user, onDeleteAccount }: IProfileUserFormProps) {
             />
           </div>
 
-          <div className="w-full lg:w-auto flex flex-col items-start gap-1">
+          <div className="w-full max-w-80 lg:w-auto flex flex-col items-start gap-1">
             <p className="text-body-m text-coolgray-90">이름</p>
             <TextField
               placeholder="이름을 입력해주세요"
@@ -200,7 +197,7 @@ function ProfileUserForm({ user, onDeleteAccount }: IProfileUserFormProps) {
             />
           </div>
 
-          <div className="w-full lg:w-auto flex flex-col items-start gap-1">
+          <div className="w-full max-w-80 lg:w-auto flex flex-col items-start gap-1">
             <p className="text-body-m text-coolgray-90">닉네임</p>
             <TextField
               placeholder="닉네임을 입력해주세요"
