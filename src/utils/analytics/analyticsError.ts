@@ -7,7 +7,7 @@ export const analyticsError = (source: TErrorSource, error?: unknown) => {
   const status = getErrorStatus(error) ?? 0;
   const rawCode = getErrorCode(error);
   const code =
-    typeof rawCode === 'string' && /^(?:COMMON|USER|TRANSCRIPT|GRADUATION)\d{3}_\d{1,2}$/.test(rawCode)
+    typeof rawCode === 'string' && /^(?:COMMON|USER|TRANSCRIPT|GRADUATION|EMAIL)\d{3}_\d{1,2}$/.test(rawCode)
       ? rawCode
       : status
         ? 'UNKNOWN_ERROR'

@@ -190,7 +190,7 @@ const sanitizeParams = (params: Record<string, unknown>) => {
     if (
       key === 'code' &&
       typeof value === 'string' &&
-      /^(?:COMMON|USER|TRANSCRIPT|GRADUATION)\d{3}_\d{1,2}$|^(?:NETWORK_ERROR|UNKNOWN_ERROR|INVALID_PDF|LOGIN_FAILED|MISSING_TOKEN|USER_CHECK_FAILED|RENDER_ERROR|NOT_FOUND|VALIDATION_ERROR)$/.test(
+      /^(?:COMMON|USER|TRANSCRIPT|GRADUATION|EMAIL)\d{3}_\d{1,2}$|^(?:NETWORK_ERROR|UNKNOWN_ERROR|INVALID_PDF|LOGIN_FAILED|MISSING_TOKEN|USER_CHECK_FAILED|RENDER_ERROR|NOT_FOUND|VALIDATION_ERROR)$/.test(
         value,
       )
     )
