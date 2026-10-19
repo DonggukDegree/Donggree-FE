@@ -6,6 +6,9 @@
 // 수강 이력의 성적 허용값 (서버 enum과 동일)
 export const ALLOWED_GRADES = ['A+', 'A0', 'B+', 'B0', 'C+', 'C0', 'D+', 'D0', 'F', 'P', 'NP'];
 
+// API 값은 유지하고 화면에서는 두 종류의 F를 구분한다.
+export const GRADE_LABELS: Record<string, string> = { F: 'F(등급)', NP: 'F(NP)' };
+
 // 수강 이력의 이수구분 선택지 (PDF 원시 문자열 기준 고정 목록)
 // 복수1 선택지는 복수전공1이 등록된 학생의 편집 행에서만 노출한다.
 export const COURSE_TYPE_OPTIONS = [
@@ -30,9 +33,9 @@ export type TCourseField = 'category' | 'courseCode' | 'courseName' | 'credits' 
 export const COLUMNS: readonly { key: TCourseField; label: string; width: string }[] = [
   { key: 'category', label: '이수 구분', width: 'w-[12%]' },
   { key: 'courseCode', label: '학수번호', width: 'w-[14%]' },
-  { key: 'courseName', label: '교과목명', width: 'w-[33%]' },
+  { key: 'courseName', label: '교과목명', width: 'w-[27%]' },
   { key: 'credits', label: '학점', width: 'w-[7%]' },
-  { key: 'grade', label: '성적', width: 'w-[7%]' },
+  { key: 'grade', label: '성적', width: 'w-[13%]' },
   { key: 'area', label: '이수 영역', width: 'w-[16%]' },
   { key: 'retake', label: '재수강', width: 'w-[7%]' },
 ];

@@ -19,6 +19,26 @@ const semesters = (changes: Partial<TEditCourse> = {}): TEditSemester[] => [
 ];
 
 describe('수강 이력 변환과 검증', () => {
+  it.each(['F', 'NP'])('실패 성적 %s를 저장 API 값으로 보존', (grade) => {
+    const input = [
+      {
+        semester: '2025-1',
+        records: [
+          {
+            id: 1,
+            courseType: '공교',
+            courseCode: 'RGC0017',
+            courseName: '명상',
+            credits: 1,
+            grade,
+            areaName: null,
+            retake: false,
+          },
+        ],
+      },
+    ];
+    expect(buildCourseUpdate(toEditSemesters(input))).toMatchObject({ ok: true, value: { courses: [{ grade }] } });
+  });
   it('0학점·P 성적·선택 영역 생략 및 공백 정규화 유지', () => {
     expect(buildCourseUpdate(semesters())).toEqual({
       ok: true,

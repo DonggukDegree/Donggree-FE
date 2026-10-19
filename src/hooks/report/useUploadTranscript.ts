@@ -7,12 +7,13 @@ import { toast } from 'sonner';
 import { putTranscript } from '@/apis/report/report';
 import Warning from '@/assets/icons/warning.svg?react';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
-import { CREDIT_GAP_MODAL, TRANSCRIPT_ERROR_MODAL } from '@/constants/report/reportModals';
+import { TRANSCRIPT_ERROR_MODAL } from '@/constants/report/reportModals';
 import { useCoreMutation } from '@/hooks/customQuery';
 import { useModalStore } from '@/stores/modalStore';
 import { createAttemptId, getAnalyticsIdentityGeneration, trackEvent } from '@/utils/analytics/analytics';
 import { analyticsError, trackErrorShown } from '@/utils/analytics/analyticsError';
 import { getErrorCode, getErrorMessage, getErrorStatus } from '@/utils/error';
+import { buildTranscriptUploadNotice } from '@/utils/report/transcriptUploadNotice';
 
 type TSubmission = { file: File; attemptId: string; generation: number };
 export default function useUploadTranscript() {
@@ -26,23 +27,29 @@ export default function useUploadTranscript() {
       // PDF 저장 성공은 졸업 리포트 표시 성공과 별개의 행동이다.
       const { creditGap } = data.result;
       if (generation !== getAnalyticsIdentityGeneration()) return;
-      trackEvent('pdf_upload', { attempt_id: attemptId, credit_gap: creditGap, credit_gap_ok: creditGap === 0 });
+      trackEvent('pdf_upload', {
+        attempt_id: attemptId,
+        credit_gap: creditGap,
+        credit_gap_ok: creditGap === 0,
+        grade_review_count: data.result.gradeReviewCourses?.length ?? 0,
+      });
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_REPORTS });
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REPORTS_ROOT });
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_INFO });
-      if (creditGap === 0) {
+      const modal = buildTranscriptUploadNotice(data.result);
+      if (!modal) {
         navigate('/graduation');
         return;
       }
-      const modal = creditGap > 0 ? CREDIT_GAP_MODAL.positive(creditGap) : CREDIT_GAP_MODAL.negative(creditGap);
+      const needsGradeReview = (data.result.gradeReviewCourses?.length ?? 0) > 0;
       openAlert({
         icon: Warning,
         title: modal.title,
         subtitle: modal.subtitle,
         description: modal.description,
-        buttonText: '리포트 보기',
+        buttonText: needsGradeReview ? '학업정보 확인' : '리포트 보기',
         buttonVariant: 'primary',
-        onConfirm: () => navigate('/graduation'),
+        onConfirm: () => navigate(needsGradeReview ? '/my-page/academic-records' : '/graduation'),
       });
     },
     onError: (error, { attemptId, generation }) => {

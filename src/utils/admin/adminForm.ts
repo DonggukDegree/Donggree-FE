@@ -113,7 +113,6 @@ export const EMPTY_COURSE_CLASSIFICATION_DRAFT: Omit<TCourseClassificationDraft,
   areaTypeId: '',
   subCategory: '',
   subjectDomain: '',
-  gradingSystem: 'UNKNOWN',
 };
 
 // 서버 과목 분류를 폼 입력용 draft로 변환한다. (숫자·null을 모두 문자열로 평탄화)
@@ -129,7 +128,6 @@ export const toCourseClassificationDraft = (course: TAdminCourseClassification):
   areaTypeId: course.areaTypeId === null ? '' : String(course.areaTypeId),
   subCategory: course.subCategory ?? '',
   subjectDomain: course.subjectDomain ?? '',
-  gradingSystem: course.gradingSystem ?? 'UNKNOWN',
 });
 
 // ruleConfig의 unknown 값에서 문자열 배열만 안전하게 추출한다.

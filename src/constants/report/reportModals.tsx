@@ -75,16 +75,16 @@ const highlightCredit = (value: number) => <span className="text-primary-60">{va
  * 수치를 문구에 넣어야 해서 함수로 둔다. 업로드 직후 1회만 띄운다.
  */
 export const CREDIT_GAP_MODAL = {
-  // 양수: PDF 총취득학점 > 인식된 과목 학점 합 → 누락된 수강 이력을 추가해야 함
+  // 양수: PDF 총취득학점 > 인식된 취득학점 합 → 누락된 수강 이력을 추가해야 함
   positive: (creditGap: number): TReportModalContent => ({
     title: '동그리가 정확한 분석에 실패했어요',
-    subtitle: <>동그리가 찾은 학점이 실제 수강한 학점보다 {highlightCredit(creditGap)} 모자라요.</>,
-    description: `지금 제공하는 리포트는 정확하지 않을 수 있어요.\n리포트 하단의 내 학업 정보 추가에서 누락된 과목을 추가해주세요.`,
+    subtitle: <>동그리가 찾은 학점이 실제 취득한 학점보다 {highlightCredit(creditGap)} 모자라요.</>,
+    description: `지금 제공하는 리포트는 정확하지 않을 수 있어요.\n학업정보관리에서 누락된 과목을 추가해주세요.`,
   }),
-  // 음수: 인식된 과목 학점 합 > PDF 총취득학점 → 과목이 더 많이 인식됨(중복 등)
+  // 음수: 인식된 취득학점 합 > PDF 총취득학점 → 과목이 더 많이 인식됨(중복 등)
   negative: (creditGap: number): TReportModalContent => ({
     title: '동그리가 정확한 분석에 실패했어요',
-    subtitle: <>동그리가 찾은 학점이 실제 수강한 학점보다 {highlightCredit(Math.abs(creditGap))} 많아요.</>,
+    subtitle: <>동그리가 찾은 학점이 실제 취득한 학점보다 {highlightCredit(Math.abs(creditGap))} 많아요.</>,
     description: `지금 제공하는 리포트는 정확하지 않을 수 있어요. \n정확한 진단을 위해 고객지원에 문의해주세요.`,
   }),
 };
@@ -98,4 +98,13 @@ export const UNSUPPORTED_MAJOR_MODAL: TReportModalContent = {
     </>
   ),
   description: `지금 제공하는 리포트는 주전공 기준이며, 정확하지 않을 수 있어요.\n빠른 지원을 원한다면 고객지원에 문의해주세요.`,
+};
+
+/** F 평가방식 추론이 모호하거나 원문 요약과 맞지 않는 경우의 확인 안내. */
+export const GRADE_REVIEW_MODAL = {
+  forCourses: (courses: string[]): TReportModalContent => ({
+    title: '일부 F 과목의 평가방식을 확인해주세요',
+    subtitle: 'F 과목의 평가방식에 따라 평점 계산이 달라져요.',
+    description: `${courses.join('\n')}\n\n등급평가인지 P/F 평가인지 구분하지 못했어요.\n우선 F(등급)으로 저장했으니 학업정보관리에서 확인해주세요.\nP/F 과목의 F는 F(NP)로 변경해주세요.`,
+  }),
 };

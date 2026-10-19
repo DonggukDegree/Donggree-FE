@@ -69,7 +69,6 @@ const buildUpsertItem = (draft: TCourseClassificationDraft, index: number): TCou
     areaTypeId,
     subCategory: optionalText(draft.subCategory),
     subjectDomain: optionalText(draft.subjectDomain),
-    gradingSystem: (draft.gradingSystem || 'UNKNOWN') as 'UNKNOWN' | 'GRADED' | 'PASS_FAIL',
   };
 };
 

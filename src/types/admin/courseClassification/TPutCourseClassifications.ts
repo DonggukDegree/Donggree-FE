@@ -1,4 +1,3 @@
-import type { TGradingSystem } from '@/types/admin/courseClassification/TGetCourseClassifications';
 import type { TCommonResponse } from '@/types/common';
 import type { TCourseType } from '@/types/course';
 
@@ -13,7 +12,6 @@ export type TCourseClassificationUpsertItem = {
   areaTypeId: number | null;
   subCategory: string | null;
   subjectDomain: string | null;
-  gradingSystem?: TGradingSystem;
 };
 
 export type TCourseClassificationUpsertRequest = {
