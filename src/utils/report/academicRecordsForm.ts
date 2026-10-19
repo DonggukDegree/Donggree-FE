@@ -40,7 +40,13 @@ export const buildCourseUpdate = (drafts: TEditSemester[]): TValidationResult<TP
   const isValid = flattened.every(({ course }) => {
     const grade = course.grade.trim().toUpperCase();
     const filled = course.category.trim() && course.courseCode.trim() && course.courseName.trim() && grade;
-    return filled && course.credits >= 0 && ALLOWED_GRADES.includes(grade);
+    return (
+      filled &&
+      /^[A-Z0-9]{1,8}$/.test(course.courseCode.trim().toUpperCase()) &&
+      Number.isInteger(course.credits) &&
+      course.credits >= 0 &&
+      ALLOWED_GRADES.includes(grade)
+    );
   });
   if (!isValid) {
     return { ok: false, error: '모든 항목을 올바르게 입력해주세요. (성적은 A+·B0·P 등)' };
@@ -53,7 +59,7 @@ export const buildCourseUpdate = (drafts: TEditSemester[]): TValidationResult<TP
       courseType: course.category.trim(),
       // 이수 영역은 선택 값이라 비어 있으면 키 자체를 보내지 않는다.
       ...(trimmedArea ? { areaName: trimmedArea } : {}),
-      courseCode: course.courseCode.trim(),
+      courseCode: course.courseCode.trim().toUpperCase(),
       courseName: course.courseName.trim(),
       credits: course.credits,
       grade: course.grade.trim().toUpperCase(),

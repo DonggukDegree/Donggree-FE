@@ -12,6 +12,7 @@ import {
   ALLOWED_GRADES,
   COLUMNS,
   COURSE_TYPE_OPTIONS,
+  GRADE_LABELS,
   type TCourseField,
 } from '@/constants/report/academicRecords';
 import type { TEditCourse } from '@/types/report/academicRecordsForm';
@@ -56,11 +57,17 @@ export default function CourseRow({ course, hasDualMajor1, editMode, isSaving, o
     if (column.key === 'grade') {
       return (
         <Select
-          options={ALLOWED_GRADES}
+          options={ALLOWED_GRADES.map((grade) => GRADE_LABELS[grade] ?? grade)}
           placeholder="성적"
-          value={course.grade}
+          value={GRADE_LABELS[course.grade] ?? course.grade}
           disabled={isSaving}
-          onChange={(event) => onChange('grade', event.target.value)}
+          onChange={(event) =>
+            onChange(
+              'grade',
+              ALLOWED_GRADES.find((grade) => (GRADE_LABELS[grade] ?? grade) === event.target.value) ??
+                event.target.value,
+            )
+          }
         />
       );
     }
@@ -71,6 +78,7 @@ export default function CourseRow({ course, hasDualMajor1, editMode, isSaving, o
         value={course[column.key]}
         disabled={isSaving}
         onChange={(event) => onChange(column.key, event.target.value)}
+        {...(column.key === 'courseCode' && { maxLength: 8, pattern: '[A-Z0-9]{1,8}' })}
         {...(column.key === 'credits' && { type: 'number', min: 0 })}
       />
     );
@@ -81,6 +89,7 @@ export default function CourseRow({ course, hasDualMajor1, editMode, isSaving, o
     if (column.key === 'retake') {
       return <input type="checkbox" checked={course.retake === 'O'} disabled className="h-4 w-4 accent-primary-60" />;
     }
+    if (column.key === 'grade') return GRADE_LABELS[course.grade] ?? course.grade;
     return course[column.key];
   };
 

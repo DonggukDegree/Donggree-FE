@@ -83,7 +83,15 @@ export default function useAcademicRecordsEditor(data: TGetUserReportsResult) {
 
   const changeCourse = (semesterId: string, courseId: string, field: keyof TEditCourse, value: string | number) => {
     // 학점만 숫자 필드다. 빈 문자열·문자 입력은 0으로 떨어뜨린다.
-    const parsed = field === 'credits' ? Number(value) || 0 : value;
+    const parsed =
+      field === 'credits'
+        ? Number(value) || 0
+        : field === 'courseCode'
+          ? String(value)
+              .toUpperCase()
+              .replace(/[^A-Z0-9]/g, '')
+              .slice(0, 8)
+          : value;
     setDrafts((prev) =>
       prev.map((semester) =>
         semester.id === semesterId
