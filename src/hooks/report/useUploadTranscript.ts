@@ -41,15 +41,14 @@ export default function useUploadTranscript() {
         navigate('/graduation');
         return;
       }
-      const needsGradeReview = (data.result.gradeReviewCourses?.length ?? 0) > 0;
       openAlert({
         icon: Warning,
         title: modal.title,
         subtitle: modal.subtitle,
         description: modal.description,
-        buttonText: needsGradeReview ? '학업정보 확인' : '리포트 보기',
+        buttonText: '학업정보 수정',
         buttonVariant: 'primary',
-        onConfirm: () => navigate(needsGradeReview ? '/my-page/academic-records' : '/graduation'),
+        onConfirm: () => navigate('/my-page/academic-records'),
       });
     },
     onError: (error, { attemptId, generation }) => {

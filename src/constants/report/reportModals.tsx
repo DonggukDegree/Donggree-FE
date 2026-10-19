@@ -79,13 +79,13 @@ export const CREDIT_GAP_MODAL = {
   positive: (creditGap: number): TReportModalContent => ({
     title: '동그리가 정확한 분석에 실패했어요',
     subtitle: <>동그리가 찾은 학점이 실제 취득한 학점보다 {highlightCredit(creditGap)} 모자라요.</>,
-    description: `지금 제공하는 리포트는 정확하지 않을 수 있어요.\n학업정보관리에서 누락된 과목을 추가해주세요.`,
+    description: `지금 제공하는 리포트는 정확하지 않을 수 있어요.\n학업정보 수정에서 누락된 과목을 추가해주세요.`,
   }),
   // 음수: 인식된 취득학점 합 > PDF 총취득학점 → 과목이 더 많이 인식됨(중복 등)
   negative: (creditGap: number): TReportModalContent => ({
     title: '동그리가 정확한 분석에 실패했어요',
     subtitle: <>동그리가 찾은 학점이 실제 취득한 학점보다 {highlightCredit(Math.abs(creditGap))} 많아요.</>,
-    description: `지금 제공하는 리포트는 정확하지 않을 수 있어요. \n정확한 진단을 위해 고객지원에 문의해주세요.`,
+    description: `지금 제공하는 리포트는 정확하지 않을 수 있어요.\n학업정보 수정에서 중복되거나 잘못 입력된 과목을 확인해주세요.`,
   }),
 };
 
@@ -102,9 +102,14 @@ export const UNSUPPORTED_MAJOR_MODAL: TReportModalContent = {
 
 /** F 평가방식 추론이 모호하거나 원문 요약과 맞지 않는 경우의 확인 안내. */
 export const GRADE_REVIEW_MODAL = {
-  forCourses: (courses: string[]): TReportModalContent => ({
+  forCount: (count: number): TReportModalContent => ({
     title: '일부 F 과목의 평가방식을 확인해주세요',
     subtitle: 'F 과목의 평가방식에 따라 평점 계산이 달라져요.',
-    description: `${courses.join('\n')}\n\n등급평가인지 P/F 평가인지 구분하지 못했어요.\n우선 F(등급)으로 저장했으니 학업정보관리에서 확인해주세요.\nP/F 과목의 F는 F(NP)로 변경해주세요.`,
+    description: `확인하지 못한 ${count}개 과목은 우선 F(등급)으로 저장했어요.\n학업정보 수정에서 F(등급)·F(NP)를 확인해주세요.`,
+  }),
+  withCreditGap: (creditGap: number): TReportModalContent => ({
+    title: '동그리가 정확한 분석에 실패했어요',
+    subtitle: '취득학점과 일부 F 과목의 확인이 필요해요',
+    description: `인식한 취득학점이 원문보다 ${Math.abs(creditGap)}학점 ${creditGap > 0 ? '모자라고' : '많고'}, 일부 F의 평가방식을 구분하지 못했어요.\n학업정보 수정에서 과목 내역과 F(등급)·F(NP)를 확인해주세요.`,
   }),
 };

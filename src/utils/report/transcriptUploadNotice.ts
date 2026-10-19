@@ -14,9 +14,6 @@ export const buildTranscriptUploadNotice = ({
         : CREDIT_GAP_MODAL.negative(creditGap);
   // 이전 서버 응답과 배포 순서가 엇갈려도 업로드 결과를 정상 표시한다.
   if (!gradeReviewCourses?.length) return creditNotice;
-  const gradeNotice = GRADE_REVIEW_MODAL.forCourses(
-    gradeReviewCourses.map((course) => `${course.semester} ${course.courseName} (${course.courseCode})`),
-  );
-  if (!creditNotice) return gradeNotice;
-  return { ...creditNotice, description: `${creditNotice.description}\n\n${gradeNotice.description}` };
+  if (creditGap !== 0) return GRADE_REVIEW_MODAL.withCreditGap(creditGap);
+  return GRADE_REVIEW_MODAL.forCount(gradeReviewCourses.length);
 };
