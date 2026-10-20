@@ -19,6 +19,9 @@ export default function ModalProvider() {
       const error = alertContent.analyticsError;
       trackOncePerVisit('error_shown', error, alertContent.analyticsDisplayId);
     }
+    if (type === 'alert' && alertContent?.analyticsNotice) {
+      trackOncePerVisit('transcript_notice_shown', alertContent.analyticsNotice, alertContent.analyticsDisplayId);
+    }
   }, [type, alertContent]);
 
   if (type === 'alert') return <Modal />;

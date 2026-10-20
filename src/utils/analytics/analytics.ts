@@ -65,6 +65,7 @@ export const initGA = () => {
   disable(true);
   if (guarded || typeof window === 'undefined') return;
   guarded = true;
+  document.title = pageParams().page_title;
   // 실제 주소 변경 전에 차단한다. 허용은 전역 동기화 이후에만 한다.
   for (const method of ['pushState', 'replaceState'] as const) {
     const original = window.history[method].bind(window.history);
@@ -183,10 +184,14 @@ const sanitizeParams = (params: Record<string, unknown>) => {
       Number.isFinite(value)
     )
       result[key] = value;
+    if (key === 'grade_review_count' && typeof value === 'number' && Number.isInteger(value) && value >= 0)
+      result[key] = value;
+    if (key === 'placement' && ['hero', 'bottom'].includes(String(value))) result[key] = value;
+    if (key === 'notice_reason' && ['credit_gap', 'grade_review', 'both'].includes(String(value))) result[key] = value;
     if (['credit_gap_ok', 'graduated'].includes(key) && typeof value === 'boolean') result[key] = value;
     if (key === 'method' && value === 'kakao') result[key] = value;
     if (key === 'attempt_id' && typeof value === 'string' && /^[a-z0-9-]{12,64}$/i.test(value)) result[key] = value;
-    if (key === 'source' && ERROR_SOURCES.includes(value as (typeof ERROR_SOURCES)[number])) result[key] = value;
+    if (key === 'error_source' && ERROR_SOURCES.includes(value as (typeof ERROR_SOURCES)[number])) result[key] = value;
     if (
       key === 'code' &&
       typeof value === 'string' &&

@@ -134,7 +134,7 @@ export default function UploadPage() {
                       setFile(selected);
                     } else if (selected) {
                       toast.error('PDF 파일만 업로드할 수 있습니다.');
-                      trackEvent('error_shown', { source: 'transcript_upload', code: 'INVALID_PDF', status: 0 });
+                      trackEvent('error_shown', { error_source: 'transcript_upload', code: 'INVALID_PDF', status: 0 });
                     }
                     e.target.value = '';
                   }}

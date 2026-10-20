@@ -15,8 +15,9 @@ export default function NotFound({ error, source = 'not_found' }: { error?: unkn
   const { state } = useLocation();
   useEffect(() => {
     const params =
-      state?.analyticsError ?? (error ? analyticsError(source, error) : { source, code: 'NOT_FOUND', status: 0 });
-    trackOncePerVisit('error_shown', params, `${params.source}:${params.code}:${params.status}`);
+      state?.analyticsError ??
+      (error ? analyticsError(source, error) : { error_source: source, code: 'NOT_FOUND', status: 0 });
+    trackOncePerVisit('error_shown', params, `${params.error_source}:${params.code}:${params.status}`);
   }, [error, source, state]);
   const navigate = useNavigate();
   return (

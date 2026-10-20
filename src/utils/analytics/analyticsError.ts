@@ -12,7 +12,7 @@ export const analyticsError = (source: TErrorSource, error?: unknown) => {
       : status
         ? 'UNKNOWN_ERROR'
         : 'NETWORK_ERROR';
-  return { source, code, status };
+  return { error_source: source, code, status };
 };
 export const trackErrorShown = (source: TErrorSource, error?: unknown, once = false) => {
   const params = analyticsError(source, error);

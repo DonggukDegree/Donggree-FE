@@ -61,7 +61,7 @@ export default function AuthCallback() {
         status: 0,
       });
       toast.error('로그인에 실패했어요. 다시 시도해주세요.');
-      trackEvent('error_shown', { source: 'login', code: failed ? 'LOGIN_FAILED' : 'MISSING_TOKEN', status: 0 });
+      trackEvent('error_shown', { error_source: 'login', code: failed ? 'LOGIN_FAILED' : 'MISSING_TOKEN', status: 0 });
       navigate('/login', { replace: true });
       return;
     }

@@ -21,6 +21,9 @@ export const PAGE_NAMES: Record<string, string> = {
 };
 export const EVENT_NAMES = {
   page_view: '화면 조회',
+  start_click: '홈 시작 버튼 클릭',
+  transcript_notice_shown: '성적표 확인 안내 표시',
+  transcript_notice_confirm: '성적표 확인 안내에서 학업정보 수정 선택',
   login_click: '로그인 버튼 클릭',
   login_success: '로그인 성공',
   login_failure: '로그인 실패',
@@ -43,6 +46,12 @@ export const EVENT_NAMES = {
   unsupported_major_notice: '판정 정확도 유의사항 표시',
 } as const;
 export type TAnalyticsEvent = keyof typeof EVENT_NAMES;
+export type TTranscriptNoticeParams = {
+  attempt_id: string;
+  notice_reason: 'credit_gap' | 'grade_review' | 'both';
+  credit_gap: number;
+  grade_review_count: number;
+};
 export const ERROR_SOURCES = [
   'login',
   'transcript_upload',

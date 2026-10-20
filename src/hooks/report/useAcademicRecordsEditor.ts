@@ -111,7 +111,7 @@ export default function useAcademicRecordsEditor(data: TGetUserReportsResult) {
     const result = buildCourseUpdate(drafts);
     if (!result.ok) {
       if (result.error) toast.error(result.error);
-      trackEvent('error_shown', { source: 'academic_records', code: 'VALIDATION_ERROR', status: 0 });
+      trackEvent('error_shown', { error_source: 'academic_records', code: 'VALIDATION_ERROR', status: 0 });
       return;
     }
 
