@@ -11,10 +11,15 @@ import HomeReportPreview from '@/components/home/homeReportPreview';
 import HomeSteps from '@/components/home/homeSteps';
 import useHomeMotion from '@/hooks/home/useHomeMotion';
 import useSurveyPrompt from '@/hooks/survey/useSurveyPrompt';
+import { trackEvent } from '@/utils/analytics/analytics';
 
 export default function Home() {
   useSurveyPrompt();
   const navigate = useNavigate();
+  const start = (placement: 'hero' | 'bottom') => {
+    trackEvent('start_click', { placement });
+    navigate('/graduation');
+  };
   const container = useRef<HTMLElement>(null);
   useHomeMotion(container);
 
@@ -37,7 +42,7 @@ export default function Home() {
               <br className="hidden lg:block" /> 부족한 학점과 필수 과목을 한눈에 보여드려요.
             </p>
             <div className="home-actions" data-hero-enter>
-              <Button className="home-start-button" onClick={() => navigate('/graduation')}>
+              <Button className="home-start-button" onClick={() => start('hero')}>
                 졸업 판정 시작하기 <span aria-hidden="true">↗</span>
               </Button>
               <a
@@ -95,7 +100,7 @@ export default function Home() {
           </p>
         </div>
         <div className="home-closing-actions" data-home-reveal>
-          <Button className="home-start-button" onClick={() => navigate('/graduation')}>
+          <Button className="home-start-button" onClick={() => start('bottom')}>
             내 졸업 요건 확인하기 <span aria-hidden="true">↗</span>
           </Button>
           <Link className="home-text-link text-button-s" to="/faq">

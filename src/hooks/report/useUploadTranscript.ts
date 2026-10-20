@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 
 import { putTranscript } from '@/apis/report/report';
 import Warning from '@/assets/icons/warning.svg?react';
+import type { TTranscriptNoticeParams } from '@/constants/analytics';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { TRANSCRIPT_ERROR_MODAL } from '@/constants/report/reportModals';
 import { useCoreMutation } from '@/hooks/customQuery';
@@ -41,14 +42,26 @@ export default function useUploadTranscript() {
         navigate('/graduation');
         return;
       }
+      const noticeReason =
+        creditGap !== 0 ? (data.result.gradeReviewCourses?.length ? 'both' : 'credit_gap') : 'grade_review';
+      const analyticsNotice: TTranscriptNoticeParams = {
+        attempt_id: attemptId,
+        notice_reason: noticeReason,
+        credit_gap: creditGap,
+        grade_review_count: data.result.gradeReviewCourses?.length ?? 0,
+      };
       openAlert({
+        analyticsNotice,
         icon: Warning,
         title: modal.title,
         subtitle: modal.subtitle,
         description: modal.description,
         buttonText: '학업정보 수정',
         buttonVariant: 'primary',
-        onConfirm: () => navigate('/my-page/academic-records'),
+        onConfirm: () => {
+          trackEvent('transcript_notice_confirm', analyticsNotice);
+          navigate('/my-page/academic-records');
+        },
       });
     },
     onError: (error, { attemptId, generation }) => {
@@ -85,7 +98,7 @@ export default function useUploadTranscript() {
     if (submitting.current) return;
     if (file.type !== 'application/pdf' || file.size === 0) {
       toast.error('내용이 있는 PDF 파일을 선택해주세요.');
-      trackEvent('error_shown', { source: 'transcript_upload', code: 'INVALID_PDF', status: 0 });
+      trackEvent('error_shown', { error_source: 'transcript_upload', code: 'INVALID_PDF', status: 0 });
       return;
     }
     submitting.current = true;

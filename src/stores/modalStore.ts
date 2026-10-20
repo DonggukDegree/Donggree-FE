@@ -7,14 +7,15 @@
 import type { ComponentType, ReactNode, SVGProps } from 'react';
 import { create } from 'zustand';
 
-import type { TErrorSource } from '@/constants/analytics';
+import type { TErrorSource, TTranscriptNoticeParams } from '@/constants/analytics';
 import { createAttemptId } from '@/utils/analytics/analytics';
 
 type TModalType = 'alert' | 'onboarding' | 'confirm' | 'survey';
 
 interface IAlertContent {
   analyticsDisplayId?: string;
-  analyticsError?: { source: TErrorSource; code: string; status: number };
+  analyticsError?: { error_source: TErrorSource; code: string; status: number };
+  analyticsNotice?: TTranscriptNoticeParams;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   title: string;
   // 문구 일부에 색상 강조(span 등)를 넣을 수 있도록 문자열뿐 아니라 ReactNode를 허용한다.
