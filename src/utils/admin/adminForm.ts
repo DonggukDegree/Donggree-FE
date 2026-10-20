@@ -25,6 +25,9 @@ export const EMPTY_RULE_DRAFT: Omit<TGraduationRuleDraft, 'clientId'> = {
   gpaScope: 'TOTAL',
   creditSource: '',
   minCount: '',
+  creditCalculation: 'TOTAL',
+  creditGroups: [],
+  minSatisfiedGroups: '',
   creditAdjustments: [],
   courseType: '',
   areaNames: [],
@@ -211,6 +214,21 @@ export const toRuleDraft = (rule: TAdminGraduationRule): TGraduationRuleDraft =>
     gpaScope: config.gpaScope === 'MAJOR' || config.gpaScope === 'TEACHING' ? config.gpaScope : 'TOTAL',
     creditSource: config.creditSource === 'TEACHING_SUMMARY' ? 'TEACHING_SUMMARY' : '',
     minCount: readString(config.minCount),
+    creditCalculation: Array.isArray(config.creditGroups) ? 'GROUPS' : 'TOTAL',
+    minSatisfiedGroups: readString(config.minSatisfiedGroups),
+    creditGroups: Array.isArray(config.creditGroups)
+      ? config.creditGroups.flatMap((item, index) => {
+          if (typeof item !== 'object' || item === null) return [];
+          const group = item as Record<string, unknown>;
+          return [
+            {
+              clientId: `credit-group-${rule.id}-${index}`,
+              courseCodes: readStringArray(group.courseCodes).join(', '),
+              minCredits: readString(group.minCredits),
+            },
+          ];
+        })
+      : [],
     creditAdjustments: Array.isArray(config.creditAdjustments)
       ? config.creditAdjustments.flatMap((item, index) => {
           if (typeof item !== 'object' || item === null) return [];

@@ -76,6 +76,7 @@ export default function GraduationRuleConfigFields({
         MIN_CREDITS: 옛 MIN_AREA_CREDITS + SCIENCE_EXPERIMENT를 합친 규칙.
         선택자끼리는 AND(교집합)로 좁혀지고, 한 선택자 안의 여러 값은 OR(합집합)이다.
         비운 선택자는 그 항목에 제약을 걸지 않는다. 임계값 2종은 AND이며 최소 하나가 있어야 한다.
+        그룹별 계산은 공통 선택자를 통과한 과목을 학수번호 그룹별로 집계하고 지정 수 이상의 그룹 충족을 요구한다.
         pdf* 선택자는 성적표 PDF의 원문 문자열이라 값 목록을 프론트가 확정할 수 없어 콤마 입력으로 받는다.
       */}
       {selectedRuleType?.typeName === 'MIN_CREDITS' && (

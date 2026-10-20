@@ -2,7 +2,7 @@ import type { TCommonResponse } from '@/types/common';
 import type { TCourseType } from '@/types/course';
 
 // MIN_AREA_CREDITS와 SCIENCE_EXPERIMENT는 판정 로직이 같아 서버에서 MIN_CREDITS 하나로 합쳐졌다.
-// (선택자 OR × 임계값 AND 구조. 자세한 config 스키마는 graduationRuleConfigFields 주석 참고)
+// 합산 계산 또는 학수번호 그룹별 최소학점·필수 충족 그룹 수로 판정한다.
 export type TRuleTypeName =
   | 'TOTAL_CREDITS'
   | 'GPA'

@@ -10,6 +10,8 @@ export type TRuleConfigByType = {
   MIN_CREDITS: {
     minCredits?: number;
     minCount?: number;
+    creditGroups?: { courseCodes: string[]; minCredits: number }[];
+    minSatisfiedGroups?: number;
     creditSource?: 'TEACHING_SUMMARY';
     courseType?: TCourseType;
     areaNames?: string[];
