@@ -13,6 +13,9 @@ export type TGraduationRuleDraft = {
   gpaScope: 'TOTAL' | 'MAJOR' | 'TEACHING';
   creditSource: '' | 'TEACHING_SUMMARY';
   minCount: string;
+  creditCalculation: 'TOTAL' | 'GROUPS';
+  creditGroups: TCreditGroupDraft[];
+  minSatisfiedGroups: string;
   creditAdjustments: TCreditAdjustmentDraft[];
   courseType: TCourseType | '';
   // MIN_CREDITS 선택자 5종. areaNames만 area-types 다중선택이고, 나머지는 콤마 구분 입력이다.
@@ -33,6 +36,12 @@ export type TGraduationRuleDraft = {
   exemptStudentTypes: string;
   exemptCourseCodes: string;
   requiredCourseSetsText: string;
+};
+
+export type TCreditGroupDraft = {
+  clientId: string;
+  courseCodes: string;
+  minCredits: string;
 };
 
 export type TCreditAdjustmentDraft = {

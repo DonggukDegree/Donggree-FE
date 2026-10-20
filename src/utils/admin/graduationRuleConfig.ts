@@ -24,6 +24,12 @@ import {
 
 const success = <T>(value: T): TValidationResult<T> => ({ ok: true, value });
 
+// 서로 다른 그룹에 같은 과목이 들어갈 수 있는 exact/prefix 조합을 거절한다.
+const codePatternsOverlap = (left: string, right: string) =>
+  left === right ||
+  (left.endsWith('*') && right.startsWith(left.slice(0, -1))) ||
+  (right.endsWith('*') && left.startsWith(right.slice(0, -1)));
+
 // 규칙 종류(typeName)별로 폼 입력값을 검증해 API용 ruleConfig를 조립한다. 실패 원인만 반환.
 const buildRuleConfig = (
   draft: TGraduationRuleDraft,
@@ -76,8 +82,9 @@ const buildRuleConfig = (
         applicableMajorRoles: draft.applicableMajorRoles,
       });
     }
+    const grouped = draft.creditCalculation === 'GROUPS';
     const minCount = toPositiveInteger(draft.minCount);
-    if (!minCredits && !minCount) {
+    if (!grouped && !minCredits && !minCount) {
       return { ok: false, error: `${rowLabel}의 최소 학점 또는 최소 과목 수 중 하나는 입력해주세요.` };
     }
     if (draft.applicableMajorRoles.length === 0) {
@@ -88,6 +95,46 @@ const buildRuleConfig = (
     const pdfCourseTypeNames = splitList(draft.pdfCourseTypeNames);
     const pdfAreaNames = splitList(draft.pdfAreaNames);
     const courseCodes = splitList(draft.courseCodes);
+    if (grouped) {
+      const minSatisfiedGroups = toPositiveInteger(draft.minSatisfiedGroups);
+      if (!minSatisfiedGroups || minSatisfiedGroups > draft.creditGroups.length) {
+        return { ok: false, error: `${rowLabel}의 필수 충족 그룹 수를 1부터 전체 그룹 수 사이로 입력해주세요.` };
+      }
+      const creditGroups: NonNullable<TRuleConfigByType['MIN_CREDITS']['creditGroups']> = [];
+      for (const [index, group] of draft.creditGroups.entries()) {
+        const codes = splitList(group.courseCodes);
+        const credits = toPositiveInteger(group.minCredits);
+        if (
+          !credits ||
+          credits > 2147483647 ||
+          codes.length === 0 ||
+          codes.some((code) => !/^[A-Z0-9]{1,8}\*?$/.test(code))
+        ) {
+          return {
+            ok: false,
+            error: `${rowLabel}의 그룹 ${index + 1} 학수번호와 최소학점을 확인해주세요. 학수번호는 영문 대문자·숫자 최대 8자리와 끝의 *만 허용합니다.`,
+          };
+        }
+        if (
+          creditGroups.some((previous) =>
+            previous.courseCodes.some((left) => codes.some((right) => codePatternsOverlap(left, right))),
+          )
+        ) {
+          return { ok: false, error: `${rowLabel}의 그룹 ${index + 1} 학수번호 조건이 다른 그룹과 겹칩니다.` };
+        }
+        creditGroups.push({ courseCodes: codes, minCredits: credits });
+      }
+      return success<TRuleConfigByType['MIN_CREDITS']>({
+        ...(draft.courseType ? { courseType: draft.courseType } : {}),
+        ...(draft.areaNames.length > 0 ? { areaNames: draft.areaNames } : {}),
+        ...(subCategories.length > 0 ? { subCategories } : {}),
+        ...(pdfCourseTypeNames.length > 0 ? { pdfCourseTypeNames } : {}),
+        ...(pdfAreaNames.length > 0 ? { pdfAreaNames } : {}),
+        applicableMajorRoles: draft.applicableMajorRoles,
+        creditGroups,
+        minSatisfiedGroups,
+      });
+    }
     let creditAdjustments: TCreditAdjustment[] | undefined;
     const populatedAdjustments = draft.creditAdjustments.filter(
       (adjustment) =>

@@ -56,6 +56,21 @@ describe('기존 규칙의 편집·저장 호환', () => {
     ['MIN_CREDITS', { creditSource: 'TEACHING_SUMMARY', minCredits: 22, applicableMajorRoles: ['SINGLE_PRIMARY'] }],
     [
       'MIN_CREDITS',
+      {
+        courseType: 'FIRST_MAJOR',
+        pdfCourseTypeNames: ['전필', '전선'],
+        creditGroups: [
+          { courseCodes: ['ABC*', '7777700'], minCredits: 27 },
+          { courseCodes: ['DEF*'], minCredits: 27 },
+          { courseCodes: ['GHI*'], minCredits: 24 },
+          { courseCodes: ['JKL*', 'DEV11079'], minCredits: 21 },
+        ],
+        minSatisfiedGroups: 2,
+        applicableMajorRoles: ['SINGLE_PRIMARY', 'SECONDARY'],
+      },
+    ],
+    [
+      'MIN_CREDITS',
       { minCount: 2, pdfCourseTypeNames: ['직필'], pdfAreaNames: ['교직필수'], applicableMajorRoles: ['DUAL_PRIMARY'] },
     ],
     [
@@ -164,5 +179,96 @@ describe('기존 규칙의 편집·저장 호환', () => {
     expect(toNumber(' ')).toBeNull();
     expect(toNumber('0')).toBe(0);
     expect(itemFromDraft(draft({ minGpa: '0' }), 0, [ruleType('GPA')])).toBeNull();
+  });
+});
+
+describe('그룹별 최소학점 설정', () => {
+  const grouped = (overrides: Partial<TGraduationRuleDraft> = {}) =>
+    draft({
+      creditCalculation: 'GROUPS',
+      creditGroups: [
+        { clientId: 'a', courseCodes: 'ABC*', minCredits: '27' },
+        { clientId: 'b', courseCodes: 'DEF*', minCredits: '27' },
+      ],
+      minSatisfiedGroups: '2',
+      ...overrides,
+    });
+  const build = (value: TGraduationRuleDraft) => buildRuleUpsertItem(value, 0, [ruleType('MIN_CREDITS')]);
+
+  it.each(['ABC*', 'ABC1*', 'ABC1001', 'AB*'])('다른 그룹의 겹치는 패턴 %s 차단', (pattern) => {
+    expect(
+      build(
+        grouped({
+          creditGroups: [
+            { clientId: 'a', courseCodes: 'ABC*', minCredits: '27' },
+            { clientId: 'b', courseCodes: pattern, minCredits: '27' },
+          ],
+        }),
+      ),
+    ).toMatchObject({ ok: false, error: expect.stringContaining('겹칩니다') });
+  });
+
+  it.each(['', '0', '-1', '3', '1.5'])('잘못된 충족 그룹 수 %s 차단', (count) => {
+    expect(build(grouped({ minSatisfiedGroups: count })).ok).toBe(false);
+  });
+
+  it.each(['', 'abc*', '*', 'AB*C', 'ABC-01', 'ABCDEFGHI', 'ABC**'])('잘못된 그룹 학수번호 %s 차단', (pattern) => {
+    expect(
+      build(
+        grouped({ creditGroups: [{ clientId: 'a', courseCodes: pattern, minCredits: '27' }], minSatisfiedGroups: '1' }),
+      ).ok,
+    ).toBe(false);
+  });
+
+  it.each(['', '0', '-1', '1.5', '2147483648'])('잘못된 그룹 최소학점 %s 차단', (credits) => {
+    expect(
+      build(
+        grouped({
+          creditGroups: [{ clientId: 'a', courseCodes: 'ABC*', minCredits: credits }],
+          minSatisfiedGroups: '1',
+        }),
+      ).ok,
+    ).toBe(false);
+  });
+
+  it('그룹 삭제로 충족 그룹 수가 전체보다 커지면 저장 차단', () => {
+    expect(build(grouped({ creditGroups: [{ clientId: 'a', courseCodes: 'ABC*', minCredits: '27' }] })).ok).toBe(false);
+  });
+
+  it('합산 입력과 감면을 남겨두고 모드를 바꿔도 그룹 설정만 전송', () => {
+    const result = build(
+      grouped({
+        minCredits: '54',
+        minCount: '2',
+        courseCodes: 'ZZZ*',
+        creditAdjustments: [{ clientId: 'old', requiredCourseCodes: 'A', replacementCourseCodes: 'B', credits: '3' }],
+      }),
+    );
+    expect(result).toMatchObject({
+      ok: true,
+      value: {
+        ruleConfig: {
+          creditGroups: [
+            { courseCodes: ['ABC*'], minCredits: 27 },
+            { courseCodes: ['DEF*'], minCredits: 27 },
+          ],
+          minSatisfiedGroups: 2,
+          applicableMajorRoles: ['SINGLE_PRIMARY'],
+        },
+      },
+    });
+    if (result.ok) {
+      expect(result.value.ruleConfig).not.toHaveProperty('minCredits');
+      expect(result.value.ruleConfig).not.toHaveProperty('minCount');
+      expect(result.value.ruleConfig).not.toHaveProperty('courseCodes');
+      expect(result.value.ruleConfig).not.toHaveProperty('creditAdjustments');
+    }
+  });
+
+  it('합산 모드로 바꾸면 이전 그룹 조건은 전송하지 않음', () => {
+    const result = build(grouped({ creditCalculation: 'TOTAL', minCredits: '54' }));
+    expect(result).toMatchObject({ ok: true });
+    if (result.ok)
+      expect(result.value.ruleConfig).toEqual({ minCredits: 54, applicableMajorRoles: ['SINGLE_PRIMARY'] });
   });
 });
