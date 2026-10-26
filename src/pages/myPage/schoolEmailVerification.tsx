@@ -19,32 +19,23 @@ export default function SchoolEmailVerification() {
 
   return (
     <div className="flex w-full flex-col items-center justify-center gap-8 p-6 text-coolgray-90 lg:gap-12 lg:p-20">
-      {data.schoolEmailVerified ? (
-        <VerificationComplete />
-      ) : data.identityVerified ? (
-        <VerificationComplete pdfVerified />
-      ) : (
-        <SchoolEmailForm />
-      )}
+      {/* PDF 본인 인증 회원도 학교 이메일을 별도로 인증할 수 있다. */}
+      {data.schoolEmailVerified ? <VerificationComplete /> : <SchoolEmailForm />}
     </div>
   );
 }
 
 /** 인증 직후와 재조회 후에 같은 완료 화면을 표시한다. */
-function VerificationComplete({ pdfVerified = false }: { pdfVerified?: boolean }) {
+function VerificationComplete() {
   const navigate = useNavigate();
   return (
     <>
       <Check aria-hidden="true" className="h-10 w-10 shrink-0 lg:h-20 lg:w-20" />
       <div role="status" className="flex w-full flex-col items-center gap-3 text-center lg:gap-4">
         <h1 className="text-heading-4 lg:text-heading-2">인증 완료</h1>
-        <p className="text-heading-6 lg:text-heading-4">
-          {pdfVerified ? '성적표로 본인 인증을 완료했어요.' : '학교 이메일 인증이 정상적으로 완료 되었어요.'}
-        </p>
+        <p className="text-heading-6 lg:text-heading-4">학교 이메일 인증이 정상적으로 완료 되었어요.</p>
         <p className="whitespace-pre-line text-body-s text-coolgray-60 lg:text-body-l">
-          {pdfVerified
-            ? '학교 이메일을 추가로 인증할 필요가 없어요.'
-            : '이제 동그리의 다양한 서비스를 사용할 수 있어요.\n사용하다가 미흡한 점이 있으면 고객지원에 문의해주세요.'}
+          {'이제 동그리의 다양한 서비스를 사용할 수 있어요.\n사용하다가 미흡한 점이 있으면 고객지원에 문의해주세요.'}
         </p>
       </div>
       <Button className="w-40 max-w-full" onClick={() => navigate('/my-page/profile')}>

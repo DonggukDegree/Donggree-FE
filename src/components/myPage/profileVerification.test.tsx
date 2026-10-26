@@ -27,10 +27,12 @@ describe('프로필 인증 표시', () => {
     state.isPending = false;
   });
 
-  it('본인 인증 칩 아래에 학교 이메일 인증 버튼 표시', () => {
+  it('본인 인증 칩 아래에 학교 이메일 미완료 칩과 인증 버튼 표시', () => {
     const html = render();
+    expect(html).toContain('학교 이메일 인증 미완료');
     expect(html).toContain('학교 이메일로 인증하기');
-    expect(html.indexOf('본인 인증 미완료')).toBeLessThan(html.indexOf('학교 이메일로 인증하기'));
+    expect(html.indexOf('본인 인증 미완료')).toBeLessThan(html.indexOf('학교 이메일 인증 미완료'));
+    expect(html.indexOf('학교 이메일 인증 미완료')).toBeLessThan(html.indexOf('학교 이메일로 인증하기'));
   });
 
   it('학교 이메일 인증 완료 시 버튼 대신 초록색 칩 표시, PDF 미인증 유지', () => {
@@ -39,6 +41,7 @@ describe('프로필 인증 표시', () => {
     expect(html).toContain('본인 인증 미완료');
     expect(html).toContain('학교 이메일 인증 완료');
     expect(html).toContain('bg-chip-green-bg text-chip-green');
+    expect(html).not.toContain('학교 이메일 인증 미완료');
     expect(html).not.toContain('학교 이메일로 인증하기');
   });
 
@@ -49,11 +52,12 @@ describe('프로필 인증 표시', () => {
     expect(html).toContain('학교 이메일 인증 완료');
   });
 
-  it('PDF 본인 인증만 완료한 경우 추가 이메일 인증 요청을 제공하지 않음', () => {
+  it('PDF 본인 인증만 완료한 경우에도 학교 이메일 미완료와 인증 버튼 표시', () => {
     const html = render(true);
     expect(html).toContain('본인 인증 완료');
+    expect(html).toContain('학교 이메일 인증 미완료');
+    expect(html).toContain('학교 이메일로 인증하기');
     expect(html).not.toContain('학교 이메일 인증 완료');
-    expect(html).not.toContain('학교 이메일로 인증하기');
   });
 
   it('인증 상태 조회 중에는 인증 버튼 비활성화', () => {

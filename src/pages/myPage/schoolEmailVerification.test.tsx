@@ -54,11 +54,12 @@ describe('학교 이메일 인증 화면', () => {
     expect(html).not.toContain('school-email-code');
   });
 
-  it('PDF 본인 인증 회원에게 입력 폼 대신 완료 안내 표시', () => {
+  it('PDF 본인 인증 회원에게도 학교 이메일 입력 폼 표시', () => {
     state.status.identityVerified = true;
     const html = render();
-    expect(html).toContain('추가로 인증할 필요가 없어요');
-    expect(html).not.toContain('<input');
+    expect(html).toContain('>학교 이메일 인증</h1>');
+    expect(html).toContain('school-email-id');
+    expect(html).not.toContain('>인증 완료</h1>');
   });
 
   it('학교 이메일 인증 회원에게 요청한 완료 문구와 닫기 버튼 표시', () => {
