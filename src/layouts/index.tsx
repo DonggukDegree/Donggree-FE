@@ -7,6 +7,7 @@
  * iPhone은 셸이 화면을 꽉 채우고, iPad 세로(768)처럼 셸보다 넓은 화면은 좌우가 흰 배경으로 남는다.
  * lg 이상에서는 상한을 풀어 기존 PC 레이아웃 그대로 둔다.
  * 단 관리자 화면은 PC 전용이라 셸을 씌우면 표가 오히려 더 좁아지므로 상한에서 제외한다.
+ * 동글맵은 헤더 아래 화면 전체가 지도라 폭 상한·푸터·페이지 스크롤을 모두 뺀다.
  */
 import { Suspense } from 'react';
 import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
@@ -19,16 +20,21 @@ import Header from '@/layouts/header';
 export default function Layout() {
   const { pathname } = useLocation();
   const isAdminPage = pathname.startsWith('/admin');
+  const isMapPage = pathname === '/map';
 
   return (
-    <div className="w-full min-h-dvh flex flex-col bg-white">
+    <div className={`w-full flex flex-col bg-white ${isMapPage ? 'h-dvh overflow-hidden' : 'min-h-dvh'}`}>
       {/* 셸. flex-1 + flex-col을 이어받아야 화면이 짧은 페이지(404 등)의 flex-1이 그대로 동작한다. */}
-      <div className={`mx-auto w-full flex-1 flex flex-col ${isAdminPage ? 'max-w-none' : 'max-w-160 lg:max-w-none'}`}>
+      <div
+        className={`mx-auto w-full flex-1 flex flex-col ${
+          isAdminPage || isMapPage ? 'max-w-none' : 'max-w-160 lg:max-w-none'
+        } ${isMapPage ? 'min-h-0' : ''}`}
+      >
         <Header />
         <Suspense fallback={<Loading />}>
           <Outlet />
         </Suspense>
-        <Footer />
+        {!isMapPage && <Footer />}
       </div>
       {/* 모달·토스트는 셸이 아니라 뷰포트 기준으로 떠야 하므로 셸 밖에 둔다. */}
       <ModalProvider />

@@ -24,6 +24,7 @@ import {
   AdminGraduationRequirements,
   AdminReportPreview,
   Curriculum,
+  DonggleMap,
   Faq,
   Graduation,
   MyPage,
@@ -87,6 +88,11 @@ export const router = createBrowserRouter([
           {
             path: 'curriculum',
             element: tracked(<Curriculum />),
+          },
+          // 동글맵은 로그인 회원 누구나 열람한다. 장소 등록 등 쓰기 권한은 화면·서버에서 따로 확인한다.
+          {
+            path: 'map',
+            element: tracked(<DonggleMap />),
           },
           // 졸업 판정은 성적표가 있어야 의미가 있으므로 리포트 게이트를 한 번 더 통과시킨다.
           {

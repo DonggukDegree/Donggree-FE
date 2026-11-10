@@ -6,6 +6,10 @@ export const QUERY_KEYS = {
   REPORTS_ROOT: ['reports'] as const,
   GET_REPORT_SUMMARY: ['reports', 'summary'] as const,
   GET_REPORT_BY_COURSE_TYPE: (courseType: string) => ['reports', { courseType }] as const,
+  // 동글맵 장소. 등록·수정 후 이 접두사로 목록과 상세를 함께 무효화한다.
+  PLACES_ROOT: ['places'] as const,
+  GET_PLACES: ['places', 'list'] as const,
+  GET_PLACE_DETAIL: (placeId: number) => ['places', 'detail', placeId] as const,
   FAQS_ROOT: ['faqs'] as const,
   GET_FAQS: (tag: string | null) => ['faqs', { tag }] as const,
   ADMIN_ROOT: ['admin'] as const,

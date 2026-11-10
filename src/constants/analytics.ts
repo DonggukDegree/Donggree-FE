@@ -12,6 +12,7 @@ export const PAGE_NAMES: Record<string, string> = {
   '/my-page/school-email-verification': '학교 이메일 인증',
   '/my-page/academic-records': '학업정보관리',
   '/curriculum': '커리큘럼',
+  '/map': '동글맵',
   '/404': '페이지를 찾을 수 없음',
   '/admin': '관리자',
   '/admin/course-classifications': '관리자 과목 관리',
@@ -44,6 +45,8 @@ export const EVENT_NAMES = {
   school_email_verification_failure: '학교 이메일 인증 실패',
   report_area_tab_click: '리포트 영역 탭 선택',
   unsupported_major_notice: '판정 정확도 유의사항 표시',
+  place_category_select: '동글맵 카테고리 칩 선택',
+  place_select: '동글맵 장소 선택',
 } as const;
 export type TAnalyticsEvent = keyof typeof EVENT_NAMES;
 export type TTranscriptNoticeParams = {
@@ -62,6 +65,7 @@ export const ERROR_SOURCES = [
   'school_email_verification',
   'onboarding',
   'academic_records',
+  'donggle_map',
   'mutation',
   'not_found',
   'server',

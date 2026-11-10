@@ -39,6 +39,21 @@ beforeEach(async () => {
 });
 
 describe('GA 발송 경계', () => {
+  it('동글맵 이벤트는 카테고리 코드만 보내고 장소명·PLACE 오류 코드 외 값은 버림', () => {
+    location.pathname = '/map';
+    analytics.trackEvent('place_select', { place_category: 'CAFE', place_name: '동국반점' });
+    analytics.trackEvent('place_category_select', { place_category: 'UNKNOWN' });
+    analytics.trackEvent('error_shown', { error_source: 'donggle_map', code: 'PLACE404_1', status: 404 });
+    const sent = events();
+    expect(sent.find((event) => event[1] === 'place_select')?.[2]).toMatchObject({ place_category: 'CAFE' });
+    expect(sent.find((event) => event[1] === 'place_select')?.[2]).not.toHaveProperty('place_name');
+    expect(sent.find((event) => event[1] === 'place_category_select')?.[2]).not.toHaveProperty('place_category');
+    expect(sent.find((event) => event[1] === 'error_shown')?.[2]).toMatchObject({
+      error_source: 'donggle_map',
+      code: 'PLACE404_1',
+    });
+  });
+
   it('오류 위치를 error_source로 보내고 캠페인·개인정보 키는 버림', () => {
     analytics.trackEvent('error_shown', {
       error_source: 'transcript_upload',

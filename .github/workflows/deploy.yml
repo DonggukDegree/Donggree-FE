@@ -40,7 +40,7 @@ jobs:
           set +a
           docker run --rm -v "$PWD:/app" -w /app \
             -e CI=true \
-            -e VITE_API_URL -e VITE_GA_ID \
+            -e VITE_API_URL -e VITE_GA_ID -e VITE_KAKAO_MAP_KEY \
             node:22-alpine \
             sh -c "npm install -g pnpm@11.5.0 && pnpm install --frozen-lockfile && pnpm build"
 
