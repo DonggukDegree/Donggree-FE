@@ -1,0 +1,176 @@
+/**
+ * [동글맵] 페이지 (/map)
+ * 로그인 회원 누구나 캠퍼스 주변 장소를 지도에서 본다. 장소 선택은 ?place={id}로 주소창에 남겨
+ * 링크로 공유할 수 있고, 뒤로 가기로 시트를 닫는다.
+ *
+ * 카카오 지도는 표시용으로만 쓰고, 장소 데이터는 동그리 서버에서 받는다.
+ * 레이아웃은 /map에서만 폭 제한·푸터를 풀고 헤더 아래 화면 전체를 지도로 쓴다.
+ */
+import { useEffect, useRef, useState } from 'react';
+import { Map as KakaoMap, useKakaoLoader } from 'react-kakao-maps-sdk';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+
+import School from '@/assets/icons/school.svg?react';
+import Loading from '@/components/common/feedback/loading';
+import PlaceCategoryChips from '@/components/map/placeCategoryChips';
+import PlaceMarkers from '@/components/map/placeMarkers';
+import PlaceSheet from '@/components/map/placeSheet';
+import { CAMPUS_CENTER, MAP_INITIAL_LEVEL, MAP_MAX_LEVEL, MAP_MIN_LEVEL } from '@/constants/place';
+import usePlaces from '@/hooks/place/usePlaces';
+import type { TPlaceCategory, TPlaceSummary } from '@/types/place/TPlace';
+import { trackEvent } from '@/utils/analytics/analytics';
+import { trackErrorShown } from '@/utils/analytics/analyticsError';
+import { filterPlacesByCategory, parsePlaceIdParam } from '@/utils/place/place';
+
+const KAKAO_MAP_KEY = import.meta.env.VITE_KAKAO_MAP_KEY;
+const MAP_ZOOM_BUTTON_CLASS =
+  'flex h-12 w-12 cursor-pointer items-center justify-center text-heading-5 text-coolgray-90 hover:text-primary-60 disabled:cursor-default disabled:text-coolgray-30';
+
+export default function DonggleMap() {
+  // 키가 없으면 SDK를 부르지 않는다. (로더 훅은 조건부로 호출할 수 없어 화면을 나눈다)
+  if (!KAKAO_MAP_KEY) return <MapUnavailable />;
+  return <DonggleMapView appKey={KAKAO_MAP_KEY} />;
+}
+
+function DonggleMapView({ appKey }: { appKey: string }) {
+  const [isSdkLoading, sdkError] = useKakaoLoader({ appkey: appKey, libraries: ['services', 'clusterer'] });
+  if (sdkError) return <MapUnavailable />;
+  if (isSdkLoading) return <Loading />;
+  return <DonggleMapCanvas />;
+}
+
+function DonggleMapCanvas() {
+  const { data: places, isError, error, refetch } = usePlaces();
+  const [category, setCategory] = useState<TPlaceCategory | null>(null);
+  const [level, setLevel] = useState(MAP_INITIAL_LEVEL);
+  const mapRef = useRef<kakao.maps.Map>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const selectedId = parsePlaceIdParam(searchParams.get('place'));
+  const visiblePlaces = filterPlacesByCategory(places ?? [], category);
+
+  useEffect(() => {
+    if (isError) trackErrorShown('donggle_map', error, true);
+  }, [isError, error]);
+
+  // 링크로 바로 들어온 경우에도 선택한 장소가 화면에 보이도록 옮긴다.
+  useEffect(() => {
+    const target = places?.find((place) => place.id === selectedId);
+    if (target) mapRef.current?.panTo(new kakao.maps.LatLng(target.latitude, target.longitude));
+  }, [places, selectedId]);
+
+  // 시트를 처음 열 때만 기록을 쌓아 뒤로 가기로 닫히게 하고, 열린 상태에서 다른 장소를 고르면 교체한다.
+  const openPlace = (place: TPlaceSummary) => {
+    trackEvent('place_select', { place_category: place.category });
+    setSearchParams({ place: String(place.id) }, { replace: selectedId !== null, state: { placeOpened: true } });
+  };
+
+  const closePlace = () => {
+    if ((location.state as { placeOpened?: boolean } | null)?.placeOpened) navigate(-1);
+    else setSearchParams({}, { replace: true });
+  };
+
+  const selectCategory = (next: TPlaceCategory | null) => {
+    trackEvent('place_category_select', { place_category: next ?? 'ALL' });
+    setCategory(next);
+  };
+
+  // 지도 레벨은 숫자가 작을수록 확대. 레벨 변경은 onZoomChanged로 상태에 다시 반영된다.
+  const zoomBy = (delta: number) => {
+    const next = Math.min(MAP_MAX_LEVEL, Math.max(MAP_MIN_LEVEL, level + delta));
+    if (next !== level) mapRef.current?.setLevel(next, { animate: true });
+  };
+
+  const moveToCampus = () => {
+    mapRef.current?.setLevel(MAP_INITIAL_LEVEL);
+    mapRef.current?.panTo(new kakao.maps.LatLng(CAMPUS_CENTER.lat, CAMPUS_CENTER.lng));
+  };
+
+  return (
+    <div className="relative min-h-0 w-full flex-1 overflow-hidden">
+      <KakaoMap
+        ref={mapRef}
+        center={CAMPUS_CENTER}
+        level={MAP_INITIAL_LEVEL}
+        // react-kakao-maps-sdk의 minLevel은 카카오 setMaxLevel(가장 넓게 보는 레벨)에 대응한다. 이름이 반대라 주의.
+        minLevel={MAP_MAX_LEVEL}
+        className="h-full w-full"
+        onZoomChanged={(map) => setLevel(map.getLevel())}
+      >
+        <PlaceMarkers places={visiblePlaces} level={level} selectedId={selectedId} onSelect={openPlace} />
+      </KakaoMap>
+
+      <div className={`absolute inset-x-0 top-3 z-20 ${selectedId !== null ? 'lg:left-100' : ''}`}>
+        <PlaceCategoryChips selected={category} onSelect={selectCategory} />
+      </div>
+
+      {isError && (
+        <div className="absolute inset-x-0 top-16 z-20 flex justify-center px-4">
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="cursor-pointer rounded-full bg-coolgray-90 px-4 py-2 text-body-s text-white shadow-md"
+          >
+            장소를 불러오지 못했어요. 다시 시도
+          </button>
+        </div>
+      )}
+      {places && places.length === 0 && (
+        <p className="absolute inset-x-0 top-16 z-20 mx-auto w-fit rounded-full bg-white px-4 py-2 text-body-s text-coolgray-60 shadow-md">
+          아직 등록된 장소가 없어요.
+        </p>
+      )}
+
+      <div
+        className={`absolute right-4 z-20 flex flex-col gap-3 transition-[bottom] duration-200 ${
+          selectedId !== null ? 'bottom-[calc(42%+16px)] lg:bottom-6' : 'bottom-6'
+        }`}
+      >
+        <div className="flex flex-col overflow-hidden rounded-full bg-white shadow-md">
+          <button
+            type="button"
+            aria-label="지도 확대"
+            onClick={() => zoomBy(-1)}
+            disabled={level <= MAP_MIN_LEVEL}
+            className={MAP_ZOOM_BUTTON_CLASS}
+          >
+            <span aria-hidden="true">+</span>
+          </button>
+          <span aria-hidden="true" className="mx-3 h-px bg-coolgray-10" />
+          <button
+            type="button"
+            aria-label="지도 축소"
+            onClick={() => zoomBy(1)}
+            disabled={level >= MAP_MAX_LEVEL}
+            className={MAP_ZOOM_BUTTON_CLASS}
+          >
+            <span aria-hidden="true">−</span>
+          </button>
+        </div>
+        <button
+          type="button"
+          aria-label="학교로 이동"
+          onClick={moveToCampus}
+          className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white text-coolgray-90 shadow-md hover:text-primary-60"
+        >
+          <School aria-hidden="true" className="h-6 w-6" />
+        </button>
+      </div>
+
+      {selectedId !== null && <PlaceSheet key={selectedId} placeId={selectedId} onClose={closePlace} />}
+    </div>
+  );
+}
+
+function MapUnavailable() {
+  return (
+    <div className="flex flex-1 items-center justify-center p-6">
+      <p className="text-center text-body-m text-coolgray-60">
+        지도를 불러오지 못했어요.
+        <br />
+        잠시 후 다시 시도해주세요.
+      </p>
+    </div>
+  );
+}

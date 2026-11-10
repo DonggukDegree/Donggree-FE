@@ -10,6 +10,7 @@ import { lazy } from 'react';
 
 export const Faq = lazy(() => import('@/pages/faq'));
 export const Curriculum = lazy(() => import('@/pages/curriculum'));
+export const DonggleMap = lazy(() => import('@/pages/map'));
 export const OnBoarding = lazy(() => import('@/pages/auth/onBoarding'));
 
 export const MyPage = lazy(() => import('@/pages/myPage/index'));

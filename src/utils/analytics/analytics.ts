@@ -1,5 +1,6 @@
 /** [공통 > 분석] 환경·권한·URL·개인정보를 검사하는 유일한 GA 발송 경로 */
 import { ERROR_SOURCES, EVENT_NAMES, PAGE_NAMES, type TAnalyticsEvent } from '@/constants/analytics';
+import { PLACE_CATEGORIES } from '@/constants/place';
 import { COURSE_TYPES, type TCourseType } from '@/types/course';
 
 const GA_ID = import.meta.env.VITE_GA_ID;
@@ -195,7 +196,7 @@ const sanitizeParams = (params: Record<string, unknown>) => {
     if (
       key === 'code' &&
       typeof value === 'string' &&
-      /^(?:COMMON|USER|TRANSCRIPT|GRADUATION|EMAIL)\d{3}_\d{1,2}$|^(?:NETWORK_ERROR|UNKNOWN_ERROR|INVALID_PDF|LOGIN_FAILED|MISSING_TOKEN|USER_CHECK_FAILED|RENDER_ERROR|NOT_FOUND|VALIDATION_ERROR)$/.test(
+      /^(?:COMMON|USER|TRANSCRIPT|GRADUATION|EMAIL|PLACE)\d{3}_\d{1,2}$|^(?:NETWORK_ERROR|UNKNOWN_ERROR|INVALID_PDF|LOGIN_FAILED|MISSING_TOKEN|USER_CHECK_FAILED|RENDER_ERROR|NOT_FOUND|VALIDATION_ERROR)$/.test(
         value,
       )
     )
@@ -207,6 +208,9 @@ const sanitizeParams = (params: Record<string, unknown>) => {
     )
       result[key] = value;
     if (key === 'course_type' && typeof value === 'string' && COURSE_TYPES.includes(value as TCourseType))
+      result[key] = value;
+    // 동글맵은 장소명 등 사용자 입력 없이 카테고리 코드만 보낸다. ALL은 '전체' 칩.
+    if (key === 'place_category' && (value === 'ALL' || PLACE_CATEGORIES.some((category) => category.value === value)))
       result[key] = value;
   }
   return result;
