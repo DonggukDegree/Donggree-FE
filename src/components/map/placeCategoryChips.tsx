@@ -1,6 +1,7 @@
 /**
  * [동글맵] 지도 위 플로팅 카테고리 칩
  * 단일 선택이며 null은 '전체'. 목록은 이미 받아 둔 장소를 브라우저에서 바로 거른다.
+ * 카테고리 칩은 핀 아이콘과 같은 이모지를 라벨 앞에 붙여 지도와 칩을 바로 대응시킨다.
  */
 import { PLACE_CATEGORIES } from '@/constants/place';
 import type { TPlaceCategory } from '@/types/place/TPlace';
@@ -10,15 +11,15 @@ interface IPlaceCategoryChipsProps {
   onSelect: (category: TPlaceCategory | null) => void;
 }
 
-const CHIPS: readonly { value: TPlaceCategory | null; label: string }[] = [
+const CHIPS: readonly { value: TPlaceCategory | null; label: string; emoji?: string }[] = [
   { value: null, label: '전체' },
-  ...PLACE_CATEGORIES.map(({ value, label }) => ({ value, label })),
+  ...PLACE_CATEGORIES.map(({ value, label, emoji }) => ({ value, label, emoji })),
 ];
 
 export default function PlaceCategoryChips({ selected, onSelect }: IPlaceCategoryChipsProps) {
   return (
     <div className="flex gap-2 overflow-x-auto px-4 py-1 [scrollbar-width:none]">
-      {CHIPS.map(({ value, label }) => {
+      {CHIPS.map(({ value, label, emoji }) => {
         const isSelected = selected === value;
         return (
           <button
@@ -32,6 +33,11 @@ export default function PlaceCategoryChips({ selected, onSelect }: IPlaceCategor
                 : 'border-coolgray-30 bg-white text-coolgray-90 hover:border-primary-60 hover:text-primary-60'
             }`}
           >
+            {emoji && (
+              <span aria-hidden="true" className="mr-1">
+                {emoji}
+              </span>
+            )}
             {label}
           </button>
         );
