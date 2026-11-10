@@ -1,4 +1,4 @@
-/** [동글맵] 지도 레벨 범위와 확대·축소·학교 이동 버튼 표시 검사 */
+/** [동글맵] 지도 레벨 범위와 확대·축소·학교 이동·장소 추가 버튼 표시 검사 */
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -16,6 +16,9 @@ vi.mock('react-kakao-maps-sdk', () => ({
 }));
 vi.mock('@/hooks/place/usePlaces', () => ({
   default: () => ({ data: [], isError: false, error: null, refetch: vi.fn() }),
+}));
+vi.mock('@/hooks/user/useUserInfo', () => ({
+  default: () => ({ data: { identityVerified: false, schoolEmailVerified: false } }),
 }));
 
 const render = async () => {
@@ -47,7 +50,11 @@ describe('동글맵 지도', () => {
     expect(html).toContain('aria-label="지도 확대"');
     expect(html).toContain('aria-label="지도 축소"');
     expect(html).toContain('aria-label="학교로 이동"');
+    expect(html).toContain('aria-label="장소 추가"');
     expect(html).toContain('아직 등록된 장소가 없어요.');
+    // 쌓이는 순서: 확대·축소 → 학교 이동 → 장소 추가(맨 아래)
+    expect(html.indexOf('지도 축소')).toBeLessThan(html.indexOf('학교로 이동'));
+    expect(html.indexOf('학교로 이동')).toBeLessThan(html.indexOf('장소 추가'));
   });
 
   it('지도 키가 없으면 SDK를 부르지 않고 안내만 표시', async () => {

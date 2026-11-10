@@ -3,6 +3,19 @@ import type { TPlaceCategory, TPlaceSubCategory } from '@/types/place/TPlace';
 // 동글맵 기준값. 캠퍼스 중심은 BE CampusArea.CENTER와 같은 좌표를 쓴다.
 export const CAMPUS_CENTER = { lat: 37.55828693771417, lng: 127.00018391368702 } as const;
 
+// 서비스 영역. BE CampusArea.RADIUS_METERS와 같은 값이며, 최종 판정은 서버가 다시 한다.
+export const CAMPUS_RADIUS_METERS = 1_500;
+
+// 등록 입력 제한. BE PlaceRegisterRequest 검증과 같은 값.
+export const PLACE_FORM_LIMITS = {
+  NAME_MAX: 30,
+  BUSINESS_HOURS_MAX: 100,
+  DESCRIPTION_MAX: 300,
+  MENU_NAME_MAX: 30,
+  MENU_MAX_COUNT: 50,
+  MENU_PRICE_MAX: 1_000_000,
+} as const;
+
 // 카카오 지도 레벨은 숫자가 작을수록 확대(1이 최대 확대). 레벨 3 이하에서 이름 라벨, 4~6은 아이콘·클러스터, 6 초과 축소 금지.
 export const MAP_MIN_LEVEL = 1;
 export const MAP_INITIAL_LEVEL = 3;
@@ -24,6 +37,16 @@ export const PLACE_CATEGORIES: readonly { value: TPlaceCategory; label: string; 
 export const PLACE_CATEGORY_BY_VALUE = Object.fromEntries(
   PLACE_CATEGORIES.map((category) => [category.value, category]),
 ) as Record<TPlaceCategory, (typeof PLACE_CATEGORIES)[number]>;
+
+// 카테고리별 상세카테고리. 순서가 곧 선택지 노출 순서이며 BE PlaceSubCategory의 상위 카테고리와 일치해야 한다.
+export const PLACE_SUB_CATEGORIES_BY_CATEGORY: Record<TPlaceCategory, readonly TPlaceSubCategory[]> = {
+  RESTAURANT: ['KOREAN', 'CHINESE', 'JAPANESE', 'WESTERN', 'SNACK', 'ASIAN', 'MEAT', 'FAST_FOOD', 'RESTAURANT_ETC'],
+  CAFE: ['COFFEE', 'DESSERT', 'CAFE_ETC'],
+  BAR: ['PUB', 'IZAKAYA', 'POCHA', 'WINE_BAR', 'BAR_ETC'],
+  STUDY: ['STUDY_CAFE', 'STUDY_FRIENDLY_CAFE', 'CAMPUS_FACILITY', 'STUDY_ETC'],
+  LIFE: ['CONVENIENCE_STORE', 'PRINT', 'STATIONERY', 'MEDICAL', 'BEAUTY', 'LIFE_ETC'],
+  ETC: ['ETC'],
+};
 
 export const PLACE_SUB_CATEGORY_LABELS: Record<TPlaceSubCategory, string> = {
   KOREAN: '한식',
