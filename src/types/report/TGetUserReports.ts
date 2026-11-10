@@ -6,8 +6,8 @@ import type { TCommonResponse } from '@/types/common';
 // 상단 메타 정보
 export type TReportMeta = {
   admissionYear: number; // 입학년도(교육과정 적용년도)
-  collegeName: string | null; // 소속 단과대학명 (학과 미등록 시 null)
-  department: string; // 전공 학과명
+  collegeName: string | null; // 소속 단과대학명 (학과 연결 실패 시 PDF 원문, 원문도 없으면 null)
+  department: string | null; // 전공 학과명 (학과 연결 실패 시 PDF 원문, 원문도 없으면 null)
   subMajor1: string | null; // 제1부전공 학과명 (없으면 null)
   subMajor2: string | null; // 제2부전공 학과명 (없으면 null)
   dualMajor1: string | null; // 제1복수전공 학과명 (없으면 null)
@@ -15,6 +15,8 @@ export type TReportMeta = {
   academicStatus: string; // 학적 상태 (예: 재학)
   totalCredits: number; // 총취득학점
   gpa: number; // 평점 평균
+  majorGpa: number | null; // 현재 전공·전필 수강 내역의 평점 평균 (계산 가능한 학점이 없으면 null)
+  dualMajor1Gpa: number | null; // 현재 복수1 수강 내역의 평점 평균 (미등록·계산 가능한 학점이 없으면 null)
   completedSemesters: number; // 이수 학기 수
   createdAt: string; // 성적표 최초 생성 시각 (ISO)
   updatedAt: string; // 최종 수정 시각 (ISO)

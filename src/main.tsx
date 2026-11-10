@@ -1,3 +1,8 @@
+/**
+ * [앱 진입점]
+ * 전역 Provider를 한자리에 모은다. 에러 경계 → React Query Provider → 앱 → 토스트 순.
+ * 개발 환경에서만 React Query Devtools를 함께 렌더한다.
+ */
 import './index.css';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -6,11 +11,18 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Toaster } from 'sonner';
 
-import ErrorBoundary from '@/components/common/errorBoundary';
+import ErrorBoundary from '@/components/common/feedback/errorBoundary';
+import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@/constants/queryOptions';
+import { observeAnalyticsIdentity } from '@/hooks/useAnalyticsIdentity';
+import { initGA } from '@/utils/analytics/analytics';
 
 import App from './App.tsx';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS });
+
+// 수집 차단과 방문 문맥을 렌더 전에 준비하고, 권한 확인 후 태그를 로드한다.
+initGA();
+observeAnalyticsIdentity(queryClient);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

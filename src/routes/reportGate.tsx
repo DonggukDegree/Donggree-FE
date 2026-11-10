@@ -1,9 +1,9 @@
 import { Navigate, Outlet } from 'react-router-dom';
 
-import Loading from '@/components/common/loading';
+import Loading from '@/components/common/feedback/loading';
 import useUserReports from '@/hooks/report/useUserReports';
-import NotFound from '@/pages/notFound';
-import ServerError from '@/pages/serverError';
+import NotFound from '@/pages/exception/notFound';
+import ServerError from '@/pages/exception/serverError';
 import { getErrorStatus } from '@/utils/error';
 
 // 리포트(성적표) 존재 게이트.
@@ -28,10 +28,10 @@ export default function ReportGate() {
     }
     // 서버 다운(응답 없음)·서버 오류(5xx)는 에러 화면으로 안내한다.
     if (!status || status >= 500) {
-      return <ServerError onRetry={() => refetch()} />;
+      return <ServerError error={error} source="report_gate" onRetry={() => refetch()} />;
     }
     // 그 외 예기치 못한 오류는 NotFound로 처리한다.
-    return <NotFound />;
+    return <NotFound error={error} source="report_gate" />;
   }
 
   return <Outlet />;

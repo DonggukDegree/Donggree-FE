@@ -1,9 +1,21 @@
+/**
+ * [전역 상태] 모달 스토어
+ * 화면 어디서든 모달을 열 수 있도록 '무엇을 열지'만 담아 둔다.
+ * 실제 렌더는 레이아웃의 ModalProvider가 type을 보고 결정한다.
+ *  - alert: 안내 / onboarding: 온보딩 / confirm: 관리자 저장 확인 / survey: 만족도 조사
+ */
 import type { ComponentType, ReactNode, SVGProps } from 'react';
 import { create } from 'zustand';
 
-type TModalType = 'alert' | 'onboarding' | 'confirm';
+import type { TErrorSource, TTranscriptNoticeParams } from '@/constants/analytics';
+import { createAttemptId } from '@/utils/analytics/analytics';
+
+type TModalType = 'alert' | 'onboarding' | 'confirm' | 'survey';
 
 interface IAlertContent {
+  analyticsDisplayId?: string;
+  analyticsError?: { error_source: TErrorSource; code: string; status: number };
+  analyticsNotice?: TTranscriptNoticeParams;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   title: string;
   // 문구 일부에 색상 강조(span 등)를 넣을 수 있도록 문자열뿐 아니라 ReactNode를 허용한다.
@@ -35,6 +47,7 @@ interface IModalActions {
   openAlert: (content: IAlertContent) => void;
   openOnboarding: () => void;
   openConfirm: (content: IConfirmContent) => void;
+  openSurvey: () => void;
   closeModal: () => void;
 }
 
@@ -46,8 +59,11 @@ const initialState: IModalState = {
 
 export const useModalStore = create<IModalState & IModalActions>((set) => ({
   ...initialState,
-  openAlert: (content) => set({ type: 'alert', alertContent: content, confirmContent: null }),
+  openAlert: (content) =>
+    set({ type: 'alert', alertContent: { ...content, analyticsDisplayId: createAttemptId() }, confirmContent: null }),
   openOnboarding: () => set({ type: 'onboarding', alertContent: null, confirmContent: null }),
   openConfirm: (content) => set({ type: 'confirm', alertContent: null, confirmContent: content }),
+  // 자동 설문은 이미 열린 필수 안내·확인 모달을 덮어쓰지 않는다.
+  openSurvey: () => set((state) => (state.type === null ? { ...initialState, type: 'survey' } : state)),
   closeModal: () => set(initialState),
 }));

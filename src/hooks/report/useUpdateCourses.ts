@@ -8,6 +8,8 @@ import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useCoreMutation } from '@/hooks/customQuery';
 import type { TResponseError } from '@/types/common';
 import type { TPatchReportRequest } from '@/types/report/TPatchReport';
+import { trackEvent } from '@/utils/analytics/analytics';
+import { trackErrorShown } from '@/utils/analytics/analyticsError';
 import { getErrorCode, getErrorMessage, getErrorStatus } from '@/utils/error';
 
 // 수강 이력 전체 치환(수정·추가·삭제) 훅.
@@ -17,7 +19,9 @@ export default function useUpdateCourses() {
   const navigate = useNavigate();
 
   return useCoreMutation((body: TPatchReportRequest) => patchReportCourses(body), {
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      // 마이페이지의 수강 이력 직접 수정을 실제로 저장 완료한 시점. (기능 사용 여부 집계)
+      trackEvent('academic_records_edit', { course_count: variables.courses.length });
       // 수강 이력이 바뀌면 totalCredits·gpa·updatedAt도 재계산되므로 조회를 재실행한다.
       // ['reports'] 접두사로 졸업 판정 요약(['reports','summary'])·영역상세(['reports',{courseType}])도 함께 무효화한다.
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_REPORTS });
@@ -25,6 +29,7 @@ export default function useUpdateCourses() {
       toast.success('수강 이력이 수정되었어요.');
     },
     onError: (error: TResponseError) => {
+      trackErrorShown('academic_records', error);
       // 성적표가 없으면(404 TRANSCRIPT404_1) 업로드로 유도.
       if (getErrorStatus(error) === 404) {
         navigate('/upload', { replace: true });

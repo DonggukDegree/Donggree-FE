@@ -2,7 +2,7 @@ name: Deploy to homeserver
 
 on:
   push:
-    branches: [main]
+    branches: [dev]
     paths:
       - "src/**"
       - "public/**"
@@ -32,12 +32,17 @@ jobs:
           cd "$REPO_DIR"
           git fetch --all --prune
           git reset --hard origin/dev
-
       - name: Build frontend
         run: |
           cd "$REPO_DIR"
-          docker run --rm -v "$PWD:/app" -w /app node:22-alpine \
-            sh -c "npm install -g pnpm && pnpm install --frozen-lockfile && VITE_API_URL=https://donggree.site pnpm build"
+          set -a
+          [ -f .env ] && source .env
+          set +a
+          docker run --rm -v "$PWD:/app" -w /app \
+            -e CI=true \
+            -e VITE_API_URL -e VITE_GA_ID \
+            node:22-alpine \
+            sh -c "npm install -g pnpm@11.5.0 && pnpm install --frozen-lockfile && pnpm build"
 
       - name: Swap dist contents (inode 유지 — caddy bind mount 보존)
         run: |

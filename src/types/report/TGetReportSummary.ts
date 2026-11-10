@@ -26,6 +26,19 @@ export type TAreaOverview = {
 export type TGetReportSummaryResult = {
   summary: TReportSummary;
   areaOverviews: TAreaOverview[];
+  // 복수전공 판정 누락·복수전공 2·부전공·편입으로 정확도 경고가 필요한지 여부
+  hasUnsupportedMajor: boolean;
+  // 영어패스제 결과
+  englishPassed: boolean | null;
+  additionalNotices: {
+    requirementSetId: number;
+    collegeName: string | null;
+    departmentName: string | null;
+    track: 'ALL' | 'GENERAL' | 'ADVANCED' | null;
+    yearStart: number;
+    yearEnd: number;
+    content: string;
+  }[];
 };
 
 export type TGetReportSummaryResponse = TCommonResponse<TGetReportSummaryResult>;

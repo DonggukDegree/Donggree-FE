@@ -1,34 +1,64 @@
+import type { ReactNode } from 'react';
+/**
+ * [라우팅] 라우터 정의
+ * 게이트는 3단으로 겹쳐 둔다.
+ *  ProtectedRoute(인증 → 온보딩 강제) → ReportGate(성적표 필요) → AdminRoute(관리자 권한)
+ * 홈·자주 묻는 질문·로그인·콜백·404만 인증 없이 접근할 수 있다.
+ *
+ * 코드 분할: 첫 화면(홈·로그인·콜백·404)만 즉시 로드하고 나머지는 lazy로 나눈다.
+ * 특히 관리자 3종은 일반 사용자가 평생 열지 않는 화면이라 초기 번들에 들어갈 이유가 없다.
+ * 청크 대기 중에는 Layout의 Suspense가 공용 로딩을 띄운다.
+ */
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import Layout from '@/layouts';
-import AcademicRecords from '@/pages/academicRecords';
-import AdminCourseClassifications from '@/pages/admin/courseClassifications';
-import AdminGraduationRequirements from '@/pages/admin/graduationRequirements';
-import AuthCallback from '@/pages/authCallback';
-import Curriculum from '@/pages/curriculum';
-import Graduation from '@/pages/graduation';
+import AuthCallback from '@/pages/auth/authCallback';
+import Login from '@/pages/auth/login';
+import NotFound from '@/pages/exception/notFound';
 import Home from '@/pages/home';
-import Login from '@/pages/login';
-import MyPage from '@/pages/myPage';
-import NotFound from '@/pages/notFound';
-import OnBoarding from '@/pages/onBoarding';
-import Profile from '@/pages/profile';
-import UploadPage from '@/pages/uploadPage';
 import AdminRoute from '@/routes/adminRoute';
+import {
+  AcademicRecords,
+  AdminCourseClassifications,
+  AdminFaqs,
+  AdminGraduationRequirements,
+  AdminReportPreview,
+  Curriculum,
+  Faq,
+  Graduation,
+  MyPage,
+  OnBoarding,
+  Profile,
+  SchoolEmailVerification,
+  UploadPage,
+} from '@/routes/lazyPages';
 import ProtectedRoute from '@/routes/protectedRoute';
 import ReportGate from '@/routes/reportGate';
+import TrackedPage from '@/routes/trackedPage';
+
+const tracked = (page: ReactNode) => <TrackedPage>{page}</TrackedPage>;
 
 export const router = createBrowserRouter([
   // 인증 없이 접근 가능한 라우트 (로그인, OAuth 콜백)
-  { path: '/login', element: <Login /> },
+  {
+    path: '/login',
+    element: tracked(<Login />),
+  },
   // 콜백 경로는 /login/callback. (/auth/* 는 같은 도메인에서 백엔드로 라우팅되어 빨려들어가므로 피한다)
   { path: '/login/callback', element: <AuthCallback /> },
   {
     path: '/',
     element: <Layout />,
     children: [
-      // 홈(랜딩)은 인증 없이 접근 가능한 public 라우트.
-      { index: true, element: <Home /> },
+      // 홈, 자주 묻는 질문은 인증 없이 접근 가능한 public 라우트.
+      {
+        index: true,
+        element: tracked(<Home />),
+      },
+      {
+        path: 'faq',
+        element: tracked(<Faq />),
+      },
       // 그 외 라우트는 ProtectedRoute(인증 → 온보딩 게이트)를 통과해야 한다.
       {
         element: <ProtectedRoute />,
@@ -36,19 +66,46 @@ export const router = createBrowserRouter([
           {
             path: 'my-page',
             children: [
-              { index: true, element: <MyPage /> },
-              { path: 'profile', element: <Profile /> },
-              { path: 'academic-records', element: <AcademicRecords /> },
+              {
+                index: true,
+                element: tracked(<MyPage />),
+              },
+              {
+                path: 'profile',
+                element: tracked(<Profile />),
+              },
+              {
+                path: 'school-email-verification',
+                element: tracked(<SchoolEmailVerification />),
+              },
+              {
+                path: 'academic-records',
+                element: tracked(<AcademicRecords />),
+              },
             ],
           },
-          { path: 'curriculum', element: <Curriculum /> },
+          {
+            path: 'curriculum',
+            element: tracked(<Curriculum />),
+          },
           // 졸업 판정은 성적표가 있어야 의미가 있으므로 리포트 게이트를 한 번 더 통과시킨다.
           {
             element: <ReportGate />,
-            children: [{ path: 'graduation', element: <Graduation /> }],
+            children: [
+              {
+                path: 'graduation',
+                element: tracked(<Graduation />),
+              },
+            ],
           },
-          { path: 'onboarding', element: <OnBoarding /> },
-          { path: 'upload', element: <UploadPage /> },
+          {
+            path: 'onboarding',
+            element: tracked(<OnBoarding />),
+          },
+          {
+            path: 'upload',
+            element: tracked(<UploadPage />),
+          },
           {
             element: <AdminRoute />,
             children: [
@@ -56,8 +113,22 @@ export const router = createBrowserRouter([
                 path: 'admin',
                 children: [
                   { index: true, element: <Navigate to="course-classifications" replace /> },
-                  { path: 'course-classifications', element: <AdminCourseClassifications /> },
-                  { path: 'graduation-requirements', element: <AdminGraduationRequirements /> },
+                  {
+                    path: 'course-classifications',
+                    element: tracked(<AdminCourseClassifications />),
+                  },
+                  {
+                    path: 'graduation-requirements',
+                    element: tracked(<AdminGraduationRequirements />),
+                  },
+                  {
+                    path: 'faqs',
+                    element: tracked(<AdminFaqs />),
+                  },
+                  {
+                    path: 'report-preview',
+                    element: tracked(<AdminReportPreview />),
+                  },
                 ],
               },
             ],
@@ -65,7 +136,10 @@ export const router = createBrowserRouter([
         ],
       },
       // 정의되지 않은 경로는 인증과 무관하게 NotFound를 보여준다. (public)
-      { path: '*', element: <NotFound /> },
+      {
+        path: '*',
+        element: tracked(<NotFound />),
+      },
     ],
   },
 ]);

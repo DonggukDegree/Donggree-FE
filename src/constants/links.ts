@@ -3,6 +3,9 @@
 // 고객지원: 카카오 채널 채팅 주소.
 export const KAKAO_CHAT_URL = 'http://pf.kakao.com/_UxnFGX/chat';
 
+// 만족도 조사: 모달과 푸터에서 공통으로 사용하는 구글폼 응답용 링크.
+export const SATISFACTION_SURVEY_URL: string = 'https://forms.gle/2p52ttboCAUEABgP8';
+
 // 개인정보처리방침 안내(노션 문서).
 export const PRIVACY_POLICY_URL =
   'https://mybluespring.notion.site/38ea6ce30c6e80aeadeadbb076d7ac96?v=38ea6ce30c6e80af8232000c1f96b20f&source=copy_link';

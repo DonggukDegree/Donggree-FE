@@ -1,3 +1,10 @@
+/**
+ * [공용] axios 인스턴스
+ * 모든 API 호출이 지나가는 단일 통로.
+ *  - withCredentials: refreshToken(HttpOnly 쿠키)을 자동으로 실어 보낸다
+ *  - 요청 인터셉터: 메모리에 있는 accessToken을 Authorization 헤더에 붙인다
+ *  - 응답 인터셉터: 401이면 refresh를 '한 번만' 수행하고, 나머지 요청은 그 결과를 기다렸다가 재시도한다
+ */
 import axios from 'axios';
 
 import { hasSessionHint, useAuthStore } from '@/stores/authStore';
@@ -22,7 +29,7 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
       return Promise.reject(error);
     }
 
@@ -45,11 +52,6 @@ axiosInstance.interceptors.response.use(
           useAuthStore.getState().setAccessToken(newToken);
           return newToken;
         })
-        .catch(() => {
-          useAuthStore.getState().clearAuth();
-          window.location.href = '/login';
-          throw error;
-        })
         .finally(() => {
           refreshPromise = null;
         });
@@ -60,7 +62,14 @@ axiosInstance.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${token}`;
         return axiosInstance(originalRequest);
       },
-      () => Promise.reject(error),
+      (refreshError) => {
+        // 분석용 배경 확인은 공개 화면을 로그인으로 이동시키지 않는다.
+        // 응답 없는 실패를 로그아웃으로 간주하면 관리자 세션을 익명으로 오인할 수 있다.
+        const status = axios.isAxiosError(refreshError) ? refreshError.response?.status : undefined;
+        if (!originalRequest.passiveAuth || status === 400 || status === 401) useAuthStore.getState().clearAuth();
+        if (!originalRequest.passiveAuth) window.location.href = '/login';
+        return Promise.reject(error);
+      },
     );
   },
 );

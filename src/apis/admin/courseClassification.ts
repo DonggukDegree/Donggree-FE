@@ -1,13 +1,13 @@
 import axiosInstance from '@/apis/axiosInstance';
-import type { TGetAdminAreaTypesResponse } from '@/types/admin/TGetAdminAreaTypes';
+import type { TGetAdminAreaTypesResponse } from '@/types/admin/courseClassification/TGetAdminAreaTypes';
 import type {
   TCourseClassificationFilters,
   TGetCourseClassificationsResponse,
-} from '@/types/admin/TGetCourseClassifications';
+} from '@/types/admin/courseClassification/TGetCourseClassifications';
 import type {
   TCourseClassificationUpsertRequest,
   TPutCourseClassificationsResponse,
-} from '@/types/admin/TPutCourseClassifications';
+} from '@/types/admin/courseClassification/TPutCourseClassifications';
 
 const joinParam = <T extends string | number>(values?: T[]) => {
   if (!values || values.length === 0) return undefined;

@@ -1,5 +1,7 @@
 import type { TCommonResponse } from '@/types/common';
 
+export type TRequirementTrack = 'ALL' | 'GENERAL' | 'ADVANCED';
+
 export type TRequirementSetFilters = {
   collegeId?: number;
   departmentId?: number;
@@ -12,6 +14,7 @@ export type TAdminRequirementSetSummary = {
   departmentName: string;
   yearStart: number;
   yearEnd: number;
+  track: TRequirementTrack;
   version: number;
   description: string | null;
   sheetImageUrl: string | null;
@@ -19,6 +22,7 @@ export type TAdminRequirementSetSummary = {
 };
 
 export type TAdminRequirementSetDetail = TAdminRequirementSetSummary & {
+  studentNotice: string | null;
   graduationRuleIds: number[];
 };
 
@@ -27,7 +31,9 @@ export type TRequirementSetCreateRequest = {
   departmentName: string;
   yearStart: number;
   yearEnd: number;
+  track: TRequirementTrack;
   description: string | null;
+  studentNotice: string | null;
   sheetImageUrl: string | null;
   active: boolean;
   graduationRuleIds: number[];

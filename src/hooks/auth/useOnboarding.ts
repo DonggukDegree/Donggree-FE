@@ -9,6 +9,8 @@ import { useCoreMutation } from '@/hooks/customQuery';
 import { useModalStore } from '@/stores/modalStore';
 import type { TPostOnboardingRequest } from '@/types/auth/TPostOnboarding';
 import type { TResponseError } from '@/types/common';
+import { trackEvent } from '@/utils/analytics/analytics';
+import { trackErrorShown } from '@/utils/analytics/analyticsError';
 import { getErrorCode, getErrorMessage } from '@/utils/error';
 
 // 온보딩 정보 저장 훅
@@ -21,10 +23,13 @@ export default function useOnboarding() {
 
   return useCoreMutation((body: TPostOnboardingRequest) => postOnboarding(body), {
     onSuccess: () => {
+      // 신규 회원이 온보딩(학번·이름)을 마친 시점. 활성화 퍼널의 핵심 지표.
+      trackEvent('onboarding_complete');
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_INFO });
       navigate('/');
     },
     onError: (error: TResponseError) => {
+      trackErrorShown('onboarding', error);
       const code = getErrorCode(error);
 
       // 이미 온보딩 완료된 회원(다른 탭에서 먼저 완료한 레이스 등): 입력을 저장하지 않고 모달을 닫은 뒤 홈으로 보낸다.
