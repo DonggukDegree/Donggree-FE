@@ -7,6 +7,7 @@ import {
   formatMenuPrice,
   formatPlaceDate,
   parsePlaceIdParam,
+  placeMarkerZIndex,
   shouldShowPlaceLabel,
 } from '@/utils/place/place';
 
@@ -51,5 +52,12 @@ describe('동글맵 표시 규칙', () => {
     expect(formatMenuPrice(null)).toBe('가격 변동');
     expect(formatPlaceDate('2026-10-27T09:30:00')).toBe('2026.10.27');
     expect(formatPlaceDate('')).toBe('');
+  });
+
+  it('겹친 핀은 커서를 올린 핀이 선택한 핀보다도 위, 나머지는 같은 높이', () => {
+    expect(placeMarkerZIndex(1, 2, 1)).toBe(30);
+    expect(placeMarkerZIndex(2, 2, 1)).toBe(20);
+    expect(placeMarkerZIndex(2, 2, null)).toBe(20);
+    expect(placeMarkerZIndex(3, 2, 1)).toBe(1);
   });
 });

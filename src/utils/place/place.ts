@@ -25,3 +25,10 @@ export const formatPlaceDate = (value: string) => {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
   return match ? `${match[1]}.${match[2]}.${match[3]}` : '';
 };
+
+// 겹친 핀의 쌓임 순서. 커서를 올린 핀이 맨 위, 그다음 선택한 핀, 나머지는 같은 높이.
+export const placeMarkerZIndex = (placeId: number, selectedId: number | null, hoveredId: number | null) => {
+  if (placeId === hoveredId) return 30;
+  if (placeId === selectedId) return 20;
+  return 1;
+};
