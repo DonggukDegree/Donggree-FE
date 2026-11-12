@@ -45,7 +45,7 @@ export default function PlaceInfoFields({ form, errors, onChange }: IPlaceInfoFi
           rows={3}
           value={form.description}
           maxLength={PLACE_FORM_LIMITS.DESCRIPTION_MAX}
-          placeholder="찾아가는 길, 분위기 등을 적어주세요"
+          placeholder="예) 2층, 정문 맞은편 골목 · 분위기 등"
           onChange={(event) => {
             const description = event.target.value;
             onChange((current) => ({ ...current, description }));

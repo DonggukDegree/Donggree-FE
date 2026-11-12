@@ -60,6 +60,7 @@ describe('장소 정보 수정 폼', () => {
     expect(html).not.toContain('id="place-name"');
     expect(html).toMatch(/id="place-hours"[^>]*value="평일 11:00-21:00"/);
     expect(html).toMatch(/aria-label="1번째 메뉴명"[^>]*value="짜장면"/);
+    expect(html).toContain('placeholder="예) 2층, 정문 맞은편 골목 · 분위기 등"');
     expect(html).toContain('저장하기');
     expect(html).not.toContain('role="alert"');
   });

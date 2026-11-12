@@ -43,7 +43,8 @@ describe('장소 정보', () => {
     const html = renderToStaticMarkup(<PlaceDetailContent place={place} onEdit={vi.fn()} />);
     expect(html).toContain('aria-describedby="place-edit-tooltip"');
     expect(html).toMatch(/role="tooltip"[^>]*opacity-0[^>]*group-hover:opacity-100[^>]*>.*장소 정보를 추가해주세요!/);
-    expect(html).toMatch(/-top-1[^"]*rotate-45/);
+    expect(html).toMatch(/role="tooltip" class="[^"]*left-1\/2[^"]*-translate-x-1\/2/);
+    expect(html).toMatch(/-top-1 left-1\/2[^"]*-translate-x-1\/2 rotate-45/);
   });
 
   it('메뉴 가격은 메뉴명과 같은 진한 색으로 표시', () => {
