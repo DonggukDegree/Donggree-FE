@@ -1,6 +1,7 @@
 /**
  * [동글맵] 장소 정보 본문
- * 주소는 저장하지 않으므로 좌표로 실시간 조회해 보여준다. 등록자·수정자는 표시하지 않는다.
+ * 주소는 저장하지 않으므로 좌표로 실시간 조회해 보여준다. 최초 등록자는 등록일 뒤에 닉네임으로 보여주고
+ * (탈퇴했으면 "탈퇴한 회원"), 수정자는 표시하지 않는다.
  * 영업시간·설명·메뉴는 인증 회원 누구나 고치고 신고할 수 있어 장소 수정·신고 칩을 두며, 미인증 회원도 칩은 보게 한다.
  * 리뷰 영역은 리뷰 기능이 열릴 때 채운다.
  */
@@ -8,7 +9,12 @@ import { type ReactNode, useState } from 'react';
 
 import Pencil from '@/assets/icons/pencil.svg?react';
 import Siren from '@/assets/icons/siren.svg?react';
-import { PLACE_CATEGORY_BY_VALUE, PLACE_MENU_PREVIEW_COUNT, PLACE_SUB_CATEGORY_LABELS } from '@/constants/place';
+import {
+  PLACE_CATEGORY_BY_VALUE,
+  PLACE_MENU_PREVIEW_COUNT,
+  PLACE_SUB_CATEGORY_LABELS,
+  WITHDRAWN_MEMBER_LABEL,
+} from '@/constants/place';
 import usePlaceAddress from '@/hooks/place/usePlaceAddress';
 import type { TPlaceDetail, TPlaceMenu } from '@/types/place/TPlace';
 import { formatMenuPrice, formatPlaceDate } from '@/utils/place/place';
@@ -81,7 +87,8 @@ export default function PlaceDetailContent({ place, onEdit, onReport }: IPlaceDe
 
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-body-xs text-coolgray-60">
-          최초 등록 {formatPlaceDate(place.createdAt)} · 마지막 수정 {formatPlaceDate(place.updatedAt)}
+          최초 등록 {formatPlaceDate(place.createdAt)} {place.registrantNickname ?? WITHDRAWN_MEMBER_LABEL} 등록 ·
+          마지막 수정 {formatPlaceDate(place.updatedAt)}
         </p>
         {/* 칩 둘은 함께 줄바꿈되고 오른쪽 끝에 붙는다. 좁은 화면에서도 말풍선이 칩 가운데 아래에 들어오게 하기 위함이다. */}
         <div className="ml-auto flex items-center gap-2">
