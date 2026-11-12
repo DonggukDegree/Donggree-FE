@@ -47,17 +47,20 @@ describe('동글맵 카테고리 칩', () => {
     const html = render({ mode: 'hiddenGem', tags: ['SOLO_DINING'] });
     expect(html).not.toMatch(/aria-pressed="true"[^>]*>전체<\/button>/);
     expect(html).toContain('aria-label="숨은 맛집 종류"');
-    for (const label of [
-      '커피 맛집',
+    const labels = [
+      '지름길 맛집',
       '카공 맛집',
       '회식 맛집',
-      '분위기 맛집',
-      '안주 맛집',
       '밥약 맛집',
+      '분위기 맛집',
       '혼밥 맛집',
-      '지름길 맛집',
-    ])
-      expect(html).toContain(`>${label}</button>`);
+      '커피 맛집',
+      '진짜 맛집',
+    ];
+    const positions = labels.map((label) => html.indexOf(`>${label}</button>`));
+    expect(positions.every((position) => position > 0)).toBe(true);
+    expect([...positions].sort((a, b) => a - b)).toEqual(positions);
+    expect(html).not.toContain('안주 맛집');
     expect(html).toMatch(/aria-pressed="true"[^>]*>혼밥 맛집<\/button>/);
     expect(html.match(/aria-pressed="true"/g)).toHaveLength(2);
   });

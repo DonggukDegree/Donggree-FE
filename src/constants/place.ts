@@ -36,7 +36,7 @@ export const PLACE_CATEGORIES: readonly { value: TPlaceCategory; label: string; 
   { value: 'CAFE', label: '카페', emoji: '☕', color: '#a0522d' },
   { value: 'BAR', label: '술집', emoji: '🍺', color: '#d4a017' },
   { value: 'STUDY', label: '스터디', emoji: '📚', color: '#3b6fd8' },
-  { value: 'LIFE', label: '생활', emoji: '🛒', color: '#2f343b' },
+  { value: 'LIFE', label: '생활', emoji: '🛍️', color: '#b9e3c6' },
   { value: 'ENTERTAINMENT', label: '오락', emoji: '🎮', color: '#d9c2f5' },
   { value: 'ETC', label: '기타', emoji: '📍', color: '#697077' },
 ] as const;
@@ -99,14 +99,14 @@ export const HIDDEN_GEM = { label: '숨은 맛집', emoji: '✨', color: '#1f2a5
 
 // 숨은 맛집 태그. 순서가 곧 체크박스·칩 노출 순서이며 BE PlaceTag 순서와 같다.
 export const PLACE_TAGS: readonly { value: TPlaceTag; label: string }[] = [
-  { value: 'COFFEE', label: '커피 맛집' },
+  { value: 'SHORTCUT', label: '지름길 맛집' },
   { value: 'STUDY', label: '카공 맛집' },
   { value: 'GATHERING', label: '회식 맛집' },
-  { value: 'MOOD', label: '분위기 맛집' },
-  { value: 'BAR_SNACK', label: '안주 맛집' },
   { value: 'MEAL_DATE', label: '밥약 맛집' },
+  { value: 'MOOD', label: '분위기 맛집' },
   { value: 'SOLO_DINING', label: '혼밥 맛집' },
-  { value: 'SHORTCUT', label: '지름길 맛집' },
+  { value: 'COFFEE', label: '커피 맛집' },
+  { value: 'GENUINE', label: '진짜 맛집' },
 ];
 
 export const PLACE_TAG_LABELS = Object.fromEntries(PLACE_TAGS.map(({ value, label }) => [value, label])) as Record<

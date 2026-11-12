@@ -43,14 +43,14 @@ export type TPlaceSubCategory =
 
 // ✨ 숨은 맛집 태그. 메인 카테고리와 별개로 장소마다 0개 이상 붙는다.
 export type TPlaceTag =
-  | 'COFFEE'
+  | 'SHORTCUT'
   | 'STUDY'
   | 'GATHERING'
-  | 'MOOD'
-  | 'BAR_SNACK'
   | 'MEAL_DATE'
+  | 'MOOD'
   | 'SOLO_DINING'
-  | 'SHORTCUT';
+  | 'COFFEE'
+  | 'GENUINE';
 
 // GET /api/places 응답 한 건. 지도 핀 표시용 최소 정보.
 export type TPlaceSummary = {

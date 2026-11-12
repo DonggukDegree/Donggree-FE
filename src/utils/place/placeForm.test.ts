@@ -169,7 +169,7 @@ describe('장소 정보 수정 폼', () => {
         { name: '짜장면', price: 7000 },
         { name: '탕수육', price: null },
       ],
-      tags: ['COFFEE', 'SOLO_DINING'],
+      tags: ['SOLO_DINING', 'COFFEE'],
     });
   });
 
@@ -193,8 +193,8 @@ describe('장소 정보 수정 폼', () => {
   });
 
   it('숨은 맛집 태그는 토글하고 서버와 같은 순서로 정렬', () => {
-    expect(sortPlaceTags(['SOLO_DINING', 'COFFEE', 'MOOD'])).toEqual(['COFFEE', 'MOOD', 'SOLO_DINING']);
-    expect(togglePlaceTag(['SOLO_DINING'], 'COFFEE')).toEqual(['COFFEE', 'SOLO_DINING']);
+    expect(sortPlaceTags(['GENUINE', 'COFFEE', 'SHORTCUT', 'MOOD'])).toEqual(['SHORTCUT', 'MOOD', 'COFFEE', 'GENUINE']);
+    expect(togglePlaceTag(['COFFEE'], 'SOLO_DINING')).toEqual(['SOLO_DINING', 'COFFEE']);
     expect(togglePlaceTag(['COFFEE', 'SOLO_DINING'], 'COFFEE')).toEqual(['SOLO_DINING']);
     expect(createPlaceInfoForm(place).tags).toEqual(['SOLO_DINING', 'COFFEE']);
   });
