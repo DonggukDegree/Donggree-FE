@@ -1,11 +1,12 @@
 /**
  * [동글맵] 장소 정보 본문
  * 주소는 저장하지 않으므로 좌표로 실시간 조회해 보여준다. 등록자·수정자는 표시하지 않는다.
- * 영업시간·설명·메뉴는 인증 회원 누구나 고치고 신고할 수 있어 정보 수정·신고 칩을 두며, 미인증 회원도 칩은 보게 한다.
+ * 영업시간·설명·메뉴는 인증 회원 누구나 고치고 신고할 수 있어 장소 수정·신고 칩을 두며, 미인증 회원도 칩은 보게 한다.
  * 리뷰 영역은 리뷰 기능이 열릴 때 채운다.
  */
 import { type ReactNode, useState } from 'react';
 
+import Pencil from '@/assets/icons/pencil.svg?react';
 import Siren from '@/assets/icons/siren.svg?react';
 import { PLACE_CATEGORY_BY_VALUE, PLACE_MENU_PREVIEW_COUNT, PLACE_SUB_CATEGORY_LABELS } from '@/constants/place';
 import usePlaceAddress from '@/hooks/place/usePlaceAddress';
@@ -92,7 +93,8 @@ export default function PlaceDetailContent({ place, onEdit, onReport }: IPlaceDe
               onClick={onEdit}
               className={`${CHIP_CLASS} hover:border-primary-60 hover:text-primary-60`}
             >
-              정보 수정
+              <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
+              장소 수정
             </button>
             <span
               id="place-edit-tooltip"

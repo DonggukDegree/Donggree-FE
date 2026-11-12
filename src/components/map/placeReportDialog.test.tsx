@@ -50,6 +50,8 @@ describe('장소 신고 모달', () => {
     const html = render();
     expect(html).toMatch(/<input(?=[^>]*value="OTHER")(?=[^>]*checked="")[^>]*>/);
     expect(html).toContain('필수');
+    expect(html).toMatch(/type="radio"[^>]*appearance-none[^>]*checked:border-primary-60/);
+    expect(html).not.toContain('accent-primary-60');
     expect(html).toContain('기타 사유는 내용을 적어주세요.');
   });
 });

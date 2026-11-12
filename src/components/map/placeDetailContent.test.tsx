@@ -1,4 +1,4 @@
-/** [동글맵] 장소 정보의 카테고리 이모지·정보 수정/신고 칩·등록/수정일 표시 검사 */
+/** [동글맵] 장소 정보의 카테고리 이모지·장소 수정/신고 칩·등록/수정일 표시 검사 */
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -31,10 +31,10 @@ describe('장소 정보', () => {
     expect(html).not.toContain('background:');
   });
 
-  it('메뉴가 없어도 등록/수정일 옆에 정보 수정 칩과 사이렌 아이콘이 붙은 신고 칩을 표시', () => {
+  it('메뉴가 없어도 등록/수정일 옆에 연필 아이콘 장소 수정 칩과 사이렌 아이콘 신고 칩을 표시', () => {
     const html = renderToStaticMarkup(<PlaceDetailContent place={place} onEdit={vi.fn()} onReport={vi.fn()} />);
     expect(html).toMatch(
-      /마지막 수정 [^<]*<\/p><div class="ml-auto flex items-center gap-2"><div class="group relative"><button[^>]*rounded-full[^>]*>정보 수정<\/button>/,
+      /마지막 수정 [^<]*<\/p><div class="ml-auto flex items-center gap-2"><div class="group relative"><button[^>]*rounded-full[^>]*><svg[^>]*aria-hidden="true"[^>]*>.*?<\/svg>장소 수정<\/button>/,
     );
     expect(html).toMatch(
       /<button type="button" class="[^"]*rounded-full[^"]*hover:text-alert"><svg[^>]*aria-hidden="true"[^>]*>.*<\/svg>신고<\/button>/,

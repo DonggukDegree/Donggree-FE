@@ -58,7 +58,8 @@ export default function PlaceReportDialog({ place, onClose }: IPlaceReportDialog
                   value={value}
                   checked={checked}
                   onChange={() => report.changeReason(value)}
-                  className="accent-primary-60"
+                  // 기본 라디오는 브라우저마다 강조색이 테두리 밖으로 번져 보여, 테두리·가운데 점을 직접 그린다.
+                  className="h-4 w-4 shrink-0 cursor-pointer appearance-none rounded-full border-[1.5px] border-coolgray-30 checked:border-primary-60 checked:bg-primary-60 checked:shadow-[inset_0_0_0_3px_white] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-60"
                 />
                 {label}
               </label>

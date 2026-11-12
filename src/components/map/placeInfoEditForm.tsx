@@ -33,7 +33,7 @@ export default function PlaceInfoEditForm({ place, onClose }: IPlaceInfoEditForm
         >
           ‹ 취소
         </button>
-        <h2 className="text-heading-6 text-coolgray-90">정보 수정</h2>
+        <h2 className="text-heading-6 text-coolgray-90">장소 수정</h2>
       </header>
 
       <form
