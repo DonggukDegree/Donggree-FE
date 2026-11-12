@@ -69,6 +69,19 @@ describe('GA 발송 경계', () => {
     });
     expect(events().find((event) => event[1] === 'place_report_submit')?.[2]).not.toHaveProperty('description');
     expect(events().find((event) => event[1] === 'place_report_start')?.[2]).not.toHaveProperty('report_reason');
+    analytics.trackEvent('place_review_submit', {
+      place_category: 'CAFE',
+      review_rating: 4,
+      content: '맛있어요 맛있어요',
+    });
+    analytics.trackEvent('place_review_report_submit', { report_reason: 'ABUSE' });
+    analytics.trackEvent('place_review_edit', { review_rating: 9 });
+    expect(events().find((event) => event[1] === 'place_review_submit')?.[2]).toMatchObject({ review_rating: 4 });
+    expect(events().find((event) => event[1] === 'place_review_submit')?.[2]).not.toHaveProperty('content');
+    expect(events().find((event) => event[1] === 'place_review_report_submit')?.[2]).toMatchObject({
+      report_reason: 'ABUSE',
+    });
+    expect(events().find((event) => event[1] === 'place_review_edit')?.[2]).not.toHaveProperty('review_rating');
     expect(sent.find((event) => event[1] === 'error_shown')?.[2]).toMatchObject({
       error_source: 'donggle_map',
       code: 'PLACE404_1',

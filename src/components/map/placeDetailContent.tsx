@@ -3,12 +3,13 @@
  * 주소는 저장하지 않으므로 좌표로 실시간 조회해 보여준다. 최초 등록자는 등록일 뒤에 닉네임으로 보여주고
  * (탈퇴했으면 "탈퇴한 회원"), 수정자는 표시하지 않는다.
  * 영업시간·설명·메뉴는 인증 회원 누구나 고치고 신고할 수 있어 장소 수정·신고 칩을 두며, 미인증 회원도 칩은 보게 한다.
- * 리뷰 영역은 리뷰 기능이 열릴 때 채운다.
+ * 이름 아래에 평균 별점·리뷰 수를 두고, 아래 리뷰 영역에서 목록·작성·신고를 한다.
  */
 import { type ReactNode, useState } from 'react';
 
 import Pencil from '@/assets/icons/pencil.svg?react';
 import Siren from '@/assets/icons/siren.svg?react';
+import PlaceReviewSection from '@/components/map/placeReviewSection';
 import {
   PLACE_CATEGORY_BY_VALUE,
   PLACE_MENU_PREVIEW_COUNT,
@@ -18,6 +19,7 @@ import {
 import usePlaceAddress from '@/hooks/place/usePlaceAddress';
 import type { TPlaceDetail, TPlaceMenu } from '@/types/place/TPlace';
 import { formatMenuPrice, formatPlaceDate } from '@/utils/place/place';
+import { formatAverageRating } from '@/utils/place/placeReview';
 
 interface IPlaceDetailContentProps {
   place: TPlaceDetail;
@@ -42,6 +44,19 @@ export default function PlaceDetailContent({ place, onEdit, onReport }: IPlaceDe
           {category.label} · {PLACE_SUB_CATEGORY_LABELS[place.subCategory]}
         </p>
         <h2 className="text-heading-5 text-coolgray-90 break-keep">{place.name}</h2>
+        <p className="flex items-center gap-1 text-body-s text-coolgray-60">
+          {place.averageRating === null ? (
+            '아직 리뷰가 없어요'
+          ) : (
+            <>
+              <span aria-hidden="true" className="text-primary-60">
+                ★
+              </span>
+              <span className="text-coolgray-90">{formatAverageRating(place.averageRating)}</span>
+              <span>· 리뷰 {place.reviewCount}</span>
+            </>
+          )}
+        </p>
       </div>
 
       <dl className="flex flex-col gap-3 text-body-s">
@@ -78,12 +93,7 @@ export default function PlaceDetailContent({ place, onEdit, onReport }: IPlaceDe
         </section>
       )}
 
-      <section className="flex flex-col gap-2">
-        <h3 className="text-button-m text-coolgray-90">리뷰</h3>
-        <p className="rounded-lg bg-coolgray-10 px-4 py-5 text-center text-body-s text-coolgray-60">
-          리뷰 기능은 곧 열려요.
-        </p>
-      </section>
+      <PlaceReviewSection place={place} />
 
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-body-xs text-coolgray-60">

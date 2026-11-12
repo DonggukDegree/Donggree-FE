@@ -9,6 +9,7 @@ import { CustomOverlayMap, MarkerClusterer } from 'react-kakao-maps-sdk';
 import { MAP_LABEL_MAX_LEVEL, PLACE_CATEGORY_BY_VALUE } from '@/constants/place';
 import type { TPlaceSummary } from '@/types/place/TPlace';
 import { shouldShowPlaceLabel } from '@/utils/place/place';
+import { formatAverageRating } from '@/utils/place/placeReview';
 
 interface IPlaceMarkersProps {
   places: TPlaceSummary[];
@@ -66,6 +67,9 @@ export default function PlaceMarkers({ places, level, selectedId, onSelect }: IP
                     {category.emoji}
                   </span>
                   <span className="truncate">{place.name}</span>
+                  {place.averageRating !== null && (
+                    <span className="shrink-0 text-primary-60">★{formatAverageRating(place.averageRating)}</span>
+                  )}
                 </span>
               ) : (
                 <span

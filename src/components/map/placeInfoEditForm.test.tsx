@@ -37,6 +37,8 @@ const place: TPlaceDetail = {
   updatedAt: '2026-11-02T12:00:00',
   version: 2,
   registrantNickname: '김아코',
+  averageRating: null,
+  reviewCount: 0,
 };
 
 const render = () => renderToStaticMarkup(<PlaceInfoEditForm place={place} onClose={vi.fn()} />);

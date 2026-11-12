@@ -17,6 +17,8 @@ const place = (id: number, category: TPlaceSummary['category']): TPlaceSummary =
   subCategory: 'ETC',
   latitude: 37.5585,
   longitude: 127.0,
+  averageRating: null,
+  reviewCount: 0,
 });
 
 describe('동글맵 표시 규칙', () => {

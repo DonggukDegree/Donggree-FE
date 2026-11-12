@@ -12,8 +12,26 @@ vi.mock('react-kakao-maps-sdk', () => ({
 }));
 
 const places: TPlaceSummary[] = [
-  { id: 1, name: '동국반점', category: 'RESTAURANT', subCategory: 'CHINESE', latitude: 37.558, longitude: 127 },
-  { id: 2, name: '필동커피', category: 'CAFE', subCategory: 'COFFEE', latitude: 37.559, longitude: 127 },
+  {
+    id: 1,
+    name: '동국반점',
+    category: 'RESTAURANT',
+    subCategory: 'CHINESE',
+    latitude: 37.558,
+    longitude: 127,
+    averageRating: 4.3,
+    reviewCount: 3,
+  },
+  {
+    id: 2,
+    name: '필동커피',
+    category: 'CAFE',
+    subCategory: 'COFFEE',
+    latitude: 37.559,
+    longitude: 127,
+    averageRating: null,
+    reviewCount: 0,
+  },
 ];
 
 const render = (level: number) =>
@@ -32,5 +50,11 @@ describe('동글맵 장소 핀', () => {
       expect(html.match(/relative z-10 flex/g)).toHaveLength(2);
       expect(html.match(/relative z-0 -mt-1 h-0 w-0/g)).toHaveLength(2);
     }
+  });
+
+  it('라벨 핀은 리뷰가 있으면 이름 뒤에 평균 별점, 없으면 이름만 표시', () => {
+    const html = render(3);
+    expect(html).toMatch(/동국반점<\/span><span class="shrink-0 text-primary-60">★4\.3<\/span>/);
+    expect(html).toMatch(/필동커피<\/span><\/span>/);
   });
 });

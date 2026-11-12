@@ -1,17 +1,23 @@
 import axiosInstance from '@/apis/axiosInstance';
 import type {
+  TEmptyResponse,
   TGetPlaceDetailResponse,
   TGetPlaceDuplicatesResponse,
+  TGetPlaceReviewsResponse,
   TGetPlacesResponse,
   TPlaceDetail,
   TPlaceDuplicates,
   TPlaceInfoEditRequest,
   TPlaceRegisterRequest,
   TPlaceReportRequest,
+  TPlaceReviewPage,
+  TPlaceReviewRequest,
   TPlaceSummary,
   TPostPlaceReportResponse,
   TPostPlaceResponse,
+  TPostPlaceReviewResponse,
   TPutPlaceInfoResponse,
+  TReviewReportReason,
 } from '@/types/place/TPlace';
 
 // 지도 장소 목록 조회. 서비스 영역이 좁아 숨김 제외 전체를 한 번에 받는다.
@@ -65,5 +71,66 @@ export const postPlaceReport = async ({
   body: TPlaceReportRequest;
 }): Promise<number> => {
   const { data } = await axiosInstance.post<TPostPlaceReportResponse>(`/api/places/${placeId}/reports`, body);
+  return data.result;
+};
+
+// 리뷰 목록. 최신순 10개씩, cursor는 이전 페이지의 nextCursor(첫 페이지는 생략).
+export const getPlaceReviews = async ({
+  placeId,
+  cursor,
+}: {
+  placeId: number;
+  cursor: number | null;
+}): Promise<TPlaceReviewPage> => {
+  const { data } = await axiosInstance.get<TGetPlaceReviewsResponse>(`/api/places/${placeId}/reviews`, {
+    params: cursor === null ? undefined : { cursor },
+  });
+  return data.result;
+};
+
+// 리뷰 작성. 장소마다 1건(이미 있으면 409 PLACE409_4), 별점·본문 오류 400(PLACE400_5).
+export const postPlaceReview = async ({
+  placeId,
+  body,
+}: {
+  placeId: number;
+  body: TPlaceReviewRequest;
+}): Promise<number> => {
+  const { data } = await axiosInstance.post<TPostPlaceReviewResponse>(`/api/places/${placeId}/reviews`, body);
+  return data.result;
+};
+
+// 본인 리뷰 수정. 숨겨진 리뷰는 409(PLACE409_6), 본인 아님 403(PLACE403_2).
+export const putPlaceReview = async ({
+  placeId,
+  reviewId,
+  body,
+}: {
+  placeId: number;
+  reviewId: number;
+  body: TPlaceReviewRequest;
+}): Promise<void> => {
+  await axiosInstance.put<TEmptyResponse>(`/api/places/${placeId}/reviews/${reviewId}`, body);
+};
+
+// 본인 리뷰 삭제.
+export const deletePlaceReview = async ({ placeId, reviewId }: { placeId: number; reviewId: number }) => {
+  await axiosInstance.delete<TEmptyResponse>(`/api/places/${placeId}/reviews/${reviewId}`);
+};
+
+// 리뷰 신고. 본인 리뷰 400(PLACE400_6), 처리 대기 신고 있음 409(PLACE409_5).
+export const postReviewReport = async ({
+  placeId,
+  reviewId,
+  body,
+}: {
+  placeId: number;
+  reviewId: number;
+  body: { reason: TReviewReportReason; description: string | null };
+}): Promise<number> => {
+  const { data } = await axiosInstance.post<TPostPlaceReviewResponse>(
+    `/api/places/${placeId}/reviews/${reviewId}/reports`,
+    body,
+  );
   return data.result;
 };
