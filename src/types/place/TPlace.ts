@@ -42,6 +42,8 @@ export type TPlaceSummary = {
   subCategory: TPlaceSubCategory;
   latitude: number;
   longitude: number;
+  averageRating: number | null; // 소수 첫째 자리 평균 별점. 리뷰가 없으면 null
+  reviewCount: number;
 };
 
 export type TPlaceMenu = {
@@ -89,6 +91,31 @@ export type TPlaceReportRequest = {
   description: string | null; // 최대 200자, 기타 외에는 선택
 };
 
+// 리뷰 신고 사유. 기타(OTHER)는 설명이 필수다.
+export type TReviewReportReason = 'ABUSE' | 'SPAM' | 'FALSE_INFO' | 'PRIVACY' | 'OTHER';
+
+// 리뷰 한 건. 작성자 닉네임이 null이면 "탈퇴한 회원", 프로필 사진이 null이면 기본 아바타로 표시한다.
+export type TPlaceReview = {
+  id: number;
+  rating: number; // 1~5
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  author: { nickname: string | null; profileUrl: string | null };
+  mine: boolean;
+  hidden: boolean; // 신고 누적·관리자로 숨겨짐(본인 리뷰에서만 true 가능)
+};
+
+// GET /api/places/{placeId}/reviews 한 페이지. 최신순 10개, 다음 페이지는 nextCursor를 cursor로 넘긴다.
+export type TPlaceReviewPage = {
+  reviews: TPlaceReview[];
+  nextCursor: number | null;
+  myReview: TPlaceReview | null; // 요청 회원의 리뷰(숨겨졌어도 포함)
+};
+
+// POST·PUT 리뷰 요청. 별점 1~5, 본문 앞뒤 공백 제외 10~500자.
+export type TPlaceReviewRequest = { rating: number; content: string };
+
 // GET /api/places/duplicates 후보. 반경 50m 안 장소.
 export type TPlaceDuplicateCandidate = {
   id: number;
@@ -110,3 +137,6 @@ export type TGetPlaceDuplicatesResponse = TCommonResponse<TPlaceDuplicates>;
 export type TPostPlaceResponse = TCommonResponse<number>;
 export type TPutPlaceInfoResponse = TCommonResponse<TPlaceDetail>;
 export type TPostPlaceReportResponse = TCommonResponse<number>;
+export type TGetPlaceReviewsResponse = TCommonResponse<TPlaceReviewPage>;
+export type TPostPlaceReviewResponse = TCommonResponse<number>;
+export type TEmptyResponse = TCommonResponse<null>;

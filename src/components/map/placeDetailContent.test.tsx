@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import PlaceDetailContent from '@/components/map/placeDetailContent';
 import type { TPlaceDetail } from '@/types/place/TPlace';
 
+vi.mock('@/components/map/placeReviewSection', () => ({ default: () => <section>리뷰 영역</section> }));
 vi.mock('@/hooks/place/usePlaceAddress', () => ({
   default: () => ({ address: '서울 중구 필동로1길 30', isLoading: false }),
 }));
@@ -23,6 +24,8 @@ const place: TPlaceDetail = {
   updatedAt: '2026-11-02T12:00:00',
   version: 0,
   registrantNickname: '김아코',
+  averageRating: null,
+  reviewCount: 0,
 };
 
 describe('장소 정보', () => {
@@ -73,5 +76,20 @@ describe('장소 정보', () => {
         <PlaceDetailContent place={{ ...place, registrantNickname: null }} onEdit={vi.fn()} onReport={vi.fn()} />,
       ),
     ).toContain('탈퇴한 회원 등록');
+  });
+
+  it('이름 아래에 평균 별점과 리뷰 수, 리뷰가 없으면 안내를 표시하고 리뷰 영역을 붙임', () => {
+    let html = renderToStaticMarkup(<PlaceDetailContent place={place} onEdit={vi.fn()} onReport={vi.fn()} />);
+    expect(html).toContain('아직 리뷰가 없어요');
+    expect(html).toContain('리뷰 영역');
+
+    html = renderToStaticMarkup(
+      <PlaceDetailContent
+        place={{ ...place, averageRating: 4, reviewCount: 12 }}
+        onEdit={vi.fn()}
+        onReport={vi.fn()}
+      />,
+    );
+    expect(html).toMatch(/★<\/span><span class="text-coolgray-90">4\.0<\/span><span>· 리뷰 12<\/span>/);
   });
 });

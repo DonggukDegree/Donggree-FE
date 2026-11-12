@@ -55,6 +55,11 @@ export const EVENT_NAMES = {
   place_edit_conflict_shown: '동글맵 장소 정보 수정 충돌 안내 표시',
   place_report_start: '동글맵 장소 신고 시작',
   place_report_submit: '동글맵 장소 신고 제출',
+  place_review_write_start: '동글맵 리뷰 작성 시작',
+  place_review_submit: '동글맵 리뷰 작성 완료',
+  place_review_edit: '동글맵 리뷰 수정 완료',
+  place_review_delete: '동글맵 리뷰 삭제',
+  place_review_report_submit: '동글맵 리뷰 신고 제출',
   student_verification_shown: '학생 인증 안내 표시',
   student_verification_select: '학생 인증 안내에서 인증 방법 선택',
 } as const;

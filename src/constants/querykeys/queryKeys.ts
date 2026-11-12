@@ -10,6 +10,7 @@ export const QUERY_KEYS = {
   PLACES_ROOT: ['places'] as const,
   GET_PLACES: ['places', 'list'] as const,
   GET_PLACE_DETAIL: (placeId: number) => ['places', 'detail', placeId] as const,
+  GET_PLACE_REVIEWS: (placeId: number) => ['places', 'reviews', placeId] as const,
   FAQS_ROOT: ['faqs'] as const,
   GET_FAQS: (tag: string | null) => ['faqs', { tag }] as const,
   ADMIN_ROOT: ['admin'] as const,

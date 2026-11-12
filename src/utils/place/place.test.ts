@@ -6,7 +6,9 @@ import {
   filterPlacesByCategory,
   formatMenuPrice,
   formatPlaceDate,
+  groupNearbyPlaces,
   parsePlaceIdParam,
+  placeMarkerZIndex,
   shouldShowPlaceLabel,
 } from '@/utils/place/place';
 
@@ -17,6 +19,8 @@ const place = (id: number, category: TPlaceSummary['category']): TPlaceSummary =
   subCategory: 'ETC',
   latitude: 37.5585,
   longitude: 127.0,
+  averageRating: null,
+  reviewCount: 0,
 });
 
 describe('동글맵 표시 규칙', () => {
@@ -49,5 +53,24 @@ describe('동글맵 표시 규칙', () => {
     expect(formatMenuPrice(null)).toBe('가격 변동');
     expect(formatPlaceDate('2026-10-27T09:30:00')).toBe('2026.10.27');
     expect(formatPlaceDate('')).toBe('');
+  });
+
+  it('겹친 핀은 커서를 올린 핀이 선택한 핀보다도 위, 나머지는 같은 높이', () => {
+    expect(placeMarkerZIndex(1, 2, 1)).toBe(30);
+    expect(placeMarkerZIndex(2, 2, 1)).toBe(20);
+    expect(placeMarkerZIndex(2, 2, null)).toBe(20);
+    expect(placeMarkerZIndex(3, 2, 1)).toBe(1);
+  });
+
+  it('기준 장소에서 5m 안의 장소만 한 묶음으로 모으고 기준 장소 ID를 key로 씀', () => {
+    const at = (id: number, lat: number, lng: number) => ({ id, latitude: lat, longitude: lng });
+    const groups = groupNearbyPlaces(
+      [at(1, 37.5585, 127), at(2, 37.55851, 127), at(3, 37.5585, 127.00003), at(4, 37.55856, 127)],
+      5,
+    );
+    expect(groups.map((group) => [group.key, group.places.map((member) => member.id)])).toEqual([
+      [1, [1, 2, 3]],
+      [4, [4]],
+    ]);
   });
 });

@@ -1,4 +1,4 @@
-import type { TPlaceCategory, TPlaceReportReason, TPlaceSubCategory } from '@/types/place/TPlace';
+import type { TPlaceCategory, TPlaceReportReason, TPlaceSubCategory, TReviewReportReason } from '@/types/place/TPlace';
 
 // 동글맵 기준값. 캠퍼스 중심은 BE CampusArea.CENTER와 같은 좌표를 쓴다.
 export const CAMPUS_CENTER = { lat: 37.55828693771417, lng: 127.00018391368702 } as const;
@@ -93,3 +93,25 @@ export const PLACE_REPORT_DESCRIPTION_MAX = 200;
 
 // 장소 등록자·리뷰 작성자가 탈퇴했거나 조회되지 않을 때 닉네임 대신 쓰는 표기.
 export const WITHDRAWN_MEMBER_LABEL = '탈퇴한 회원';
+
+// 리뷰 작성 제한. 서버도 같은 기준으로 다시 검증한다.
+export const PLACE_REVIEW_LIMITS = { RATING_MIN: 1, RATING_MAX: 5, CONTENT_MIN: 10, CONTENT_MAX: 500 } as const;
+
+// 리뷰 본문은 이 길이를 넘으면 3줄로 접고 펼치기 버튼을 둔다.
+export const PLACE_REVIEW_FOLD_LENGTH = 90;
+
+// 리뷰 신고 사유. 서버 enum 코드 순서대로 보여준다. 기타는 설명이 필수다.
+export const REVIEW_REPORT_REASONS: { value: TReviewReportReason; label: string }[] = [
+  { value: 'ABUSE', label: '욕설·비방이 있어요' },
+  { value: 'SPAM', label: '광고·도배예요' },
+  { value: 'FALSE_INFO', label: '사실과 다른 내용이에요' },
+  { value: 'PRIVACY', label: '개인정보가 노출됐어요' },
+  { value: 'OTHER', label: '기타' },
+];
+
+// 리뷰 목록은 처음 5개만 보이고, "리뷰 더보기"마다 10개씩 더 보인다(서버는 10개씩 커서 조회).
+export const PLACE_REVIEW_INITIAL_COUNT = 5;
+export const PLACE_REVIEW_MORE_COUNT = 10;
+
+// 이 거리(m) 안의 장소는 최대로 확대해도 라벨 핀이 겹쳐 고를 수 없으므로 개수 핀 하나로 묶는다.
+export const PLACE_OVERLAP_GROUP_METERS = 5;

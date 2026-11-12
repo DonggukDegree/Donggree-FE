@@ -3,11 +3,15 @@
  * 모든 조회·변경 훅은 이 두 함수를 거친다. 캐시 정책과 에러 처리 기본값을 한곳에서 통일하기 위함이다.
  *  - useCoreQuery : 캐시 정책은 QueryClient 기본값(constants/queryOptions)을 따르고 타입만 고정
  *  - useCoreMutation: onError를 주지 않으면 공용 토스트로 안내 (either/or)
+ *  - useCoreInfiniteQuery: 커서 기반 "더보기" 목록
  */
 import {
+  type InfiniteData,
   type MutationFunction,
   type QueryFunction,
   type QueryKey,
+  useInfiniteQuery,
+  type UseInfiniteQueryResult,
   useMutation,
   useQuery,
   type UseQueryResult,
@@ -47,5 +51,24 @@ export function useCoreMutation<T, U>(mutation: MutationFunction<T, U>, options?
       }
     },
     ...restOptions,
+  });
+}
+
+// 커서 기반 "더보기" 목록용. 다음 커서가 없으면(null) 마지막 페이지로 본다.
+export function useCoreInfiniteQuery<TQueryFnData, TPageParam>(
+  keyName: QueryKey,
+  query: (pageParam: TPageParam) => Promise<TQueryFnData>,
+  options: {
+    initialPageParam: TPageParam;
+    getNextPageParam: (lastPage: TQueryFnData) => TPageParam | null | undefined;
+    enabled?: boolean;
+  },
+): UseInfiniteQueryResult<InfiniteData<TQueryFnData, TPageParam>, TResponseError> {
+  return useInfiniteQuery<TQueryFnData, TResponseError, InfiniteData<TQueryFnData, TPageParam>, QueryKey, TPageParam>({
+    queryKey: keyName,
+    queryFn: ({ pageParam }) => query(pageParam as TPageParam),
+    initialPageParam: options.initialPageParam,
+    getNextPageParam: (lastPage) => options.getNextPageParam(lastPage) ?? undefined,
+    enabled: options.enabled,
   });
 }

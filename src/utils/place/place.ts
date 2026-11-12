@@ -1,5 +1,6 @@
 import { MAP_LABEL_MAX_LEVEL } from '@/constants/place';
 import type { TPlaceCategory, TPlaceMenu, TPlaceSummary } from '@/types/place/TPlace';
+import { distanceMeters } from '@/utils/place/placeForm';
 
 // [동글맵] 화면 표시용 순수 함수 모음.
 
@@ -24,4 +25,31 @@ export const formatMenuPrice = (price: TPlaceMenu['price']) =>
 export const formatPlaceDate = (value: string) => {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
   return match ? `${match[1]}.${match[2]}.${match[3]}` : '';
+};
+
+// 겹친 핀의 쌓임 순서. 커서를 올린 핀이 맨 위, 그다음 선택한 핀, 나머지는 같은 높이.
+export const placeMarkerZIndex = (placeId: number, selectedId: number | null, hoveredId: number | null) => {
+  if (placeId === hoveredId) return 30;
+  if (placeId === selectedId) return 20;
+  return 1;
+};
+
+export type TPlaceGroup<TPlace> = { key: number; anchor: TPlace; places: TPlace[] };
+
+// 기준 장소(묶음의 첫 장소)에서 maxMeters 안의 장소를 한 묶음으로 모은다. 묶음 위치는 기준 장소 좌표,
+// key는 기준 장소 ID라 목록이 바뀌어도 열린 묶음을 유지할 수 있다. 입력 순서(ID 오름차순)대로 기준을 정한다.
+export const groupNearbyPlaces = <TPlace extends Pick<TPlaceSummary, 'id' | 'latitude' | 'longitude'>>(
+  places: TPlace[],
+  maxMeters: number,
+): TPlaceGroup<TPlace>[] => {
+  const groups: TPlaceGroup<TPlace>[] = [];
+  for (const place of places) {
+    const point = { lat: place.latitude, lng: place.longitude };
+    const group = groups.find(
+      ({ anchor }) => distanceMeters({ lat: anchor.latitude, lng: anchor.longitude }, point) <= maxMeters,
+    );
+    if (group) group.places.push(place);
+    else groups.push({ key: place.id, anchor: place, places: [place] });
+  }
+  return groups;
 };

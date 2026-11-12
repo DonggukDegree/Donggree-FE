@@ -65,6 +65,8 @@ function DonggleMapCanvas() {
   // 수정 폼은 시트에서 본 장소 값과 버전으로 채운다. 선택 장소(?place=)는 그대로 두어 닫으면 시트로 돌아온다.
   const [editingPlace, setEditingPlace] = useState<TPlaceDetail | null>(null);
   const [reportingPlace, setReportingPlace] = useState<TPlaceDetail | null>(null);
+  // 겹친 장소 묶음 핀의 목록. 지도를 누르거나 확대·축소하면 닫는다.
+  const [openGroupKey, setOpenGroupKey] = useState<number | null>(null);
   const mapRef = useRef<kakao.maps.Map>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -169,14 +171,25 @@ function DonggleMapCanvas() {
         // react-kakao-maps-sdk의 minLevel은 카카오 setMaxLevel(가장 넓게 보는 레벨)에 대응한다. 이름이 반대라 주의.
         minLevel={MAP_MAX_LEVEL}
         className="h-full w-full"
-        onZoomChanged={(map) => setLevel(map.getLevel())}
+        onZoomChanged={(map) => {
+          setLevel(map.getLevel());
+          setOpenGroupKey(null);
+        }}
+        onClick={() => setOpenGroupKey(null)}
         onIdle={(map) => {
           const next = map.getCenter();
           setCenter({ lat: next.getLat(), lng: next.getLng() });
         }}
       >
         {isBrowsing && (
-          <PlaceMarkers places={visiblePlaces} level={level} selectedId={selectedId} onSelect={openPlace} />
+          <PlaceMarkers
+            places={visiblePlaces}
+            level={level}
+            selectedId={selectedId}
+            onSelect={openPlace}
+            openGroupKey={openGroupKey}
+            onToggleGroup={setOpenGroupKey}
+          />
         )}
       </KakaoMap>
 
