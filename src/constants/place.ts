@@ -1,4 +1,4 @@
-import type { TPlaceCategory, TPlaceSubCategory } from '@/types/place/TPlace';
+import type { TPlaceCategory, TPlaceReportReason, TPlaceSubCategory } from '@/types/place/TPlace';
 
 // 동글맵 기준값. 캠퍼스 중심은 BE CampusArea.CENTER와 같은 좌표를 쓴다.
 export const CAMPUS_CENTER = { lat: 37.55828693771417, lng: 127.00018391368702 } as const;
@@ -78,3 +78,15 @@ export const PLACE_SUB_CATEGORY_LABELS: Record<TPlaceSubCategory, string> = {
   LIFE_ETC: '기타',
   ETC: '기타',
 };
+
+// 장소 신고 사유. 서버 enum 코드 순서대로 보여준다. 기타는 설명이 필수다.
+export const PLACE_REPORT_REASONS: { value: TPlaceReportReason; label: string }[] = [
+  { value: 'CLOSED', label: '폐업했어요' },
+  { value: 'WRONG_LOCATION', label: '위치가 달라요' },
+  { value: 'WRONG_NAME', label: '이름이 달라요' },
+  { value: 'DUPLICATE', label: '중복된 장소예요' },
+  { value: 'INAPPROPRIATE', label: '부적절한 내용이 있어요' },
+  { value: 'OTHER', label: '기타' },
+];
+
+export const PLACE_REPORT_DESCRIPTION_MAX = 200;

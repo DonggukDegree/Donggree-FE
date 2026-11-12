@@ -57,6 +57,18 @@ describe('GA 발송 경계', () => {
       expect.objectContaining({ verification_method: 'school_email' }),
     );
     expect(events().find((event) => event[1] === 'student_verification_select')?.[2]).not.toHaveProperty('email');
+    analytics.trackEvent('place_report_submit', {
+      place_category: 'CAFE',
+      report_reason: 'OTHER',
+      description: '사장님 연락처 010',
+    });
+    analytics.trackEvent('place_report_start', { report_reason: 'UNKNOWN' });
+    expect(events().find((event) => event[1] === 'place_report_submit')?.[2]).toMatchObject({
+      place_category: 'CAFE',
+      report_reason: 'OTHER',
+    });
+    expect(events().find((event) => event[1] === 'place_report_submit')?.[2]).not.toHaveProperty('description');
+    expect(events().find((event) => event[1] === 'place_report_start')?.[2]).not.toHaveProperty('report_reason');
     expect(sent.find((event) => event[1] === 'error_shown')?.[2]).toMatchObject({
       error_source: 'donggle_map',
       code: 'PLACE404_1',

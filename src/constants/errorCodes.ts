@@ -13,4 +13,6 @@ export const ERROR_CODE = {
   PLACE_OUT_OF_SERVICE_AREA: 'PLACE400_1', // 캠퍼스 반경 밖 장소 등록
   PLACE_DUPLICATE: 'PLACE409_1', // 반경 50m 안 같은 이름 장소
   PLACE_EDIT_CONFLICT: 'PLACE409_2', // 장소 정보를 다른 회원이 먼저 수정
+  PLACE_REPORT_INVALID: 'PLACE400_4', // 기타 사유 신고에 설명 누락 등 신고 내용 오류
+  PLACE_REPORT_DUPLICATE: 'PLACE409_3', // 같은 장소에 처리 대기 신고가 이미 있음
 } as const;

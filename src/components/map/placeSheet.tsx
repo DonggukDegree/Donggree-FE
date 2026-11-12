@@ -19,9 +19,10 @@ interface IPlaceSheetProps {
   placeId: number;
   onClose: () => void;
   onEdit: (place: TPlaceDetail) => void;
+  onReport: (place: TPlaceDetail) => void;
 }
 
-export default function PlaceSheet({ placeId, onClose, onEdit }: IPlaceSheetProps) {
+export default function PlaceSheet({ placeId, onClose, onEdit, onReport }: IPlaceSheetProps) {
   const { data: place, isPending, isError, error } = usePlaceDetail(placeId);
   const [expanded, setExpanded] = useState(false);
   const dragStartY = useRef<number | null>(null);
@@ -86,7 +87,7 @@ export default function PlaceSheet({ placeId, onClose, onEdit }: IPlaceSheetProp
             {getErrorStatus(error) === 404 ? '장소를 찾을 수 없어요.' : '장소 정보를 불러오지 못했어요.'}
           </p>
         ) : (
-          <PlaceDetailContent place={place} onEdit={() => onEdit(place)} />
+          <PlaceDetailContent place={place} onEdit={() => onEdit(place)} onReport={() => onReport(place)} />
         )}
       </div>
     </section>

@@ -7,7 +7,9 @@ import type {
   TPlaceDuplicates,
   TPlaceInfoEditRequest,
   TPlaceRegisterRequest,
+  TPlaceReportRequest,
   TPlaceSummary,
+  TPostPlaceReportResponse,
   TPostPlaceResponse,
   TPutPlaceInfoResponse,
 } from '@/types/place/TPlace';
@@ -50,5 +52,18 @@ export const putPlaceInfo = async ({
   body: TPlaceInfoEditRequest;
 }): Promise<TPlaceDetail> => {
   const { data } = await axiosInstance.put<TPutPlaceInfoResponse>(`/api/places/${placeId}/info`, body);
+  return data.result;
+};
+
+// 장소 신고. 접수된 신고 ID를 돌려준다.
+// 미인증 403(PLACE403_1), 기타 사유 설명 누락 400(PLACE400_4), 없거나 숨김 404(PLACE404_1), 처리 대기 신고 있음 409(PLACE409_3).
+export const postPlaceReport = async ({
+  placeId,
+  body,
+}: {
+  placeId: number;
+  body: TPlaceReportRequest;
+}): Promise<number> => {
+  const { data } = await axiosInstance.post<TPostPlaceReportResponse>(`/api/places/${placeId}/reports`, body);
   return data.result;
 };

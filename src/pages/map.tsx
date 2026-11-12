@@ -5,7 +5,8 @@
  *
  * 카카오 지도는 표시용으로만 쓰고, 장소 데이터는 동그리 서버에서 받는다.
  * 장소 추가(주황 + 버튼)는 인증 학생만 진행하며, 지도 중심 핀으로 위치를 정한 뒤 입력 폼으로 넘어간다.
- * 장소 정보 시트의 수정 버튼도 인증 학생만 진행하며, 수정 폼을 닫으면 같은 장소 시트로 돌아온다.
+ * 장소 정보 시트의 정보 수정·신고도 인증 학생만 진행한다. 수정 폼을 닫으면 같은 장소 시트로 돌아오고,
+ * 신고 모달은 시트 위에 띄운다.
  * 레이아웃은 /map에서만 폭 제한·푸터를 풀고 헤더 아래 화면 전체를 지도로 쓴다.
  */
 import { useEffect, useRef, useState } from 'react';
@@ -20,6 +21,7 @@ import PlaceInfoEditForm from '@/components/map/placeInfoEditForm';
 import PlaceMarkers from '@/components/map/placeMarkers';
 import PlaceRegisterForm from '@/components/map/placeRegisterForm';
 import PlaceRegisterLocator from '@/components/map/placeRegisterLocator';
+import PlaceReportDialog from '@/components/map/placeReportDialog';
 import PlaceSheet from '@/components/map/placeSheet';
 import { CAMPUS_CENTER, MAP_INITIAL_LEVEL, MAP_MAX_LEVEL, MAP_MIN_LEVEL } from '@/constants/place';
 import usePlaces from '@/hooks/place/usePlaces';
@@ -62,6 +64,7 @@ function DonggleMapCanvas() {
   const [registerPoint, setRegisterPoint] = useState<TLatLng | null>(null);
   // 수정 폼은 시트에서 본 장소 값과 버전으로 채운다. 선택 장소(?place=)는 그대로 두어 닫으면 시트로 돌아온다.
   const [editingPlace, setEditingPlace] = useState<TPlaceDetail | null>(null);
+  const [reportingPlace, setReportingPlace] = useState<TPlaceDetail | null>(null);
   const mapRef = useRef<kakao.maps.Map>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -129,6 +132,15 @@ function DonggleMapCanvas() {
     trackEvent('place_edit_start', { place_category: place.category });
     setEditingPlace(place);
     setMode('edit');
+  };
+
+  const startReport = (place: TPlaceDetail) => {
+    if (!canWritePlace(user)) {
+      openStudentVerification();
+      return;
+    }
+    trackEvent('place_report_start', { place_category: place.category });
+    setReportingPlace(place);
   };
 
   const finishEdit = () => {
@@ -245,9 +257,18 @@ function DonggleMapCanvas() {
       )}
 
       {isBrowsing && selectedId !== null && (
-        <PlaceSheet key={selectedId} placeId={selectedId} onClose={closePlace} onEdit={startEdit} />
+        <PlaceSheet
+          key={selectedId}
+          placeId={selectedId}
+          onClose={closePlace}
+          onEdit={startEdit}
+          onReport={startReport}
+        />
       )}
       {mode === 'edit' && editingPlace && <PlaceInfoEditForm place={editingPlace} onClose={finishEdit} />}
+      {isBrowsing && reportingPlace && reportingPlace.id === selectedId && (
+        <PlaceReportDialog place={reportingPlace} onClose={() => setReportingPlace(null)} />
+      )}
       {mode === 'locate' && (
         <PlaceRegisterLocator center={center} onConfirm={confirmLocation} onCancel={() => setMode('browse')} />
       )}

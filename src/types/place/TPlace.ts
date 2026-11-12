@@ -79,6 +79,15 @@ export type TPlaceInfoEditRequest = {
   menus: TPlaceMenu[]; // 빈 배열이면 메뉴 전체 삭제
 };
 
+// 장소 신고 사유. 기타(OTHER)는 설명이 필수다.
+export type TPlaceReportReason = 'CLOSED' | 'WRONG_LOCATION' | 'WRONG_NAME' | 'DUPLICATE' | 'INAPPROPRIATE' | 'OTHER';
+
+// POST /api/places/{placeId}/reports 요청. 응답은 접수된 신고 ID.
+export type TPlaceReportRequest = {
+  reason: TPlaceReportReason;
+  description: string | null; // 최대 200자, 기타 외에는 선택
+};
+
 // GET /api/places/duplicates 후보. 반경 50m 안 장소.
 export type TPlaceDuplicateCandidate = {
   id: number;
@@ -99,3 +108,4 @@ export type TGetPlaceDetailResponse = TCommonResponse<TPlaceDetail>;
 export type TGetPlaceDuplicatesResponse = TCommonResponse<TPlaceDuplicates>;
 export type TPostPlaceResponse = TCommonResponse<number>;
 export type TPutPlaceInfoResponse = TCommonResponse<TPlaceDetail>;
+export type TPostPlaceReportResponse = TCommonResponse<number>;
