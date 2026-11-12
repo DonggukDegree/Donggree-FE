@@ -1,7 +1,7 @@
 /**
  * [동글맵 > 장소 정보 수정] 입력 폼
  * 등록 폼과 같은 자리(모바일 전체 화면, lg 이상 왼쪽 400px 패널)에 띄운다.
- * 이름·위치·카테고리는 바꿀 수 없어 보기만 하고, 영업시간·설명·메뉴만 고친다.
+ * 이름·카테고리는 보기만 하고(입력 칸 없음), 영업시간·설명·메뉴만 고친다.
  * 다른 회원이 먼저 고쳤으면 입력을 지우지 않고 안내한 뒤, 최신 정보를 불러와 다시 고치게 한다.
  */
 import Button from '@/components/common/inputs/button';
@@ -49,7 +49,6 @@ export default function PlaceInfoEditForm({ place, onClose }: IPlaceInfoEditForm
             {category.emoji} {category.label} · {PLACE_SUB_CATEGORY_LABELS[place.subCategory]}
           </p>
           <p className="break-keep text-button-m text-coolgray-90">{place.name}</p>
-          <p className="break-keep text-body-xs text-coolgray-60">이름·위치·카테고리는 바꿀 수 없어요.</p>
         </div>
 
         {edit.hasConflict && (

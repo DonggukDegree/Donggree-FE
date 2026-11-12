@@ -56,7 +56,7 @@ describe('장소 정보 수정 폼', () => {
     const html = render();
     expect(html).toContain('동국반점');
     expect(html).toContain('🍚 음식점 · 중식');
-    expect(html).toContain('이름·위치·카테고리는 바꿀 수 없어요.');
+    expect(html).not.toContain('바꿀 수 없어요');
     expect(html).not.toContain('id="place-name"');
     expect(html).toMatch(/id="place-hours"[^>]*value="평일 11:00-21:00"/);
     expect(html).toMatch(/aria-label="1번째 메뉴명"[^>]*value="짜장면"/);

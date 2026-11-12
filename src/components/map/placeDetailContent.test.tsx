@@ -1,4 +1,4 @@
-/** [동글맵] 장소 정보의 수정 버튼·등록/수정일 표시 검사 */
+/** [동글맵] 장소 정보의 카테고리 이모지·수정 칩·등록/수정일 표시 검사 */
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -25,11 +25,17 @@ const place: TPlaceDetail = {
 };
 
 describe('장소 정보', () => {
-  it('메뉴가 없어도 영업시간·설명·메뉴 수정 버튼과 등록/수정일을 표시', () => {
+  it('카테고리 앞에 색 점 대신 카테고리 이모지를 표시', () => {
     const html = renderToStaticMarkup(<PlaceDetailContent place={place} onEdit={vi.fn()} />);
-    expect(html).toContain('영업시간·설명·메뉴 수정');
-    expect(html).toContain('최초 등록');
-    expect(html).toContain('마지막 수정');
+    expect(html).toMatch(/<span aria-hidden="true">🍚<\/span>음식점 · 중식/);
+    expect(html).not.toContain('background:');
+  });
+
+  it('메뉴가 없어도 등록/수정일 바로 옆에 작은 수정 칩을 표시', () => {
+    const html = renderToStaticMarkup(<PlaceDetailContent place={place} onEdit={vi.fn()} />);
+    expect(html).toMatch(
+      /마지막 수정 [^<]*<\/p><button[^>]*aria-label="영업시간·설명·메뉴 수정"[^>]*rounded-full[^>]*>수정<\/button>/,
+    );
     expect(html).not.toContain('>메뉴</h3>');
   });
 });

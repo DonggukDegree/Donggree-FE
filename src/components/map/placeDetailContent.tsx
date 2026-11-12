@@ -26,7 +26,7 @@ export default function PlaceDetailContent({ place, onEdit }: IPlaceDetailConten
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
         <p className="flex items-center gap-1.5 text-body-s text-coolgray-60">
-          <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ background: category.color }} />
+          <span aria-hidden="true">{category.emoji}</span>
           {category.label} · {PLACE_SUB_CATEGORY_LABELS[place.subCategory]}
         </p>
         <h2 className="text-heading-5 text-coolgray-90 break-keep">{place.name}</h2>
@@ -73,17 +73,18 @@ export default function PlaceDetailContent({ place, onEdit }: IPlaceDetailConten
         </p>
       </section>
 
-      <div className="flex flex-col gap-3 border-t border-coolgray-10 pt-4">
-        <button
-          type="button"
-          onClick={onEdit}
-          className="w-full cursor-pointer rounded-lg border border-coolgray-30 py-3 text-button-m text-coolgray-90 hover:border-primary-60 hover:text-primary-60"
-        >
-          영업시간·설명·메뉴 수정
-        </button>
+      <div className="flex flex-wrap items-center gap-2">
         <p className="text-body-xs text-coolgray-60">
           최초 등록 {formatPlaceDate(place.createdAt)} · 마지막 수정 {formatPlaceDate(place.updatedAt)}
         </p>
+        <button
+          type="button"
+          aria-label="영업시간·설명·메뉴 수정"
+          onClick={onEdit}
+          className="cursor-pointer rounded-full border border-coolgray-30 px-2.5 py-0.5 text-body-xs text-coolgray-60 hover:border-primary-60 hover:text-primary-60"
+        >
+          수정
+        </button>
       </div>
     </div>
   );
