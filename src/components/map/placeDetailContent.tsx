@@ -1,6 +1,7 @@
 /**
  * [동글맵] 장소 정보 본문
  * 주소는 저장하지 않으므로 좌표로 실시간 조회해 보여준다. 등록자·수정자는 표시하지 않는다.
+ * 영업시간·설명·메뉴는 인증 회원 누구나 고칠 수 있어 수정 버튼을 두고, 미인증 회원도 버튼은 보게 한다.
  * 리뷰 영역은 리뷰 기능이 열릴 때 채운다.
  */
 import { type ReactNode, useState } from 'react';
@@ -10,7 +11,12 @@ import usePlaceAddress from '@/hooks/place/usePlaceAddress';
 import type { TPlaceDetail, TPlaceMenu } from '@/types/place/TPlace';
 import { formatMenuPrice, formatPlaceDate } from '@/utils/place/place';
 
-export default function PlaceDetailContent({ place }: { place: TPlaceDetail }) {
+interface IPlaceDetailContentProps {
+  place: TPlaceDetail;
+  onEdit: () => void;
+}
+
+export default function PlaceDetailContent({ place, onEdit }: IPlaceDetailContentProps) {
   const category = PLACE_CATEGORY_BY_VALUE[place.category];
   const { address, isLoading: isAddressLoading } = usePlaceAddress(place.latitude, place.longitude);
   const [showAllMenus, setShowAllMenus] = useState(false);
@@ -67,9 +73,18 @@ export default function PlaceDetailContent({ place }: { place: TPlaceDetail }) {
         </p>
       </section>
 
-      <p className="text-body-xs text-coolgray-60">
-        최초 등록 {formatPlaceDate(place.createdAt)} · 마지막 수정 {formatPlaceDate(place.updatedAt)}
-      </p>
+      <div className="flex flex-col gap-3 border-t border-coolgray-10 pt-4">
+        <button
+          type="button"
+          onClick={onEdit}
+          className="w-full cursor-pointer rounded-lg border border-coolgray-30 py-3 text-button-m text-coolgray-90 hover:border-primary-60 hover:text-primary-60"
+        >
+          영업시간·설명·메뉴 수정
+        </button>
+        <p className="text-body-xs text-coolgray-60">
+          최초 등록 {formatPlaceDate(place.createdAt)} · 마지막 수정 {formatPlaceDate(place.updatedAt)}
+        </p>
+      </div>
     </div>
   );
 }

@@ -5,6 +5,7 @@
  *
  * 카카오 지도는 표시용으로만 쓰고, 장소 데이터는 동그리 서버에서 받는다.
  * 장소 추가(주황 + 버튼)는 인증 학생만 진행하며, 지도 중심 핀으로 위치를 정한 뒤 입력 폼으로 넘어간다.
+ * 장소 정보 시트의 수정 버튼도 인증 학생만 진행하며, 수정 폼을 닫으면 같은 장소 시트로 돌아온다.
  * 레이아웃은 /map에서만 폭 제한·푸터를 풀고 헤더 아래 화면 전체를 지도로 쓴다.
  */
 import { useEffect, useRef, useState } from 'react';
@@ -15,6 +16,7 @@ import Plus from '@/assets/icons/plus.svg?react';
 import School from '@/assets/icons/school.svg?react';
 import Loading from '@/components/common/feedback/loading';
 import PlaceCategoryChips from '@/components/map/placeCategoryChips';
+import PlaceInfoEditForm from '@/components/map/placeInfoEditForm';
 import PlaceMarkers from '@/components/map/placeMarkers';
 import PlaceRegisterForm from '@/components/map/placeRegisterForm';
 import PlaceRegisterLocator from '@/components/map/placeRegisterLocator';
@@ -23,7 +25,7 @@ import { CAMPUS_CENTER, MAP_INITIAL_LEVEL, MAP_MAX_LEVEL, MAP_MIN_LEVEL } from '
 import usePlaces from '@/hooks/place/usePlaces';
 import useUserInfo from '@/hooks/user/useUserInfo';
 import { useModalStore } from '@/stores/modalStore';
-import type { TPlaceCategory, TPlaceSummary } from '@/types/place/TPlace';
+import type { TPlaceCategory, TPlaceDetail, TPlaceSummary } from '@/types/place/TPlace';
 import type { TLatLng } from '@/types/place/TPlaceForm';
 import { trackEvent } from '@/utils/analytics/analytics';
 import { trackErrorShown } from '@/utils/analytics/analyticsError';
@@ -31,7 +33,7 @@ import { filterPlacesByCategory, parsePlaceIdParam } from '@/utils/place/place';
 import { canWritePlace } from '@/utils/place/placeForm';
 
 const KAKAO_MAP_KEY = import.meta.env.VITE_KAKAO_MAP_KEY;
-type TMapMode = 'browse' | 'locate' | 'form';
+type TMapMode = 'browse' | 'locate' | 'form' | 'edit';
 const MAP_ZOOM_BUTTON_CLASS =
   'flex h-12 w-12 cursor-pointer items-center justify-center text-heading-5 text-coolgray-90 hover:text-primary-60 disabled:cursor-default disabled:text-coolgray-30';
 
@@ -58,6 +60,8 @@ function DonggleMapCanvas() {
   const [mode, setMode] = useState<TMapMode>('browse');
   const [center, setCenter] = useState<TLatLng>(CAMPUS_CENTER);
   const [registerPoint, setRegisterPoint] = useState<TLatLng | null>(null);
+  // 수정 폼은 시트에서 본 장소 값과 버전으로 채운다. 선택 장소(?place=)는 그대로 두어 닫으면 시트로 돌아온다.
+  const [editingPlace, setEditingPlace] = useState<TPlaceDetail | null>(null);
   const mapRef = useRef<kakao.maps.Map>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -117,6 +121,21 @@ function DonggleMapCanvas() {
     setMode('locate');
   };
 
+  const startEdit = (place: TPlaceDetail) => {
+    if (!canWritePlace(user)) {
+      openStudentVerification();
+      return;
+    }
+    trackEvent('place_edit_start', { place_category: place.category });
+    setEditingPlace(place);
+    setMode('edit');
+  };
+
+  const finishEdit = () => {
+    setMode('browse');
+    setEditingPlace(null);
+  };
+
   const confirmLocation = () => {
     setRegisterPoint(center);
     setMode('form');
@@ -172,7 +191,7 @@ function DonggleMapCanvas() {
         </p>
       )}
 
-      {mode !== 'form' && (
+      {(mode === 'browse' || mode === 'locate') && (
         <div
           className={`absolute right-4 z-20 flex flex-col items-center gap-3 transition-[bottom] duration-200 ${
             mode === 'locate'
@@ -225,7 +244,10 @@ function DonggleMapCanvas() {
         </div>
       )}
 
-      {isBrowsing && selectedId !== null && <PlaceSheet key={selectedId} placeId={selectedId} onClose={closePlace} />}
+      {isBrowsing && selectedId !== null && (
+        <PlaceSheet key={selectedId} placeId={selectedId} onClose={closePlace} onEdit={startEdit} />
+      )}
+      {mode === 'edit' && editingPlace && <PlaceInfoEditForm place={editingPlace} onClose={finishEdit} />}
       {mode === 'locate' && (
         <PlaceRegisterLocator center={center} onConfirm={confirmLocation} onCancel={() => setMode('browse')} />
       )}

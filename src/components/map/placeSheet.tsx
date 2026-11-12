@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import Loading from '@/components/common/feedback/loading';
 import PlaceDetailContent from '@/components/map/placeDetailContent';
 import usePlaceDetail from '@/hooks/place/usePlaceDetail';
+import type { TPlaceDetail } from '@/types/place/TPlace';
 import { trackErrorShown } from '@/utils/analytics/analyticsError';
 import { getErrorStatus } from '@/utils/error';
 
@@ -17,9 +18,10 @@ const DRAG_THRESHOLD_PX = 40;
 interface IPlaceSheetProps {
   placeId: number;
   onClose: () => void;
+  onEdit: (place: TPlaceDetail) => void;
 }
 
-export default function PlaceSheet({ placeId, onClose }: IPlaceSheetProps) {
+export default function PlaceSheet({ placeId, onClose, onEdit }: IPlaceSheetProps) {
   const { data: place, isPending, isError, error } = usePlaceDetail(placeId);
   const [expanded, setExpanded] = useState(false);
   const dragStartY = useRef<number | null>(null);
@@ -84,7 +86,7 @@ export default function PlaceSheet({ placeId, onClose }: IPlaceSheetProps) {
             {getErrorStatus(error) === 404 ? '장소를 찾을 수 없어요.' : '장소 정보를 불러오지 못했어요.'}
           </p>
         ) : (
-          <PlaceDetailContent place={place} />
+          <PlaceDetailContent place={place} onEdit={() => onEdit(place)} />
         )}
       </div>
     </section>

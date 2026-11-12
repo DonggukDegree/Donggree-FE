@@ -3,13 +3,11 @@
  * 모바일은 지도 위 전체 화면, lg 이상은 장소 정보 패널 자리(왼쪽 400px)에 띄운다.
  * 이름·위치·카테고리는 등록 후 바꿀 수 없다는 점을 미리 알리고, 메뉴는 행을 추가·삭제·이동해 입력한다.
  */
-import type { ReactNode } from 'react';
-
 import Button from '@/components/common/inputs/button';
 import Select from '@/components/common/inputs/select';
 import TextField from '@/components/common/inputs/textField';
 import PlaceDuplicateDialog from '@/components/map/placeDuplicateDialog';
-import { INPUT_CLASS } from '@/constants/inputStyles';
+import PlaceInfoFields, { PlaceFormField as Field } from '@/components/map/placeInfoFields';
 import {
   PLACE_CATEGORIES,
   PLACE_FORM_LIMITS,
@@ -109,93 +107,7 @@ export default function PlaceRegisterForm({ point, onBack, onRegistered, onSelec
           이름·위치·카테고리는 등록 후 바꿀 수 없어요. 영업시간·설명·메뉴는 나중에도 수정할 수 있어요.
         </p>
 
-        <Field label="영업시간" htmlFor="place-hours" hint="선택">
-          <TextField
-            id="place-hours"
-            className="w-full"
-            value={form.businessHours}
-            maxLength={PLACE_FORM_LIMITS.BUSINESS_HOURS_MAX}
-            placeholder="예) 평일 11:00-21:00, 일요일 휴무"
-            onChange={(event) => register.changeBusinessHours(event.target.value)}
-            error={errors.businessHours}
-          />
-        </Field>
-
-        <Field label="설명" htmlFor="place-description" hint="선택" error={errors.description}>
-          <textarea
-            id="place-description"
-            rows={3}
-            value={form.description}
-            maxLength={PLACE_FORM_LIMITS.DESCRIPTION_MAX}
-            placeholder="찾아가는 길, 분위기 등을 적어주세요"
-            onChange={(event) => register.changeDescription(event.target.value)}
-            className={`${INPUT_CLASS} resize-none ${errors.description ? 'border-alert' : 'border-coolgray-30'}`}
-          />
-          <p className="self-end text-body-xs text-coolgray-60">
-            {form.description.length}/{PLACE_FORM_LIMITS.DESCRIPTION_MAX}
-          </p>
-        </Field>
-
-        <fieldset className="flex flex-col gap-3">
-          <legend className="mb-2 text-button-m text-coolgray-90">
-            메뉴 <span className="text-body-xs text-coolgray-60">선택 · 가격을 비우면 가격 변동</span>
-          </legend>
-          {form.menus.map((row, index) => {
-            const rowError = errors.menus?.[row.key];
-            return (
-              <div key={row.key} className="flex flex-col gap-1">
-                <div className="flex items-start gap-2">
-                  <TextField
-                    aria-label={`${index + 1}번째 메뉴명`}
-                    className="min-w-0 flex-3"
-                    value={row.name}
-                    maxLength={PLACE_FORM_LIMITS.MENU_NAME_MAX}
-                    placeholder="메뉴명"
-                    onChange={(event) => register.changeMenu(row.key, { name: event.target.value })}
-                    error={rowError?.name}
-                  />
-                  <TextField
-                    aria-label={`${index + 1}번째 메뉴 가격`}
-                    className="min-w-0 flex-2"
-                    value={row.price}
-                    inputMode="numeric"
-                    placeholder="가격(원)"
-                    onChange={(event) => register.changeMenu(row.key, { price: event.target.value })}
-                    error={rowError?.price}
-                  />
-                  <div className="flex shrink-0 items-center">
-                    <IconButton
-                      label={`${index + 1}번째 메뉴 위로`}
-                      disabled={index === 0}
-                      onClick={() => register.moveMenu(row.key, -1)}
-                    >
-                      ↑
-                    </IconButton>
-                    <IconButton
-                      label={`${index + 1}번째 메뉴 아래로`}
-                      disabled={index === form.menus.length - 1}
-                      onClick={() => register.moveMenu(row.key, 1)}
-                    >
-                      ↓
-                    </IconButton>
-                    <IconButton label={`${index + 1}번째 메뉴 삭제`} onClick={() => register.removeMenu(row.key)}>
-                      ×
-                    </IconButton>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-          {form.menus.length < PLACE_FORM_LIMITS.MENU_MAX_COUNT && (
-            <button
-              type="button"
-              onClick={register.addMenu}
-              className="cursor-pointer rounded-lg border border-dashed border-coolgray-30 py-3 text-button-m text-coolgray-60 hover:border-primary-60 hover:text-primary-60"
-            >
-              + 메뉴 추가
-            </button>
-          )}
-        </fieldset>
+        <PlaceInfoFields form={form} errors={errors} onChange={register.changeInfo} />
 
         <Button type="submit" variant={register.isSubmitting ? 'disabled' : 'primary'} className="mt-2 w-full shrink-0">
           {register.isSubmitting ? '등록 중' : '등록하기'}
@@ -211,57 +123,5 @@ export default function PlaceRegisterForm({ point, onBack, onRegistered, onSelec
         />
       )}
     </section>
-  );
-}
-
-function Field({
-  label,
-  htmlFor,
-  required = false,
-  hint,
-  error,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  required?: boolean;
-  hint?: string;
-  error?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="flex min-w-0 flex-1 flex-col gap-2">
-      <label htmlFor={htmlFor} className="text-button-m text-coolgray-90">
-        {label}
-        {required && <span className="ml-0.5 text-alert">*</span>}
-        {hint && <span className="ml-1 text-body-xs text-coolgray-60">{hint}</span>}
-      </label>
-      {children}
-      {error && <p className="text-body-xs text-alert">{error}</p>}
-    </div>
-  );
-}
-
-function IconButton({
-  label,
-  disabled = false,
-  onClick,
-  children,
-}: {
-  label: string;
-  disabled?: boolean;
-  onClick: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      disabled={disabled}
-      onClick={onClick}
-      className="flex h-12 w-8 cursor-pointer items-center justify-center text-body-m text-coolgray-60 hover:text-primary-60 disabled:cursor-default disabled:text-coolgray-20"
-    >
-      <span aria-hidden="true">{children}</span>
-    </button>
   );
 }

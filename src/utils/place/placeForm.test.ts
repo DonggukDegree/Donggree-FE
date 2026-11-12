@@ -1,4 +1,4 @@
-/** [동글맵 > 장소 등록] 서비스 영역·쓰기 권한·폼 검증·메뉴 행·요청 변환 검사 */
+/** [동글맵 > 장소 등록·정보 수정] 서비스 영역·쓰기 권한·폼 검증·메뉴 행·요청 변환·변경 여부 검사 */
 import { describe, expect, it } from 'vitest';
 
 import { CAMPUS_CENTER } from '@/constants/place';
@@ -7,16 +7,21 @@ import {
   addMenuRow,
   canWritePlace,
   changeCategory,
+  changeMenuRow,
   createEmptyPlaceForm,
   createMenuRow,
+  createPlaceInfoForm,
   distanceMeters,
   hasPlaceFormErrors,
   isInsideCampusArea,
+  isSamePlaceInfo,
   moveMenuRow,
   removeMenuRow,
   sanitizePriceInput,
+  toPlaceInfoEditRequest,
   toPlaceRegisterRequest,
   validatePlaceForm,
+  validatePlaceInfoForm,
 } from '@/utils/place/placeForm';
 
 const validForm = (): TPlaceForm => ({
@@ -106,5 +111,75 @@ describe('장소 등록 폼', () => {
         { name: '탕수육', price: null },
       ],
     });
+  });
+});
+
+describe('장소 정보 수정 폼', () => {
+  const place = {
+    businessHours: '평일 11:00-21:00',
+    description: null,
+    menus: [
+      { name: '짜장면', price: 7000 },
+      { name: '탕수육', price: null },
+    ],
+  };
+
+  it('현재 값으로 채우고 가격 변동은 빈 칸, 미입력은 빈 문자열', () => {
+    const form = createPlaceInfoForm(place);
+    expect(form.businessHours).toBe('평일 11:00-21:00');
+    expect(form.description).toBe('');
+    expect(form.menus.map(({ name, price }) => ({ name, price }))).toEqual([
+      { name: '짜장면', price: '7000' },
+      { name: '탕수육', price: '' },
+    ]);
+    expect(new Set(form.menus.map((row) => row.key)).size).toBe(2);
+  });
+
+  it('등록과 같은 규칙으로 영업시간·설명·메뉴만 검증', () => {
+    const errors = validatePlaceInfoForm({
+      businessHours: '가'.repeat(101),
+      description: '',
+      menus: [{ key: 'm1', name: '', price: '' }],
+    });
+    expect(errors.businessHours).toContain('100자');
+    expect(errors.menus?.m1?.name).toBe('메뉴명을 입력하거나 행을 삭제해주세요.');
+    expect(hasPlaceFormErrors(validatePlaceInfoForm(createPlaceInfoForm(place)))).toBe(false);
+  });
+
+  it('메뉴 행 이름·가격을 바꾸고 가격은 숫자만 남김', () => {
+    const rows = createPlaceInfoForm(place).menus;
+    const changed = changeMenuRow(rows, rows[1]!.key, { price: '8,000원' });
+    expect(changed[1]).toMatchObject({ name: '탕수육', price: '8000' });
+    expect(changed[0]).toBe(rows[0]);
+  });
+
+  it('폼을 연 시점의 버전과 함께 전체 값을 요청으로 바꾸고, 비운 항목은 삭제(null)', () => {
+    const form = { ...createPlaceInfoForm(place), businessHours: '  ' };
+    expect(toPlaceInfoEditRequest(form, 3)).toEqual({
+      version: 3,
+      businessHours: null,
+      description: null,
+      menus: [
+        { name: '짜장면', price: 7000 },
+        { name: '탕수육', price: null },
+      ],
+    });
+  });
+
+  it('공백만 다르면 같은 값, 메뉴 순서·가격이 다르면 바뀐 값으로 판단', () => {
+    const form = createPlaceInfoForm(place);
+    expect(isSamePlaceInfo(place, toPlaceInfoEditRequest({ ...form, businessHours: ' 평일 11:00-21:00 ' }, 1))).toBe(
+      true,
+    );
+    expect(isSamePlaceInfo(place, toPlaceInfoEditRequest({ ...form, menus: [...form.menus].reverse() }, 1))).toBe(
+      false,
+    );
+    expect(
+      isSamePlaceInfo(
+        place,
+        toPlaceInfoEditRequest({ ...form, menus: changeMenuRow(form.menus, form.menus[1]!.key, { price: '0' }) }, 1),
+      ),
+    ).toBe(false);
+    expect(isSamePlaceInfo(place, toPlaceInfoEditRequest({ ...form, menus: [] }, 1))).toBe(false);
   });
 });

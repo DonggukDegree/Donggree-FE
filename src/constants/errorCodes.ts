@@ -12,4 +12,5 @@ export const ERROR_CODE = {
   PLACE_VERIFICATION_REQUIRED: 'PLACE403_1', // 동글맵 쓰기에 학생 인증 필요
   PLACE_OUT_OF_SERVICE_AREA: 'PLACE400_1', // 캠퍼스 반경 밖 장소 등록
   PLACE_DUPLICATE: 'PLACE409_1', // 반경 50m 안 같은 이름 장소
+  PLACE_EDIT_CONFLICT: 'PLACE409_2', // 장소 정보를 다른 회원이 먼저 수정
 } as const;

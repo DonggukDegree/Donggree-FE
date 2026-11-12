@@ -5,9 +5,11 @@ import type {
   TGetPlacesResponse,
   TPlaceDetail,
   TPlaceDuplicates,
+  TPlaceInfoEditRequest,
   TPlaceRegisterRequest,
   TPlaceSummary,
   TPostPlaceResponse,
+  TPutPlaceInfoResponse,
 } from '@/types/place/TPlace';
 
 // 지도 장소 목록 조회. 서비스 영역이 좁아 숨김 제외 전체를 한 번에 받는다.
@@ -35,5 +37,18 @@ export const getPlaceDuplicates = async (params: {
 // 장소 등록. 미인증 403(PLACE403_1), 영역 밖 400(PLACE400_1), 같은 이름 중복 409(PLACE409_1).
 export const postPlace = async (body: TPlaceRegisterRequest): Promise<number> => {
   const { data } = await axiosInstance.post<TPostPlaceResponse>('/api/places', body);
+  return data.result;
+};
+
+// 장소 정보(영업시간·설명·메뉴) 수정. 수정 후 상세를 돌려준다.
+// 미인증 403(PLACE403_1), 없거나 숨김 404(PLACE404_1), 다른 회원이 먼저 수정 409(PLACE409_2).
+export const putPlaceInfo = async ({
+  placeId,
+  body,
+}: {
+  placeId: number;
+  body: TPlaceInfoEditRequest;
+}): Promise<TPlaceDetail> => {
+  const { data } = await axiosInstance.put<TPutPlaceInfoResponse>(`/api/places/${placeId}/info`, body);
   return data.result;
 };

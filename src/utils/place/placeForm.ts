@@ -4,11 +4,24 @@ import {
   PLACE_FORM_LIMITS,
   PLACE_SUB_CATEGORIES_BY_CATEGORY,
 } from '@/constants/place';
-import type { TPlaceCategory, TPlaceRegisterRequest } from '@/types/place/TPlace';
-import type { TLatLng, TPlaceForm, TPlaceFormErrors, TPlaceMenuRow } from '@/types/place/TPlaceForm';
+import type {
+  TPlaceCategory,
+  TPlaceDetail,
+  TPlaceInfoEditRequest,
+  TPlaceMenu,
+  TPlaceRegisterRequest,
+} from '@/types/place/TPlace';
+import type {
+  TLatLng,
+  TPlaceForm,
+  TPlaceFormErrors,
+  TPlaceInfoForm,
+  TPlaceInfoFormErrors,
+  TPlaceMenuRow,
+} from '@/types/place/TPlaceForm';
 import type { TUserInfo } from '@/types/user/TGetUserInfo';
 
-// [동글맵 > 장소 등록] 폼 상태·검증·요청 변환 순수 함수. 최종 검증은 서버가 다시 한다.
+// [동글맵 > 장소 등록·정보 수정] 폼 상태·검증·요청 변환 순수 함수. 최종 검증은 서버가 다시 한다.
 
 const EARTH_RADIUS_METERS = 6_371_008.8;
 
@@ -54,6 +67,21 @@ export const addMenuRow = (rows: TPlaceMenuRow[]) =>
 
 export const removeMenuRow = (rows: TPlaceMenuRow[], key: string) => rows.filter((row) => row.key !== key);
 
+// 가격 칸은 숫자만 남긴다. (쉼표·원 표기를 붙여 입력해도 숫자로 정리)
+export const sanitizePriceInput = (value: string) => value.replace(/\D/g, '').slice(0, 7);
+
+// 메뉴 한 행의 이름·가격을 바꾼다. 가격은 숫자만 남긴다.
+export const changeMenuRow = (rows: TPlaceMenuRow[], key: string, patch: { name?: string; price?: string }) =>
+  rows.map((row) =>
+    row.key === key
+      ? {
+          ...row,
+          ...(patch.name !== undefined && { name: patch.name }),
+          ...(patch.price !== undefined && { price: sanitizePriceInput(patch.price) }),
+        }
+      : row,
+  );
+
 // 한 칸 위(-1)·아래(+1)로 옮긴다. 끝을 넘으면 그대로 둔다.
 export const moveMenuRow = (rows: TPlaceMenuRow[], key: string, direction: -1 | 1) => {
   const index = rows.findIndex((row) => row.key === key);
@@ -65,23 +93,15 @@ export const moveMenuRow = (rows: TPlaceMenuRow[], key: string, direction: -1 | 
   return next;
 };
 
-// 가격 칸은 숫자만 남긴다. (쉼표·원 표기를 붙여 입력해도 숫자로 정리)
-export const sanitizePriceInput = (value: string) => value.replace(/\D/g, '').slice(0, 7);
-
-export const validatePlaceForm = (form: TPlaceForm): TPlaceFormErrors => {
-  const errors: TPlaceFormErrors = {};
-  const name = form.name.trim();
-  if (!name) errors.name = '이름을 입력해주세요.';
-  else if (name.length > PLACE_FORM_LIMITS.NAME_MAX)
-    errors.name = `이름은 ${PLACE_FORM_LIMITS.NAME_MAX}자 이하로 입력해주세요.`;
-  if (!form.category) errors.category = '카테고리를 선택해주세요.';
-  if (!form.subCategory) errors.subCategory = '상세카테고리를 선택해주세요.';
+// 영업시간·설명·메뉴 검증. 등록 폼과 수정 폼이 같은 규칙을 쓴다.
+export const validatePlaceInfoForm = (form: TPlaceInfoForm): TPlaceInfoFormErrors => {
+  const errors: TPlaceInfoFormErrors = {};
   if (form.businessHours.trim().length > PLACE_FORM_LIMITS.BUSINESS_HOURS_MAX)
     errors.businessHours = `영업시간은 ${PLACE_FORM_LIMITS.BUSINESS_HOURS_MAX}자 이하로 입력해주세요.`;
   if (form.description.trim().length > PLACE_FORM_LIMITS.DESCRIPTION_MAX)
     errors.description = `설명은 ${PLACE_FORM_LIMITS.DESCRIPTION_MAX}자 이하로 입력해주세요.`;
 
-  const menuErrors: NonNullable<TPlaceFormErrors['menus']> = {};
+  const menuErrors: NonNullable<TPlaceInfoFormErrors['menus']> = {};
   for (const row of form.menus) {
     const rowError: { name?: string; price?: string } = {};
     const menuName = row.name.trim();
@@ -96,9 +116,27 @@ export const validatePlaceForm = (form: TPlaceForm): TPlaceFormErrors => {
   return errors;
 };
 
-export const hasPlaceFormErrors = (errors: TPlaceFormErrors) => Object.keys(errors).length > 0;
+export const validatePlaceForm = (form: TPlaceForm): TPlaceFormErrors => {
+  const errors: TPlaceFormErrors = {};
+  const name = form.name.trim();
+  if (!name) errors.name = '이름을 입력해주세요.';
+  else if (name.length > PLACE_FORM_LIMITS.NAME_MAX)
+    errors.name = `이름은 ${PLACE_FORM_LIMITS.NAME_MAX}자 이하로 입력해주세요.`;
+  if (!form.category) errors.category = '카테고리를 선택해주세요.';
+  if (!form.subCategory) errors.subCategory = '상세카테고리를 선택해주세요.';
+  return { ...errors, ...validatePlaceInfoForm(form) };
+};
 
-// 검증을 통과한 폼을 등록 요청으로 바꾼다. 선택 항목의 공백은 미입력(null), 빈 가격은 가격 변동(null).
+export const hasPlaceFormErrors = (errors: TPlaceFormErrors | TPlaceInfoFormErrors) => Object.keys(errors).length > 0;
+
+// 선택 항목의 공백은 미입력(null), 빈 가격은 가격 변동(null).
+const toInfoPayload = (form: TPlaceInfoForm) => ({
+  businessHours: form.businessHours.trim() || null,
+  description: form.description.trim() || null,
+  menus: form.menus.map((row): TPlaceMenu => ({ name: row.name.trim(), price: row.price ? Number(row.price) : null })),
+});
+
+// 검증을 통과한 폼을 등록 요청으로 바꾼다.
 export const toPlaceRegisterRequest = (form: TPlaceForm, point: TLatLng): TPlaceRegisterRequest => {
   if (!form.category || !form.subCategory) throw new Error('카테고리가 선택되지 않은 폼은 변환할 수 없습니다.');
   return {
@@ -107,8 +145,33 @@ export const toPlaceRegisterRequest = (form: TPlaceForm, point: TLatLng): TPlace
     subCategory: form.subCategory,
     latitude: point.lat,
     longitude: point.lng,
-    businessHours: form.businessHours.trim() || null,
-    description: form.description.trim() || null,
-    menus: form.menus.map((row) => ({ name: row.name.trim(), price: row.price ? Number(row.price) : null })),
+    ...toInfoPayload(form),
   };
 };
+
+// 수정 폼을 현재 장소 값으로 채운다. 가격 없음(가격 변동)은 빈 칸.
+export const createPlaceInfoForm = (
+  place: Pick<TPlaceDetail, 'businessHours' | 'description' | 'menus'>,
+): TPlaceInfoForm => ({
+  businessHours: place.businessHours ?? '',
+  description: place.description ?? '',
+  menus: place.menus.map((menu) => ({ ...createMenuRow(), name: menu.name, price: menu.price?.toString() ?? '' })),
+});
+
+// 검증을 통과한 수정 폼을 요청으로 바꾼다. version은 폼을 채운 시점의 장소 버전.
+export const toPlaceInfoEditRequest = (form: TPlaceInfoForm, version: number): TPlaceInfoEditRequest => ({
+  version,
+  ...toInfoPayload(form),
+});
+
+// 요청이 현재 장소 값과 같은지. 같으면 서버에 보내지 않는다(서버도 이력을 남기지 않음).
+export const isSamePlaceInfo = (
+  place: Pick<TPlaceDetail, 'businessHours' | 'description' | 'menus'>,
+  request: TPlaceInfoEditRequest,
+) =>
+  (place.businessHours ?? null) === request.businessHours &&
+  (place.description ?? null) === request.description &&
+  place.menus.length === request.menus.length &&
+  place.menus.every(
+    (menu, index) => menu.name === request.menus[index]?.name && menu.price === request.menus[index]?.price,
+  );
