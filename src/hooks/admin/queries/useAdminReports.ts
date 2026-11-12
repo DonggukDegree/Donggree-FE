@@ -3,12 +3,14 @@ import {
   getAdminMembers,
   getAdminPlaceReport,
   getAdminPlaceReports,
+  getAdminPlaces,
   getAdminReviewReport,
   getAdminReviewReports,
+  getAdminReviews,
 } from '@/apis/admin/reports';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useCoreQuery } from '@/hooks/customQuery';
-import type { TReportStatus } from '@/types/admin/TAdminReport';
+import type { TAdminReviewState, TReportStatus } from '@/types/admin/TAdminReport';
 
 // [관리자 > 신고 관리] 신고·회원 조회. 상세는 고른 항목이 있을 때만 요청한다.
 
@@ -40,8 +42,22 @@ export function useAdminReviewReport(reportId: number | null) {
   );
 }
 
-export function useAdminMembers(keyword: string, page: number) {
-  return useCoreQuery(QUERY_KEYS.GET_ADMIN_MEMBERS({ keyword, page }), () => getAdminMembers({ keyword, page }));
+export function useAdminMembers(keyword: string, page: number, suspended = false) {
+  return useCoreQuery(QUERY_KEYS.GET_ADMIN_MEMBERS({ keyword, suspended, page }), () =>
+    getAdminMembers({ keyword, suspended, page }),
+  );
+}
+
+export function useAdminPlaceList(status: 'VISIBLE' | 'HIDDEN' | null, keyword: string, page: number) {
+  return useCoreQuery(QUERY_KEYS.GET_ADMIN_PLACE_LIST({ status, keyword, page }), () =>
+    getAdminPlaces({ status, keyword, page }),
+  );
+}
+
+export function useAdminReviewList(state: TAdminReviewState | null, keyword: string, page: number) {
+  return useCoreQuery(QUERY_KEYS.GET_ADMIN_REVIEW_LIST({ state, keyword, page }), () =>
+    getAdminReviews({ state, keyword, page }),
+  );
 }
 
 export function useAdminMember(memberId: number | null) {

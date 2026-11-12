@@ -22,6 +22,7 @@ import type { TAdminMember, TReportStatus } from '@/types/admin/TAdminReport';
 import {
   describeInfoChanges,
   formatAdminDateTime,
+  placeVisibilityConfirm,
   REPORT_REASON_LABELS,
   REPORT_STATUS_LABELS,
   STATUS_BADGE_CLASS,
@@ -135,22 +136,10 @@ export function PlaceReportDetail({
           variant={place.status === 'HIDDEN' ? 'outlined' : 'alert'}
           className="px-4 py-2"
           onClick={() =>
-            confirm(
-              place.status === 'HIDDEN'
-                ? {
-                    action: `${place.name}을 다시 지도에 보이게 할까요?`,
-                    description: '이 장소의 처리 대기 신고는 기각돼요.',
-                    confirmText: '숨김 해제',
-                    onConfirm: () => visibility.mutate({ placeId: place.id, hidden: false }),
-                  }
-                : {
-                    action: `${place.name}을 지도에서 숨길까요?`,
-                    description: '숨기면 지도·장소 정보에서 사라지고, 이 장소의 처리 대기 신고는 처리 완료돼요.',
-                    confirmText: '숨기기',
-                    danger: true,
-                    onConfirm: () => visibility.mutate({ placeId: place.id, hidden: true }),
-                  },
-            )
+            confirm({
+              ...placeVisibilityConfirm(place.name, place.status !== 'HIDDEN'),
+              onConfirm: () => visibility.mutate({ placeId: place.id, hidden: place.status !== 'HIDDEN' }),
+            })
           }
         >
           {place.status === 'HIDDEN' ? '숨김 해제' : '장소 숨김'}

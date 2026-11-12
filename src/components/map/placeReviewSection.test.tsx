@@ -87,6 +87,17 @@ describe('리뷰 영역', () => {
     expect(html.match(/>신고<\/button>/g)).toHaveLength(1);
   });
 
+  it('목록의 숨긴 리뷰는 자리를 지키고 닉네임과 숨김 문구만, 별점·신고 버튼 없음', () => {
+    state.reviews = [
+      review(5, { hidden: true, rating: null, content: null, author: { nickname: '박리뷰', profileUrl: null } }),
+    ];
+    const html = render();
+    expect(html).toContain('박리뷰');
+    expect(html).toContain('신고되어 숨겨진 리뷰입니다.');
+    expect(html).not.toContain('aria-label="별점');
+    expect(html).not.toContain('신고</button>');
+  });
+
   it('숨겨진 내 리뷰는 안내를 띄우고 수정 없이 삭제만', () => {
     state.myReview = review(3, { mine: true, hidden: true });
     const html = render();

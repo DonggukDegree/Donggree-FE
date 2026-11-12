@@ -63,3 +63,39 @@ export const STATUS_BADGE_CLASS: Record<TReportStatus, string> = {
   RESOLVED: 'bg-coolgray-10 text-coolgray-90',
   REJECTED: 'bg-coolgray-10 text-coolgray-60',
 };
+
+// 장소·리뷰 숨김/해제 확인 모달 문구. 신고 상세와 하단 목록이 같은 문구를 쓴다.
+export const placeVisibilityConfirm = (name: string, hide: boolean) =>
+  hide
+    ? {
+        action: `${name}을 지도에서 숨길까요?`,
+        description: '숨기면 지도·장소 정보에서 사라지고, 이 장소의 처리 대기 신고는 처리 완료돼요.',
+        confirmText: '숨기기',
+        danger: true,
+      }
+    : {
+        action: `${name}을 다시 지도에 보이게 할까요?`,
+        description: '이 장소의 처리 대기 신고는 기각돼요.',
+        confirmText: '숨김 해제',
+      };
+
+export const reviewVisibilityConfirm = (hide: boolean) =>
+  hide
+    ? {
+        action: '이 리뷰를 숨길까요?',
+        description:
+          '숨기면 평균 별점에서 빠지고, 목록에는 "신고되어 숨겨진 리뷰입니다."로 보여요. 이 리뷰의 처리 대기 신고는 처리 완료돼요.',
+        confirmText: '숨기기',
+        danger: true,
+      }
+    : {
+        action: '이 리뷰를 다시 보이게 할까요?',
+        description: '이 리뷰의 처리 대기 신고는 기각돼요.',
+        confirmText: '숨김 해제',
+      };
+
+export const PLACE_STATUS_LABELS: Record<'VISIBLE' | 'HIDDEN', string> = { VISIBLE: '보임', HIDDEN: '숨김' };
+
+// 관리자 리뷰 목록의 상태. 작성자 삭제가 숨김보다 우선한다.
+export const adminReviewStateLabel = (review: { status: 'VISIBLE' | 'HIDDEN'; deleted: boolean }) =>
+  review.deleted ? '작성자 삭제' : review.status === 'HIDDEN' ? '숨김' : '보임';

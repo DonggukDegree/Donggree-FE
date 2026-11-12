@@ -5,9 +5,12 @@ import type {
   TAdminPage,
   TAdminPlaceReport,
   TAdminPlaceReportDetail,
+  TAdminPlaceRow,
   TAdminResponse,
   TAdminReviewReport,
   TAdminReviewReportDetail,
+  TAdminReviewRow,
+  TAdminReviewState,
   TAdminSuspension,
   TAdminSuspensionRequest,
   TReportStatus,
@@ -90,9 +93,55 @@ export const postAdminRevertEdit = async ({ placeId, historyId }: { placeId: num
   await axiosInstance.post(`/api/admin/places/${placeId}/edit-histories/${historyId}/revert`);
 };
 
-export const getAdminMembers = async ({ keyword, page }: { keyword: string; page: number }) => {
+// 빈 검색어·전체 상태는 보내지 않는다.
+const listParams = (params: Record<string, string | number | boolean | null>) =>
+  Object.fromEntries(
+    Object.entries(params).filter(([, value]) => value !== null && value !== false && String(value).trim() !== ''),
+  );
+
+export const getAdminMembers = async ({
+  keyword,
+  suspended = false,
+  page,
+}: {
+  keyword: string;
+  suspended?: boolean;
+  page: number;
+}) => {
   const { data } = await axiosInstance.get<TAdminResponse<TAdminPage<TAdminMemberRow>>>('/api/admin/members', {
-    params: keyword.trim() ? { keyword: keyword.trim(), page } : { page },
+    params: listParams({ keyword: keyword.trim(), suspended, page }),
+  });
+  return data.result;
+};
+
+// 신고 관리 하단 전체 장소 목록. 등록 최신순 20개씩.
+export const getAdminPlaces = async ({
+  status,
+  keyword,
+  page,
+}: {
+  status: 'VISIBLE' | 'HIDDEN' | null;
+  keyword: string;
+  page: number;
+}) => {
+  const { data } = await axiosInstance.get<TAdminResponse<TAdminPage<TAdminPlaceRow>>>('/api/admin/places', {
+    params: listParams({ status, keyword: keyword.trim(), page }),
+  });
+  return data.result;
+};
+
+// 신고 관리 하단 전체 리뷰 목록. 작성 최신순 20개씩, 검색어는 본문 또는 장소 이름.
+export const getAdminReviews = async ({
+  state,
+  keyword,
+  page,
+}: {
+  state: TAdminReviewState | null;
+  keyword: string;
+  page: number;
+}) => {
+  const { data } = await axiosInstance.get<TAdminResponse<TAdminPage<TAdminReviewRow>>>('/api/admin/reviews', {
+    params: listParams({ state, keyword: keyword.trim(), page }),
   });
   return data.result;
 };

@@ -1,4 +1,4 @@
-/** [관리자 > 신고 관리 > 회원] 검색 목록의 회원 행·받은 신고, 상세의 정지 이력·해제 버튼 검사 */
+/** [관리자 > 신고 관리 > 회원] 회원 상세의 받은 신고·정지 이력·해제 버튼 검사 */
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -16,10 +16,6 @@ const member: TAdminMember = {
 };
 
 vi.mock('@/hooks/admin/queries/useAdminReports', () => ({
-  useAdminMembers: () => ({
-    data: { items: [{ member, receivedReportCount: 5 }], totalCount: 1, page: 0, size: 20 },
-    isPending: false,
-  }),
   useAdminMember: () => ({
     data: {
       member,
@@ -53,16 +49,13 @@ vi.mock('@/hooks/admin/mutations/useAdminReportActions', () => ({
 }));
 
 describe('신고 관리 회원 탭', () => {
-  it('회원 행에 이름·학번·단과대·학과와 받은 신고 수, 정지 배지를 보여줌', () => {
-    const html = renderToStaticMarkup(<MemberPanel selectedId={null} onSelect={vi.fn()} />);
-    expect(html).toContain('김아코(아코) · 2026000001 · AI융합대학 컴퓨터공학전공');
-    expect(html).toContain('받은 신고 5건');
-    expect(html).toContain('정지 ~2999.12.13 10:00');
-    expect(html).toContain('왼쪽에서 회원을 골라주세요.');
+  it('고른 회원이 없으면 아래 목록에서 고르라고 안내', () => {
+    const html = renderToStaticMarkup(<MemberPanel selectedId={null} />);
+    expect(html).toContain('아래 회원 목록에서 회원을 골라주세요.');
   });
 
   it('상세에 받은 신고 내역과 정지 이력, 정지 중이면 다시 정지·해제를 보여줌', () => {
-    const html = renderToStaticMarkup(<MemberPanel selectedId={7} onSelect={vi.fn()} />);
+    const html = renderToStaticMarkup(<MemberPanel selectedId={7} />);
     expect(html).toContain('리뷰 신고');
     expect(html).toContain('장소 신고 정지');
     expect(html).toContain('30일 · 신고 처리 (리뷰 신고 #2)');

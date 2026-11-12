@@ -3,6 +3,7 @@
  * 내 리뷰를 맨 위에 따로 두고(수정·삭제), 다른 회원 리뷰는 최신순으로 처음 5개, "리뷰 더보기"마다 10개씩 더 보여준다
  * (서버는 10개씩 커서 조회, 받아 둔 리뷰가 모자랄 때만 다음 페이지를 요청). 신고 가능.
  * 작성자 닉네임이 없으면 "탈퇴한 회원", 프로필 사진이 없으면 기본 아바타를 쓴다.
+ * 숨긴 리뷰는 목록에서 자리를 지키고 닉네임·날짜와 "신고되어 숨겨진 리뷰입니다."만 보여준다(별점·본문·신고 버튼 없음).
  * 작성·수정·신고는 인증 학생만 하며, 미인증 회원도 버튼은 보고 누르면 인증 안내를 받는다.
  */
 import { useState } from 'react';
@@ -15,7 +16,12 @@ import Button from '@/components/common/inputs/button';
 import PlaceReviewFormDialog from '@/components/map/placeReviewFormDialog';
 import ReviewReportDialog from '@/components/map/reviewReportDialog';
 import { ReviewStars } from '@/components/map/reviewStars';
-import { PLACE_REVIEW_INITIAL_COUNT, PLACE_REVIEW_MORE_COUNT, WITHDRAWN_MEMBER_LABEL } from '@/constants/place';
+import {
+  HIDDEN_REVIEW_LABEL,
+  PLACE_REVIEW_INITIAL_COUNT,
+  PLACE_REVIEW_MORE_COUNT,
+  WITHDRAWN_MEMBER_LABEL,
+} from '@/constants/place';
 import { usePlaceReviewDelete } from '@/hooks/place/usePlaceReviewMutations';
 import usePlaceReviews from '@/hooks/place/usePlaceReviews';
 import useUserInfo from '@/hooks/user/useUserInfo';
@@ -133,14 +139,16 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
           {shownReviews.map((review) => (
             <li key={review.id} className="py-3">
               <ReviewItem review={review}>
-                <button
-                  type="button"
-                  onClick={() => openIfVerified({ type: 'report', review })}
-                  className={`${ACTION_CLASS} hover:text-alert`}
-                >
-                  <Siren aria-hidden="true" className="h-3.5 w-3.5" />
-                  신고
-                </button>
+                {!review.hidden && (
+                  <button
+                    type="button"
+                    onClick={() => openIfVerified({ type: 'report', review })}
+                    className={`${ACTION_CLASS} hover:text-alert`}
+                  >
+                    <Siren aria-hidden="true" className="h-3.5 w-3.5" />
+                    신고
+                  </button>
+                )}
               </ReviewItem>
             </li>
           ))}
@@ -172,9 +180,11 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
   );
 }
 
-function ReviewItem({ review, children }: { review: TPlaceReview; children: React.ReactNode }) {
+// 본문이 비어 온 리뷰(목록의 숨긴 리뷰)는 별점·본문 대신 안내 문구만 보여준다. 내 리뷰는 숨겨져도 본문이 온다.
+function ReviewItem({ review, children }: { review: TPlaceReview; children?: React.ReactNode }) {
   const [expanded, setExpanded] = useState(false);
-  const foldable = shouldFoldReview(review.content);
+  const masked = review.content === null || review.rating === null;
+  const foldable = !masked && shouldFoldReview(review.content ?? '');
   return (
     <article className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
@@ -189,17 +199,21 @@ function ReviewItem({ review, children }: { review: TPlaceReview; children: Reac
             {review.mine && <span className="ml-1 text-body-xs text-primary-60">내 리뷰</span>}
           </p>
           <div className="flex items-center gap-1.5">
-            <ReviewStars rating={review.rating} className="text-body-xs" />
+            {review.rating !== null && <ReviewStars rating={review.rating} className="text-body-xs" />}
             <span className="text-body-xs text-coolgray-60">{formatPlaceDate(review.createdAt)}</span>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">{children}</div>
       </div>
-      <p
-        className={`whitespace-pre-line break-keep text-body-s text-coolgray-90 ${foldable && !expanded ? 'line-clamp-3' : ''}`}
-      >
-        {review.content}
-      </p>
+      {masked ? (
+        <p className="break-keep text-body-s text-coolgray-60">{HIDDEN_REVIEW_LABEL}</p>
+      ) : (
+        <p
+          className={`whitespace-pre-line break-keep text-body-s text-coolgray-90 ${foldable && !expanded ? 'line-clamp-3' : ''}`}
+        >
+          {review.content}
+        </p>
+      )}
       {foldable && (
         <button
           type="button"

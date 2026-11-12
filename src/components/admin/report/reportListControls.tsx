@@ -1,7 +1,11 @@
 /**
- * [관리자 > 신고 관리] 상태 필터·페이지 이동
- * 기본은 대기 신고만 본다. 목록은 서버가 최신순 20개씩 보낸다.
+ * [관리자 > 신고 관리] 상태 필터·검색·페이지 이동
+ * 신고 목록은 기본으로 대기 신고만 본다. 목록은 서버가 최신순 20개씩 보낸다.
  */
+import { useState } from 'react';
+
+import Button from '@/components/common/inputs/button';
+import { INPUT_CLASS } from '@/constants/inputStyles';
 import type { TReportStatus } from '@/types/admin/TAdminReport';
 import { REPORT_STATUS_LABELS } from '@/utils/admin/report';
 
@@ -19,9 +23,24 @@ export function ReportStatusFilter({
   value: TReportStatus | null;
   onChange: (status: TReportStatus | null) => void;
 }) {
+  return <FilterChips label="신고 상태" value={value} options={STATUS_OPTIONS} onChange={onChange} />;
+}
+
+// 한 값만 고르는 상태 칩 묶음. 눌린 칩은 aria-pressed로 표시한다.
+export function FilterChips<T extends string | boolean | null>({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (value: T) => void;
+}) {
   return (
-    <div role="group" aria-label="신고 상태" className="flex gap-2">
-      {STATUS_OPTIONS.map((option) => (
+    <div role="group" aria-label={label} className="flex gap-2">
+      {options.map((option) => (
         <button
           key={option.label}
           type="button"
@@ -37,6 +56,39 @@ export function ReportStatusFilter({
         </button>
       ))}
     </div>
+  );
+}
+
+// 검색어는 입력 중이 아니라 [검색]을 누를 때 보낸다.
+export function KeywordSearch({
+  label,
+  placeholder,
+  onSearch,
+}: {
+  label: string;
+  placeholder: string;
+  onSearch: (keyword: string) => void;
+}) {
+  const [input, setInput] = useState('');
+  return (
+    <form
+      className="flex gap-2"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSearch(input);
+      }}
+    >
+      <input
+        aria-label={label}
+        value={input}
+        onChange={(event) => setInput(event.target.value)}
+        placeholder={placeholder}
+        className={`${INPUT_CLASS} w-60 border-coolgray-30`}
+      />
+      <Button type="submit" className="px-6">
+        검색
+      </Button>
+    </form>
   );
 }
 

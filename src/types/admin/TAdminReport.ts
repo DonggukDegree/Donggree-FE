@@ -119,6 +119,35 @@ export type TAdminMemberDetail = {
 };
 
 // 정지 요청. memberId는 장소 신고로 정지할 때만(등록자·수정자 중 대상).
+// 신고 관리 하단 전체 장소 목록 한 행. 등록자가 탈퇴했으면 registrant가 null.
+export type TAdminPlaceRow = {
+  placeId: number;
+  name: string;
+  category: TPlaceCategory;
+  subCategory: TPlaceSubCategory;
+  status: 'VISIBLE' | 'HIDDEN';
+  pendingReportCount: number;
+  registrant: TAdminMember | null;
+  createdAt: string;
+};
+
+// 리뷰 목록 상태 필터. 숨김과 작성자 삭제는 따로 저장되지만 화면에서는 하나의 상태로 본다.
+export type TAdminReviewState = 'VISIBLE' | 'HIDDEN' | 'DELETED';
+
+// 신고 관리 하단 전체 리뷰 목록 한 행. 관리자는 숨긴·지운 리뷰도 본문까지 본다.
+export type TAdminReviewRow = {
+  reviewId: number;
+  placeId: number;
+  placeName: string | null;
+  rating: number;
+  content: string;
+  status: 'VISIBLE' | 'HIDDEN';
+  deleted: boolean;
+  pendingReportCount: number;
+  author: TAdminMember | null;
+  createdAt: string;
+};
+
 export type TAdminSuspensionRequest = { memberId?: number; days: number; note: string | null };
 
 export type TAdminResponse<T> = TCommonResponse<T>;

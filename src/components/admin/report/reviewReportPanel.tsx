@@ -22,6 +22,7 @@ import {
   formatAdminDateTime,
   REPORT_REASON_LABELS,
   REPORT_STATUS_LABELS,
+  reviewVisibilityConfirm,
   STATUS_BADGE_CLASS,
 } from '@/utils/admin/report';
 
@@ -137,22 +138,10 @@ function ReviewReportDetail({ reportId, onSelectMember }: { reportId: number; on
             variant={hidden ? 'outlined' : 'alert'}
             className="px-4 py-2"
             onClick={() =>
-              confirm(
-                hidden
-                  ? {
-                      action: '이 리뷰를 다시 보이게 할까요?',
-                      description: '이 리뷰의 처리 대기 신고는 기각돼요.',
-                      confirmText: '숨김 해제',
-                      onConfirm: () => visibility.mutate({ reviewId: report.reviewId, hidden: false }),
-                    }
-                  : {
-                      action: '이 리뷰를 숨길까요?',
-                      description: '숨기면 목록·평균 별점에서 빠지고, 이 리뷰의 처리 대기 신고는 처리 완료돼요.',
-                      confirmText: '숨기기',
-                      danger: true,
-                      onConfirm: () => visibility.mutate({ reviewId: report.reviewId, hidden: true }),
-                    },
-              )
+              confirm({
+                ...reviewVisibilityConfirm(!hidden),
+                onConfirm: () => visibility.mutate({ reviewId: report.reviewId, hidden: !hidden }),
+              })
             }
           >
             {hidden ? '숨김 해제' : '리뷰 숨김'}
