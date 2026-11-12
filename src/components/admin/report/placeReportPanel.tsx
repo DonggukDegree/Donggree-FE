@@ -17,6 +17,7 @@ import {
   useAdminRevertEdit,
 } from '@/hooks/admin/mutations/useAdminReportActions';
 import { useAdminPlaceReport, useAdminPlaceReports } from '@/hooks/admin/queries/useAdminReports';
+import useAdminConfirm from '@/hooks/admin/useAdminConfirm';
 import type { TAdminMember, TReportStatus } from '@/types/admin/TAdminReport';
 import {
   describeInfoChanges,
@@ -107,6 +108,7 @@ export function PlaceReportDetail({
   const visibility = useAdminPlaceVisibility();
   const revert = useAdminRevertEdit();
   const suspend = useAdminReportSuspension();
+  const confirm = useAdminConfirm();
   const [suspendTarget, setSuspendTarget] = useState<TAdminMember | null>(null);
 
   if (isPending || !detail) return <p className="py-10 text-center text-body-m text-coolgray-60">불러오는 중이에요</p>;
@@ -132,21 +134,52 @@ export function PlaceReportDetail({
         <Button
           variant={place.status === 'HIDDEN' ? 'outlined' : 'alert'}
           className="px-4 py-2"
-          onClick={() => visibility.mutate({ placeId: place.id, hidden: place.status !== 'HIDDEN' })}
+          onClick={() =>
+            confirm(
+              place.status === 'HIDDEN'
+                ? {
+                    action: `${place.name}을 다시 지도에 보이게 할까요?`,
+                    description: '이 장소의 처리 대기 신고는 기각돼요.',
+                    confirmText: '숨김 해제',
+                    onConfirm: () => visibility.mutate({ placeId: place.id, hidden: false }),
+                  }
+                : {
+                    action: `${place.name}을 지도에서 숨길까요?`,
+                    description: '숨기면 지도·장소 정보에서 사라지고, 이 장소의 처리 대기 신고는 처리 완료돼요.',
+                    confirmText: '숨기기',
+                    danger: true,
+                    onConfirm: () => visibility.mutate({ placeId: place.id, hidden: true }),
+                  },
+            )
+          }
         >
           {place.status === 'HIDDEN' ? '숨김 해제' : '장소 숨김'}
         </Button>
         <Button
           variant={isPendingReport ? 'primary' : 'disabled'}
           className="px-4 py-2"
-          onClick={() => action.mutate({ target: 'places', reportId, action: 'resolve' })}
+          onClick={() =>
+            confirm({
+              action: '이 신고를 처리 완료할까요?',
+              description: '처리한 신고는 다시 대기로 되돌릴 수 없어요.',
+              confirmText: '처리 완료',
+              onConfirm: () => action.mutate({ target: 'places', reportId, action: 'resolve' }),
+            })
+          }
         >
           처리 완료
         </Button>
         <Button
           variant={isPendingReport ? 'outlined' : 'disabled'}
           className="px-4 py-2"
-          onClick={() => action.mutate({ target: 'places', reportId, action: 'reject' })}
+          onClick={() =>
+            confirm({
+              action: '이 신고를 기각할까요?',
+              description: '기각한 신고는 다시 대기로 되돌릴 수 없어요.',
+              confirmText: '기각',
+              onConfirm: () => action.mutate({ target: 'places', reportId, action: 'reject' }),
+            })
+          }
         >
           기각
         </Button>
@@ -197,7 +230,16 @@ export function PlaceReportDetail({
                   <Button
                     variant="outlined"
                     className="px-3 py-1.5"
-                    onClick={() => revert.mutate({ placeId: place.id, historyId: history.historyId })}
+                    onClick={() =>
+                      confirm({
+                        action: '이 수정 전 정보로 되돌릴까요?',
+                        description:
+                          '영업시간·설명·메뉴·숨은 맛집이 이 수정 전 값으로 바뀌고, 관리자 수정으로 이력에 남아요.',
+                        confirmText: '되돌리기',
+                        danger: true,
+                        onConfirm: () => revert.mutate({ placeId: place.id, historyId: history.historyId }),
+                      })
+                    }
                   >
                     이 수정 되돌리기
                   </Button>

@@ -29,5 +29,8 @@ describe('회원 정지 모달', () => {
     expect(html).not.toMatch(/7일|14일|30일/);
     expect(html).toContain('maxLength="200"');
     expect(html).toContain('기존 로그인도 바로 끊겨요');
+    // 입력 단계에서는 바로 정지하지 않고 [다음]으로 확인 단계를 거친다.
+    expect(html).toContain('>다음</button>');
+    expect(html).not.toContain('정지할까요');
   });
 });

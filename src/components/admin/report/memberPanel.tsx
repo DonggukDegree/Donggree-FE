@@ -12,6 +12,7 @@ import Button from '@/components/common/inputs/button';
 import { INPUT_CLASS } from '@/constants/inputStyles';
 import { useAdminLiftSuspension, useAdminMemberSuspension } from '@/hooks/admin/mutations/useAdminReportActions';
 import { useAdminMember, useAdminMembers } from '@/hooks/admin/queries/useAdminReports';
+import useAdminConfirm from '@/hooks/admin/useAdminConfirm';
 import { formatAdminDateTime, isSuspendedNow } from '@/utils/admin/report';
 
 interface IMemberPanelProps {
@@ -89,6 +90,7 @@ function MemberDetail({ memberId }: { memberId: number }) {
   const { data: detail, isPending } = useAdminMember(memberId);
   const suspend = useAdminMemberSuspension();
   const lift = useAdminLiftSuspension();
+  const confirm = useAdminConfirm();
   const [suspending, setSuspending] = useState(false);
 
   if (isPending || !detail) return <p className="py-10 text-center text-body-m text-coolgray-60">불러오는 중이에요</p>;
@@ -123,7 +125,14 @@ function MemberDetail({ memberId }: { memberId: number }) {
         <Button
           variant={suspended ? 'outlined' : 'disabled'}
           className="flex-1 py-2"
-          onClick={() => lift.mutate(memberId)}
+          onClick={() =>
+            confirm({
+              action: '이 회원의 정지를 해제할까요?',
+              description: '해제하면 바로 다시 로그인해 동그리를 이용할 수 있어요.',
+              confirmText: '정지 해제',
+              onConfirm: () => lift.mutate(memberId),
+            })
+          }
         >
           정지 해제
         </Button>

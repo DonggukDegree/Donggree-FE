@@ -16,6 +16,7 @@ import {
   useAdminReviewVisibility,
 } from '@/hooks/admin/mutations/useAdminReportActions';
 import { useAdminReviewReport, useAdminReviewReports } from '@/hooks/admin/queries/useAdminReports';
+import useAdminConfirm from '@/hooks/admin/useAdminConfirm';
 import type { TAdminReviewReport, TReportStatus } from '@/types/admin/TAdminReport';
 import {
   formatAdminDateTime,
@@ -104,6 +105,7 @@ function ReviewReportDetail({ reportId, onSelectMember }: { reportId: number; on
   const action = useAdminReportAction();
   const visibility = useAdminReviewVisibility();
   const suspend = useAdminReportSuspension();
+  const confirm = useAdminConfirm();
   const [suspending, setSuspending] = useState(false);
 
   if (isPending || !detail) return <p className="py-10 text-center text-body-m text-coolgray-60">불러오는 중이에요</p>;
@@ -134,7 +136,24 @@ function ReviewReportDetail({ reportId, onSelectMember }: { reportId: number; on
           <Button
             variant={hidden ? 'outlined' : 'alert'}
             className="px-4 py-2"
-            onClick={() => visibility.mutate({ reviewId: report.reviewId, hidden: !hidden })}
+            onClick={() =>
+              confirm(
+                hidden
+                  ? {
+                      action: '이 리뷰를 다시 보이게 할까요?',
+                      description: '이 리뷰의 처리 대기 신고는 기각돼요.',
+                      confirmText: '숨김 해제',
+                      onConfirm: () => visibility.mutate({ reviewId: report.reviewId, hidden: false }),
+                    }
+                  : {
+                      action: '이 리뷰를 숨길까요?',
+                      description: '숨기면 목록·평균 별점에서 빠지고, 이 리뷰의 처리 대기 신고는 처리 완료돼요.',
+                      confirmText: '숨기기',
+                      danger: true,
+                      onConfirm: () => visibility.mutate({ reviewId: report.reviewId, hidden: true }),
+                    },
+              )
+            }
           >
             {hidden ? '숨김 해제' : '리뷰 숨김'}
           </Button>
@@ -142,14 +161,28 @@ function ReviewReportDetail({ reportId, onSelectMember }: { reportId: number; on
         <Button
           variant={isPendingReport ? 'primary' : 'disabled'}
           className="px-4 py-2"
-          onClick={() => action.mutate({ target: 'reviews', reportId, action: 'resolve' })}
+          onClick={() =>
+            confirm({
+              action: '이 신고를 처리 완료할까요?',
+              description: '처리한 신고는 다시 대기로 되돌릴 수 없어요.',
+              confirmText: '처리 완료',
+              onConfirm: () => action.mutate({ target: 'reviews', reportId, action: 'resolve' }),
+            })
+          }
         >
           처리 완료
         </Button>
         <Button
           variant={isPendingReport ? 'outlined' : 'disabled'}
           className="px-4 py-2"
-          onClick={() => action.mutate({ target: 'reviews', reportId, action: 'reject' })}
+          onClick={() =>
+            confirm({
+              action: '이 신고를 기각할까요?',
+              description: '기각한 신고는 다시 대기로 되돌릴 수 없어요.',
+              confirmText: '기각',
+              onConfirm: () => action.mutate({ target: 'reviews', reportId, action: 'reject' }),
+            })
+          }
         >
           기각
         </Button>
