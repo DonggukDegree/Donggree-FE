@@ -14,6 +14,7 @@ import {
   PLACE_CATEGORY_BY_VALUE,
   PLACE_MENU_PREVIEW_COUNT,
   PLACE_SUB_CATEGORY_LABELS,
+  PLACE_TAG_LABELS,
   WITHDRAWN_MEMBER_LABEL,
 } from '@/constants/place';
 import usePlaceAddress from '@/hooks/place/usePlaceAddress';
@@ -91,6 +92,14 @@ export default function PlaceDetailContent({ place, onEdit, onReport }: IPlaceDe
             </button>
           )}
         </section>
+      )}
+
+      {place.tags.length > 0 && (
+        <ul aria-label="숨은 맛집" className="flex flex-wrap gap-x-2 gap-y-1 text-body-s text-primary-90">
+          {place.tags.map((tag) => (
+            <li key={tag}>#{PLACE_TAG_LABELS[tag].replace(/\s/g, '')}</li>
+          ))}
+        </ul>
       )}
 
       <PlaceReviewSection place={place} />

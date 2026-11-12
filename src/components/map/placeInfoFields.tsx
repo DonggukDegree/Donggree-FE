@@ -1,15 +1,17 @@
 /**
- * [동글맵 > 장소 등록·정보 수정] 영업시간·설명·메뉴 입력 칸
+ * [동글맵 > 장소 등록·정보 수정] 영업시간·설명·숨은 맛집 태그·메뉴 입력 칸
  * 등록 후에도 인증 회원 누구나 고칠 수 있는 항목이라 등록 폼과 수정 폼이 함께 쓴다.
  * 메뉴는 행을 추가·삭제·이동해 입력하고, 저장할 때 목록 전체를 보낸다.
+ * 숨은 맛집 태그는 체크박스로 0개 이상 고르며, 강력한 추천일 때만 고르도록 안내한다.
  */
 import type { ReactNode } from 'react';
 
+import Checkmark from '@/assets/icons/checkmark.svg?react';
 import TextField from '@/components/common/inputs/textField';
 import { INPUT_CLASS } from '@/constants/inputStyles';
-import { PLACE_FORM_LIMITS } from '@/constants/place';
+import { HIDDEN_GEM, PLACE_FORM_LIMITS, PLACE_TAGS } from '@/constants/place';
 import type { TPlaceInfoForm, TPlaceInfoFormErrors } from '@/types/place/TPlaceForm';
-import { addMenuRow, changeMenuRow, moveMenuRow, removeMenuRow } from '@/utils/place/placeForm';
+import { addMenuRow, changeMenuRow, moveMenuRow, removeMenuRow, togglePlaceTag } from '@/utils/place/placeForm';
 
 interface IPlaceInfoFieldsProps {
   form: TPlaceInfoForm;
@@ -56,6 +58,45 @@ export default function PlaceInfoFields({ form, errors, onChange }: IPlaceInfoFi
           {form.description.length}/{PLACE_FORM_LIMITS.DESCRIPTION_MAX}
         </p>
       </PlaceFormField>
+
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-1 text-button-m text-coolgray-90">
+          <span aria-hidden="true" className="mr-1">
+            {HIDDEN_GEM.emoji}
+          </span>
+          {HIDDEN_GEM.label} <span className="text-body-xs text-coolgray-60">선택 · 여러 개 가능</span>
+        </legend>
+        <p className="break-keep text-body-xs text-primary-90">강력한 추천인 경우에만 눌러주세요!</p>
+        <div className="grid grid-cols-2 gap-2">
+          {PLACE_TAGS.map(({ value, label }) => {
+            const checked = form.tags.includes(value);
+            return (
+              <label
+                key={value}
+                className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 text-body-s text-coolgray-90 ${
+                  checked ? 'border-primary-60' : 'border-coolgray-30'
+                }`}
+              >
+                {/* 기본 체크박스는 강조색이 번져 보여 테두리·체크를 직접 그린다(신고 사유 라디오와 같은 방식). */}
+                <span className="relative flex h-4 w-4 shrink-0">
+                  <input
+                    type="checkbox"
+                    value={value}
+                    checked={checked}
+                    onChange={() => onChange((current) => ({ ...current, tags: togglePlaceTag(current.tags, value) }))}
+                    className="peer h-4 w-4 cursor-pointer appearance-none rounded-sm border-[1.5px] border-coolgray-30 checked:border-primary-60 checked:bg-primary-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-60"
+                  />
+                  <Checkmark
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 hidden h-4 w-4 text-white peer-checked:block"
+                  />
+                </span>
+                {label}
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
 
       <fieldset className="flex flex-col gap-3">
         <legend className="mb-2 text-button-m text-coolgray-90">

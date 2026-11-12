@@ -39,6 +39,7 @@ const place: TPlaceDetail = {
   registrantNickname: '김아코',
   averageRating: null,
   reviewCount: 0,
+  tags: [],
 };
 
 const render = () => renderToStaticMarkup(<PlaceInfoEditForm place={place} onClose={vi.fn()} />);
@@ -49,6 +50,7 @@ describe('장소 정보 수정 폼', () => {
       businessHours: '평일 11:00-21:00',
       description: '',
       menus: [{ key: 'a', name: '짜장면', price: '7000' }],
+      tags: [],
     };
     state.errors = {};
     state.hasConflict = false;

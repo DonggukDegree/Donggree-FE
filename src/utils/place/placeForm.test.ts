@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { CAMPUS_CENTER } from '@/constants/place';
+import type { TPlaceTag } from '@/types/place/TPlace';
 import type { TPlaceForm } from '@/types/place/TPlaceForm';
 import {
   addMenuRow,
@@ -18,6 +19,8 @@ import {
   moveMenuRow,
   removeMenuRow,
   sanitizePriceInput,
+  sortPlaceTags,
+  togglePlaceTag,
   toPlaceInfoEditRequest,
   toPlaceRegisterRequest,
   validatePlaceForm,
@@ -110,6 +113,7 @@ describe('장소 등록 폼', () => {
         { name: '짜장면', price: 7000 },
         { name: '탕수육', price: null },
       ],
+      tags: [],
     });
   });
 });
@@ -122,6 +126,7 @@ describe('장소 정보 수정 폼', () => {
       { name: '짜장면', price: 7000 },
       { name: '탕수육', price: null },
     ],
+    tags: ['SOLO_DINING', 'COFFEE'] as TPlaceTag[],
   };
 
   it('현재 값으로 채우고 가격 변동은 빈 칸, 미입력은 빈 문자열', () => {
@@ -140,6 +145,7 @@ describe('장소 정보 수정 폼', () => {
       businessHours: '가'.repeat(101),
       description: '',
       menus: [{ key: 'm1', name: '', price: '' }],
+      tags: [],
     });
     expect(errors.businessHours).toContain('100자');
     expect(errors.menus?.m1?.name).toBe('메뉴명을 입력하거나 행을 삭제해주세요.');
@@ -163,6 +169,7 @@ describe('장소 정보 수정 폼', () => {
         { name: '짜장면', price: 7000 },
         { name: '탕수육', price: null },
       ],
+      tags: ['SOLO_DINING', 'COFFEE'],
     });
   });
 
@@ -181,5 +188,14 @@ describe('장소 정보 수정 폼', () => {
       ),
     ).toBe(false);
     expect(isSamePlaceInfo(place, toPlaceInfoEditRequest({ ...form, menus: [] }, 1))).toBe(false);
+    expect(isSamePlaceInfo(place, toPlaceInfoEditRequest({ ...form, tags: ['COFFEE', 'SOLO_DINING'] }, 1))).toBe(true);
+    expect(isSamePlaceInfo(place, toPlaceInfoEditRequest({ ...form, tags: ['COFFEE'] }, 1))).toBe(false);
+  });
+
+  it('숨은 맛집 태그는 토글하고 서버와 같은 순서로 정렬', () => {
+    expect(sortPlaceTags(['GENUINE', 'COFFEE', 'SHORTCUT', 'MOOD'])).toEqual(['SHORTCUT', 'MOOD', 'COFFEE', 'GENUINE']);
+    expect(togglePlaceTag(['COFFEE'], 'SOLO_DINING')).toEqual(['SOLO_DINING', 'COFFEE']);
+    expect(togglePlaceTag(['COFFEE', 'SOLO_DINING'], 'COFFEE')).toEqual(['SOLO_DINING']);
+    expect(createPlaceInfoForm(place).tags).toEqual(['SOLO_DINING', 'COFFEE']);
   });
 });

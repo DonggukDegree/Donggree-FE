@@ -2,7 +2,7 @@ import type { TCommonResponse } from '@/types/common';
 
 // 동글맵 장소 관련 타입. 서버는 카테고리를 enum 코드로만 주고받고, 라벨은 constants/place에서 매핑한다.
 
-export type TPlaceCategory = 'RESTAURANT' | 'CAFE' | 'BAR' | 'STUDY' | 'LIFE' | 'ETC';
+export type TPlaceCategory = 'RESTAURANT' | 'CAFE' | 'BAR' | 'STUDY' | 'LIFE' | 'ENTERTAINMENT' | 'ETC';
 
 export type TPlaceSubCategory =
   | 'KOREAN'
@@ -14,25 +14,43 @@ export type TPlaceSubCategory =
   | 'MEAT'
   | 'FAST_FOOD'
   | 'RESTAURANT_ETC'
-  | 'COFFEE'
+  | 'FRANCHISE'
   | 'DESSERT'
+  | 'COFFEE'
   | 'CAFE_ETC'
   | 'PUB'
   | 'IZAKAYA'
-  | 'POCHA'
   | 'WINE_BAR'
   | 'BAR_ETC'
   | 'STUDY_CAFE'
-  | 'STUDY_FRIENDLY_CAFE'
   | 'CAMPUS_FACILITY'
+  | 'LIBRARY'
   | 'STUDY_ETC'
   | 'CONVENIENCE_STORE'
   | 'PRINT'
   | 'STATIONERY'
   | 'MEDICAL'
   | 'BEAUTY'
+  | 'MART'
+  | 'FITNESS'
   | 'LIFE_ETC'
+  | 'BILLIARDS'
+  | 'BOWLING'
+  | 'KARAOKE'
+  | 'PC_ROOM'
+  | 'ENTERTAINMENT_ETC'
   | 'ETC';
+
+// ✨ 숨은 맛집 태그. 메인 카테고리와 별개로 장소마다 0개 이상 붙는다.
+export type TPlaceTag =
+  | 'SHORTCUT'
+  | 'STUDY'
+  | 'GATHERING'
+  | 'MEAL_DATE'
+  | 'MOOD'
+  | 'SOLO_DINING'
+  | 'COFFEE'
+  | 'GENUINE';
 
 // GET /api/places 응답 한 건. 지도 핀 표시용 최소 정보.
 export type TPlaceSummary = {
@@ -44,6 +62,7 @@ export type TPlaceSummary = {
   longitude: number;
   averageRating: number | null; // 소수 첫째 자리 평균 별점. 리뷰가 없으면 null
   reviewCount: number;
+  tags: TPlaceTag[]; // 숨은 맛집 태그(enum 순서)
 };
 
 export type TPlaceMenu = {
@@ -72,6 +91,7 @@ export type TPlaceRegisterRequest = {
   businessHours: string | null;
   description: string | null;
   menus: TPlaceMenu[];
+  tags: TPlaceTag[]; // 숨은 맛집 태그(0개 이상)
 };
 
 // PUT /api/places/{placeId}/info 요청. 영업시간·설명·메뉴 전체를 보내 교체한다(이름·위치·카테고리는 수정 불가).
@@ -80,6 +100,7 @@ export type TPlaceInfoEditRequest = {
   businessHours: string | null; // null이면 삭제
   description: string | null; // null이면 삭제
   menus: TPlaceMenu[]; // 빈 배열이면 메뉴 전체 삭제
+  tags: TPlaceTag[]; // 숨은 맛집 태그 전체. 빈 배열이면 모두 삭제
 };
 
 // 장소 신고 사유. 기타(OTHER)는 설명이 필수다.

@@ -26,6 +26,7 @@ const place: TPlaceDetail = {
   registrantNickname: '김아코',
   averageRating: null,
   reviewCount: 0,
+  tags: [],
 };
 
 describe('장소 정보', () => {
@@ -91,5 +92,21 @@ describe('장소 정보', () => {
       />,
     );
     expect(html).toMatch(/★<\/span><span class="text-coolgray-90">4\.0<\/span><span>· 리뷰 12<\/span>/);
+  });
+
+  it('숨은 맛집 태그를 리뷰 위에 주황 해시태그로 표시하고, 없으면 표시하지 않음', () => {
+    expect(
+      renderToStaticMarkup(<PlaceDetailContent place={place} onEdit={vi.fn()} onReport={vi.fn()} />),
+    ).not.toContain('aria-label="숨은 맛집"');
+    const html = renderToStaticMarkup(
+      <PlaceDetailContent
+        place={{ ...place, tags: ['SOLO_DINING', 'MEAL_DATE'] }}
+        onEdit={vi.fn()}
+        onReport={vi.fn()}
+      />,
+    );
+    expect(html).toMatch(
+      /<ul aria-label="숨은 맛집" class="[^"]*text-primary-90"><li>#혼밥맛집<\/li><li>#밥약맛집<\/li><\/ul><section>리뷰 영역/,
+    );
   });
 });

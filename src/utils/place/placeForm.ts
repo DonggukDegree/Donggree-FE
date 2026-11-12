@@ -3,6 +3,7 @@ import {
   CAMPUS_RADIUS_METERS,
   PLACE_FORM_LIMITS,
   PLACE_SUB_CATEGORIES_BY_CATEGORY,
+  PLACE_TAGS,
 } from '@/constants/place';
 import type {
   TPlaceCategory,
@@ -10,6 +11,7 @@ import type {
   TPlaceInfoEditRequest,
   TPlaceMenu,
   TPlaceRegisterRequest,
+  TPlaceTag,
 } from '@/types/place/TPlace';
 import type {
   TLatLng,
@@ -52,6 +54,7 @@ export const createEmptyPlaceForm = (): TPlaceForm => ({
   businessHours: '',
   description: '',
   menus: [],
+  tags: [],
 });
 
 // 카테고리가 바뀌면 그 카테고리에 속하지 않는 상세카테고리를 비운다.
@@ -129,11 +132,20 @@ export const validatePlaceForm = (form: TPlaceForm): TPlaceFormErrors => {
 
 export const hasPlaceFormErrors = (errors: TPlaceFormErrors | TPlaceInfoFormErrors) => Object.keys(errors).length > 0;
 
+// 숨은 맛집 태그를 중복 없이 서버(enum)와 같은 순서로 맞춘다. 순서만 다른 선택은 같은 값으로 본다.
+export const sortPlaceTags = (tags: readonly TPlaceTag[]): TPlaceTag[] =>
+  PLACE_TAGS.map(({ value }) => value).filter((value) => tags.includes(value));
+
+// 태그 체크박스 토글.
+export const togglePlaceTag = (tags: readonly TPlaceTag[], tag: TPlaceTag): TPlaceTag[] =>
+  tags.includes(tag) ? tags.filter((value) => value !== tag) : sortPlaceTags([...tags, tag]);
+
 // 선택 항목의 공백은 미입력(null), 빈 가격은 가격 변동(null).
 const toInfoPayload = (form: TPlaceInfoForm) => ({
   businessHours: form.businessHours.trim() || null,
   description: form.description.trim() || null,
   menus: form.menus.map((row): TPlaceMenu => ({ name: row.name.trim(), price: row.price ? Number(row.price) : null })),
+  tags: sortPlaceTags(form.tags),
 });
 
 // 검증을 통과한 폼을 등록 요청으로 바꾼다.
@@ -151,11 +163,12 @@ export const toPlaceRegisterRequest = (form: TPlaceForm, point: TLatLng): TPlace
 
 // 수정 폼을 현재 장소 값으로 채운다. 가격 없음(가격 변동)은 빈 칸.
 export const createPlaceInfoForm = (
-  place: Pick<TPlaceDetail, 'businessHours' | 'description' | 'menus'>,
+  place: Pick<TPlaceDetail, 'businessHours' | 'description' | 'menus' | 'tags'>,
 ): TPlaceInfoForm => ({
   businessHours: place.businessHours ?? '',
   description: place.description ?? '',
   menus: place.menus.map((menu) => ({ ...createMenuRow(), name: menu.name, price: menu.price?.toString() ?? '' })),
+  tags: [...place.tags],
 });
 
 // 검증을 통과한 수정 폼을 요청으로 바꾼다. version은 폼을 채운 시점의 장소 버전.
@@ -166,7 +179,7 @@ export const toPlaceInfoEditRequest = (form: TPlaceInfoForm, version: number): T
 
 // 요청이 현재 장소 값과 같은지. 같으면 서버에 보내지 않는다(서버도 이력을 남기지 않음).
 export const isSamePlaceInfo = (
-  place: Pick<TPlaceDetail, 'businessHours' | 'description' | 'menus'>,
+  place: Pick<TPlaceDetail, 'businessHours' | 'description' | 'menus' | 'tags'>,
   request: TPlaceInfoEditRequest,
 ) =>
   (place.businessHours ?? null) === request.businessHours &&
@@ -174,4 +187,5 @@ export const isSamePlaceInfo = (
   place.menus.length === request.menus.length &&
   place.menus.every(
     (menu, index) => menu.name === request.menus[index]?.name && menu.price === request.menus[index]?.price,
-  );
+  ) &&
+  sortPlaceTags(place.tags).join() === sortPlaceTags(request.tags).join();

@@ -21,6 +21,7 @@ const places: TPlaceSummary[] = [
     longitude: 127,
     averageRating: 4.3,
     reviewCount: 3,
+    tags: ['SOLO_DINING'],
   },
   {
     id: 2,
@@ -31,6 +32,7 @@ const places: TPlaceSummary[] = [
     longitude: 127,
     averageRating: null,
     reviewCount: 0,
+    tags: [],
   },
 ];
 
@@ -97,5 +99,34 @@ describe('동글맵 장소 핀', () => {
     const html = render(5, overlapping);
     expect(html).not.toContain('겹친 장소');
     expect(html.match(/장소 정보 보기/g)).toHaveLength(4);
+  });
+
+  it('숨은 맛집 모드에서만 아이콘 핀을 남색 배경 ✨로, 라벨 핀은 ✨로 바꿈', () => {
+    const iconHtml = renderToStaticMarkup(
+      <PlaceMarkers
+        places={places}
+        level={5}
+        selectedId={null}
+        onSelect={vi.fn()}
+        openGroupKey={null}
+        onToggleGroup={vi.fn()}
+        hiddenGemMode
+      />,
+    );
+    expect(iconHtml).toMatch(/style="background:#1f2a5c">✨<\/span>/);
+    expect(iconHtml).not.toContain('🍚');
+    expect(render(5)).not.toContain('#1f2a5c');
+    const labelHtml = renderToStaticMarkup(
+      <PlaceMarkers
+        places={places}
+        level={3}
+        selectedId={null}
+        onSelect={vi.fn()}
+        openGroupKey={null}
+        onToggleGroup={vi.fn()}
+        hiddenGemMode
+      />,
+    );
+    expect(labelHtml).toMatch(/✨<\/span><span class="truncate">동국반점<\/span>/);
   });
 });
