@@ -118,20 +118,20 @@ export type TReviewReportReason = 'ABUSE' | 'SPAM' | 'FALSE_INFO' | 'PRIVACY' | 
 // 리뷰 한 건. 작성자 닉네임이 null이면 "탈퇴한 회원", 프로필 사진이 null이면 기본 아바타로 표시한다.
 export type TPlaceReview = {
   id: number;
-  rating: number; // 1~5
-  content: string;
+  rating: number | null; // 1~5. 목록의 숨긴 리뷰면 null
+  content: string | null; // 목록의 숨긴 리뷰면 null("신고되어 숨겨진 리뷰입니다."로 표시)
   createdAt: string;
   updatedAt: string;
   author: { nickname: string | null; profileUrl: string | null };
   mine: boolean;
-  hidden: boolean; // 신고 누적·관리자로 숨겨짐(본인 리뷰에서만 true 가능)
+  hidden: boolean; // 신고 누적·관리자로 숨겨짐. 목록에서는 자리를 지키고 본문·별점이 비어 온다
 };
 
 // GET /api/places/{placeId}/reviews 한 페이지. 최신순 10개, 다음 페이지는 nextCursor를 cursor로 넘긴다.
 export type TPlaceReviewPage = {
   reviews: TPlaceReview[];
   nextCursor: number | null;
-  myReview: TPlaceReview | null; // 요청 회원의 리뷰(숨겨졌어도 포함)
+  myReview: TPlaceReview | null; // 요청 회원의 리뷰(숨겨졌어도 본문·별점 포함)
 };
 
 // POST·PUT 리뷰 요청. 별점 1~5, 본문 앞뒤 공백 제외 10~500자.

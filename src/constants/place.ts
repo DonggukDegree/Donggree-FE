@@ -68,7 +68,7 @@ export const PLACE_SUB_CATEGORY_LABELS: Record<TPlaceSubCategory, string> = {
   RESTAURANT_ETC: '기타',
   FRANCHISE: '프랜차이즈',
   DESSERT: '디저트/베이커리',
-  COFFEE: '커피 맛집',
+  COFFEE: '커피 전문',
   CAFE_ETC: '기타',
   PUB: '호프/요리주점',
   IZAKAYA: '이자카야',
@@ -128,6 +128,8 @@ export const PLACE_REPORT_DESCRIPTION_MAX = 200;
 
 // 장소 등록자·리뷰 작성자가 탈퇴했거나 조회되지 않을 때 닉네임 대신 쓰는 표기.
 export const WITHDRAWN_MEMBER_LABEL = '탈퇴한 회원';
+// 목록의 숨긴 리뷰 자리에 본문 대신 보여주는 문구(별점도 숨김).
+export const HIDDEN_REVIEW_LABEL = '신고되어 숨겨진 리뷰입니다.';
 
 // 리뷰 작성 제한. 서버도 같은 기준으로 다시 검증한다.
 export const PLACE_REVIEW_LIMITS = { RATING_MIN: 1, RATING_MAX: 5, CONTENT_MIN: 10, CONTENT_MAX: 500 } as const;

@@ -4,10 +4,18 @@
  *  - withCredentials: refreshToken(HttpOnly 쿠키)을 자동으로 실어 보낸다
  *  - 요청 인터셉터: 메모리에 있는 accessToken을 Authorization 헤더에 붙인다
  *  - 응답 인터셉터: 401이면 refresh를 '한 번만' 수행하고, 나머지 요청은 그 결과를 기다렸다가 재시도한다
+ *  - 정지 회원(403 AUTH403_2)은 요청·토큰 재발급 모두 막히므로 로그인 상태를 지우고 정지 안내 토스트 후 홈으로 보낸다
  */
 import axios from 'axios';
+import { toast } from 'sonner';
 
 import { hasSessionHint, useAuthStore } from '@/stores/authStore';
+import {
+  formatSuspensionMessage,
+  getSuspensionFromError,
+  SUSPENSION_TOAST_ID,
+  type TSuspension,
+} from '@/utils/auth/suspension';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -24,10 +32,23 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+// 같은 화면의 여러 요청이 한꺼번에 막혀도 토스트는 하나만 띄운다(같은 id는 sonner가 합친다).
+const handleSuspension = (suspension: TSuspension) => {
+  useAuthStore.getState().clearAuth();
+  toast(formatSuspensionMessage(suspension), { id: SUSPENSION_TOAST_ID, duration: 10_000 });
+  if (window.location.pathname !== '/') window.location.href = '/';
+};
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    const suspension = getSuspensionFromError(error.response?.data);
+    if (suspension) {
+      handleSuspension(suspension);
+      return Promise.reject(error);
+    }
 
     if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
       return Promise.reject(error);
@@ -63,6 +84,13 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       },
       (refreshError) => {
+        const refreshSuspension = axios.isAxiosError(refreshError)
+          ? getSuspensionFromError(refreshError.response?.data)
+          : null;
+        if (refreshSuspension) {
+          handleSuspension(refreshSuspension);
+          return Promise.reject(error);
+        }
         // 분석용 배경 확인은 공개 화면을 로그인으로 이동시키지 않는다.
         // 응답 없는 실패를 로그아웃으로 간주하면 관리자 세션을 익명으로 오인할 수 있다.
         const status = axios.isAxiosError(refreshError) ? refreshError.response?.status : undefined;
