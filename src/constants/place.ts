@@ -106,6 +106,7 @@ export const PLACE_TAGS: readonly { value: TPlaceTag; label: string }[] = [
   { value: 'BAR_SNACK', label: '안주 맛집' },
   { value: 'MEAL_DATE', label: '밥약 맛집' },
   { value: 'SOLO_DINING', label: '혼밥 맛집' },
+  { value: 'SHORTCUT', label: '지름길 맛집' },
 ];
 
 export const PLACE_TAG_LABELS = Object.fromEntries(PLACE_TAGS.map(({ value, label }) => [value, label])) as Record<

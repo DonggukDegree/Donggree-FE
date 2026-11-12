@@ -76,10 +76,11 @@ describe('장소 등록 폼', () => {
     expect(html).toContain('+ 메뉴 추가');
   });
 
-  it('숨은 맛집 태그 7종을 체크박스로 두고 강력한 추천 안내를 표시, 고른 태그는 체크', () => {
+  it('숨은 맛집 태그 8종을 체크박스로 두고 강력한 추천 안내를 표시, 고른 태그는 체크', () => {
     const html = render();
     expect(html).toContain('강력한 추천인 경우에만 눌러주세요!');
-    expect(html.match(/type="checkbox"/g)).toHaveLength(7);
+    expect(html.match(/type="checkbox"/g)).toHaveLength(8);
+    expect(html).toContain('지름길 맛집');
     expect(html).toMatch(/<input type="checkbox"(?=[^>]*checked="")(?=[^>]*value="SOLO_DINING")[^>]*>/);
     expect(html).toContain('혼밥 맛집');
   });
