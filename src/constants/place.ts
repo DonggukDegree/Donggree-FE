@@ -90,3 +90,6 @@ export const PLACE_REPORT_REASONS: { value: TPlaceReportReason; label: string }[
 ];
 
 export const PLACE_REPORT_DESCRIPTION_MAX = 200;
+
+// 장소 등록자·리뷰 작성자가 탈퇴했거나 조회되지 않을 때 닉네임 대신 쓰는 표기.
+export const WITHDRAWN_MEMBER_LABEL = '탈퇴한 회원';

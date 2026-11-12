@@ -22,6 +22,7 @@ const place: TPlaceDetail = {
   createdAt: '2026-11-01T12:00:00',
   updatedAt: '2026-11-02T12:00:00',
   version: 0,
+  registrantNickname: '김아코',
 };
 
 describe('장소 정보', () => {
@@ -61,5 +62,16 @@ describe('장소 정보', () => {
     expect(html).toMatch(
       /<span class="break-keep text-coolgray-90">짜장면<\/span><span class="shrink-0 text-coolgray-90">/,
     );
+  });
+
+  it('최초 등록일 뒤에 등록자 닉네임, 탈퇴했으면 탈퇴한 회원으로 표시', () => {
+    expect(renderToStaticMarkup(<PlaceDetailContent place={place} onEdit={vi.fn()} onReport={vi.fn()} />)).toMatch(
+      /최초 등록 [0-9.]+ 김아코 등록 · ?\s*마지막 수정/,
+    );
+    expect(
+      renderToStaticMarkup(
+        <PlaceDetailContent place={{ ...place, registrantNickname: null }} onEdit={vi.fn()} onReport={vi.fn()} />,
+      ),
+    ).toContain('탈퇴한 회원 등록');
   });
 });

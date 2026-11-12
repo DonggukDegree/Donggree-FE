@@ -57,6 +57,7 @@ export type TPlaceDetail = TPlaceSummary & {
   createdAt: string; // 최초 등록 시각(ISO)
   updatedAt: string; // 마지막 정보 수정 시각(ISO)
   version: number; // 정보 수정 요청에 그대로 돌려보내는 장소 버전. 다른 회원이 먼저 고치면 올라간다
+  registrantNickname: string | null; // 최초 등록자 닉네임. 탈퇴 등으로 없으면 null("탈퇴한 회원")
 };
 
 // POST /api/places 요청. 위치는 지도 중심 핀 좌표이며 주소는 보내지 않는다(카카오 주소 저장 금지).
