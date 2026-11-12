@@ -1,6 +1,6 @@
 /** [공통 > 분석] 환경·권한·URL·개인정보를 검사하는 유일한 GA 발송 경로 */
 import { ERROR_SOURCES, EVENT_NAMES, PAGE_NAMES, type TAnalyticsEvent } from '@/constants/analytics';
-import { PLACE_CATEGORIES } from '@/constants/place';
+import { PLACE_CATEGORIES, PLACE_REPORT_REASONS } from '@/constants/place';
 import { COURSE_TYPES, type TCourseType } from '@/types/course';
 
 const GA_ID = import.meta.env.VITE_GA_ID;
@@ -211,6 +211,8 @@ const sanitizeParams = (params: Record<string, unknown>) => {
       result[key] = value;
     if (key === 'duplicate_type' && ['exact', 'similar'].includes(String(value))) result[key] = value;
     if (key === 'verification_method' && ['school_email', 'transcript'].includes(String(value))) result[key] = value;
+    // 신고는 사유 코드만 보내고 사용자가 쓴 설명은 보내지 않는다.
+    if (key === 'report_reason' && PLACE_REPORT_REASONS.some((reason) => reason.value === value)) result[key] = value;
     // 동글맵은 장소명 등 사용자 입력 없이 카테고리 코드만 보낸다. ALL은 '전체' 칩.
     if (key === 'place_category' && (value === 'ALL' || PLACE_CATEGORIES.some((category) => category.value === value)))
       result[key] = value;

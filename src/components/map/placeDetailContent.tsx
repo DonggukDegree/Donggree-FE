@@ -1,11 +1,12 @@
 /**
  * [동글맵] 장소 정보 본문
  * 주소는 저장하지 않으므로 좌표로 실시간 조회해 보여준다. 등록자·수정자는 표시하지 않는다.
- * 영업시간·설명·메뉴는 인증 회원 누구나 고칠 수 있어 수정 버튼을 두고, 미인증 회원도 버튼은 보게 한다.
+ * 영업시간·설명·메뉴는 인증 회원 누구나 고치고 신고할 수 있어 정보 수정·신고 칩을 두며, 미인증 회원도 칩은 보게 한다.
  * 리뷰 영역은 리뷰 기능이 열릴 때 채운다.
  */
 import { type ReactNode, useState } from 'react';
 
+import Siren from '@/assets/icons/siren.svg?react';
 import { PLACE_CATEGORY_BY_VALUE, PLACE_MENU_PREVIEW_COUNT, PLACE_SUB_CATEGORY_LABELS } from '@/constants/place';
 import usePlaceAddress from '@/hooks/place/usePlaceAddress';
 import type { TPlaceDetail, TPlaceMenu } from '@/types/place/TPlace';
@@ -14,9 +15,13 @@ import { formatMenuPrice, formatPlaceDate } from '@/utils/place/place';
 interface IPlaceDetailContentProps {
   place: TPlaceDetail;
   onEdit: () => void;
+  onReport: () => void;
 }
 
-export default function PlaceDetailContent({ place, onEdit }: IPlaceDetailContentProps) {
+const CHIP_CLASS =
+  'flex cursor-pointer items-center gap-1 rounded-full border border-coolgray-30 px-2.5 py-0.5 text-body-xs text-coolgray-60';
+
+export default function PlaceDetailContent({ place, onEdit, onReport }: IPlaceDetailContentProps) {
   const category = PLACE_CATEGORY_BY_VALUE[place.category];
   const { address, isLoading: isAddressLoading } = usePlaceAddress(place.latitude, place.longitude);
   const [showAllMenus, setShowAllMenus] = useState(false);
@@ -77,28 +82,34 @@ export default function PlaceDetailContent({ place, onEdit }: IPlaceDetailConten
         <p className="text-body-xs text-coolgray-60">
           최초 등록 {formatPlaceDate(place.createdAt)} · 마지막 수정 {formatPlaceDate(place.updatedAt)}
         </p>
-        {/* 호버·키보드 포커스 시 칩 아래 가운데에 위쪽 꼬리 말풍선을 띄운다. 꼬리는 말풍선 가운데에서 칩을 가리킨다. */}
-        <div className="group relative">
-          <button
-            type="button"
-            aria-label="영업시간·설명·메뉴 수정"
-            aria-describedby="place-edit-tooltip"
-            onClick={onEdit}
-            className="cursor-pointer rounded-full border border-coolgray-30 px-2.5 py-0.5 text-body-xs text-coolgray-60 hover:border-primary-60 hover:text-primary-60"
-          >
-            수정
-          </button>
-          <span
-            id="place-edit-tooltip"
-            role="tooltip"
-            className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 translate-y-1 rounded-lg bg-coolgray-90 px-3 py-1.5 text-body-xs whitespace-nowrap text-white opacity-0 shadow-md transition duration-150 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100"
-          >
+        {/* 칩 둘은 함께 줄바꿈되고 오른쪽 끝에 붙는다. 좁은 화면에서도 말풍선이 칩 가운데 아래에 들어오게 하기 위함이다. */}
+        <div className="ml-auto flex items-center gap-2">
+          {/* 호버·키보드 포커스 시 칩 아래 가운데에 위쪽 꼬리 말풍선을 띄운다. 꼬리는 말풍선 가운데에서 칩을 가리킨다. */}
+          <div className="group relative">
+            <button
+              type="button"
+              aria-describedby="place-edit-tooltip"
+              onClick={onEdit}
+              className={`${CHIP_CLASS} hover:border-primary-60 hover:text-primary-60`}
+            >
+              정보 수정
+            </button>
             <span
-              aria-hidden="true"
-              className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-coolgray-90"
-            />
-            장소 정보를 추가해주세요!
-          </span>
+              id="place-edit-tooltip"
+              role="tooltip"
+              className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 translate-y-1 rounded-lg bg-coolgray-90 px-3 py-1.5 text-body-xs whitespace-nowrap text-white opacity-0 shadow-md transition duration-150 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100"
+            >
+              <span
+                aria-hidden="true"
+                className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-coolgray-90"
+              />
+              장소 정보를 추가해주세요!
+            </span>
+          </div>
+          <button type="button" onClick={onReport} className={`${CHIP_CLASS} hover:border-alert hover:text-alert`}>
+            <Siren aria-hidden="true" className="h-3.5 w-3.5" />
+            신고
+          </button>
         </div>
       </div>
     </div>
