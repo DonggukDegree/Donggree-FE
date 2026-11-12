@@ -4,25 +4,34 @@
  * 링크로 공유할 수 있고, 뒤로 가기로 시트를 닫는다.
  *
  * 카카오 지도는 표시용으로만 쓰고, 장소 데이터는 동그리 서버에서 받는다.
+ * 장소 추가(주황 + 버튼)는 인증 학생만 진행하며, 지도 중심 핀으로 위치를 정한 뒤 입력 폼으로 넘어간다.
  * 레이아웃은 /map에서만 폭 제한·푸터를 풀고 헤더 아래 화면 전체를 지도로 쓴다.
  */
 import { useEffect, useRef, useState } from 'react';
 import { Map as KakaoMap, useKakaoLoader } from 'react-kakao-maps-sdk';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
+import Plus from '@/assets/icons/plus.svg?react';
 import School from '@/assets/icons/school.svg?react';
 import Loading from '@/components/common/feedback/loading';
 import PlaceCategoryChips from '@/components/map/placeCategoryChips';
 import PlaceMarkers from '@/components/map/placeMarkers';
+import PlaceRegisterForm from '@/components/map/placeRegisterForm';
+import PlaceRegisterLocator from '@/components/map/placeRegisterLocator';
 import PlaceSheet from '@/components/map/placeSheet';
 import { CAMPUS_CENTER, MAP_INITIAL_LEVEL, MAP_MAX_LEVEL, MAP_MIN_LEVEL } from '@/constants/place';
 import usePlaces from '@/hooks/place/usePlaces';
+import useUserInfo from '@/hooks/user/useUserInfo';
+import { useModalStore } from '@/stores/modalStore';
 import type { TPlaceCategory, TPlaceSummary } from '@/types/place/TPlace';
+import type { TLatLng } from '@/types/place/TPlaceForm';
 import { trackEvent } from '@/utils/analytics/analytics';
 import { trackErrorShown } from '@/utils/analytics/analyticsError';
 import { filterPlacesByCategory, parsePlaceIdParam } from '@/utils/place/place';
+import { canWritePlace } from '@/utils/place/placeForm';
 
 const KAKAO_MAP_KEY = import.meta.env.VITE_KAKAO_MAP_KEY;
+type TMapMode = 'browse' | 'locate' | 'form';
 const MAP_ZOOM_BUTTON_CLASS =
   'flex h-12 w-12 cursor-pointer items-center justify-center text-heading-5 text-coolgray-90 hover:text-primary-60 disabled:cursor-default disabled:text-coolgray-30';
 
@@ -41,14 +50,21 @@ function DonggleMapView({ appKey }: { appKey: string }) {
 
 function DonggleMapCanvas() {
   const { data: places, isError, error, refetch } = usePlaces();
+  const { data: user } = useUserInfo();
+  const openStudentVerification = useModalStore((state) => state.openStudentVerification);
   const [category, setCategory] = useState<TPlaceCategory | null>(null);
   const [level, setLevel] = useState(MAP_INITIAL_LEVEL);
+  // 등록 흐름: browse(둘러보기) → locate(핀 위치 지정) → form(입력). 등록 위치는 locate 확정 시점에 고정한다.
+  const [mode, setMode] = useState<TMapMode>('browse');
+  const [center, setCenter] = useState<TLatLng>(CAMPUS_CENTER);
+  const [registerPoint, setRegisterPoint] = useState<TLatLng | null>(null);
   const mapRef = useRef<kakao.maps.Map>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
   const selectedId = parsePlaceIdParam(searchParams.get('place'));
   const visiblePlaces = filterPlacesByCategory(places ?? [], category);
+  const isBrowsing = mode === 'browse';
 
   useEffect(() => {
     if (isError) trackErrorShown('donggle_map', error, true);
@@ -61,9 +77,12 @@ function DonggleMapCanvas() {
   }, [places, selectedId]);
 
   // 시트를 처음 열 때만 기록을 쌓아 뒤로 가기로 닫히게 하고, 열린 상태에서 다른 장소를 고르면 교체한다.
+  const showPlace = (placeId: number) =>
+    setSearchParams({ place: String(placeId) }, { replace: selectedId !== null, state: { placeOpened: true } });
+
   const openPlace = (place: TPlaceSummary) => {
     trackEvent('place_select', { place_category: place.category });
-    setSearchParams({ place: String(place.id) }, { replace: selectedId !== null, state: { placeOpened: true } });
+    showPlace(place.id);
   };
 
   const closePlace = () => {
@@ -87,6 +106,29 @@ function DonggleMapCanvas() {
     mapRef.current?.panTo(new kakao.maps.LatLng(CAMPUS_CENTER.lat, CAMPUS_CENTER.lng));
   };
 
+  // 미인증 회원은 버튼은 보되 누르면 인증 안내를 받는다. 서버도 쓰기 요청마다 다시 검증한다.
+  const startRegister = () => {
+    if (!canWritePlace(user)) {
+      openStudentVerification();
+      return;
+    }
+    trackEvent('place_register_start');
+    if (selectedId !== null) setSearchParams({}, { replace: true });
+    setMode('locate');
+  };
+
+  const confirmLocation = () => {
+    setRegisterPoint(center);
+    setMode('form');
+  };
+
+  const finishRegister = (placeId: number) => {
+    setMode('browse');
+    setRegisterPoint(null);
+    setCategory(null);
+    showPlace(placeId);
+  };
+
   return (
     <div className="relative min-h-0 w-full flex-1 overflow-hidden">
       <KakaoMap
@@ -97,15 +139,23 @@ function DonggleMapCanvas() {
         minLevel={MAP_MAX_LEVEL}
         className="h-full w-full"
         onZoomChanged={(map) => setLevel(map.getLevel())}
+        onIdle={(map) => {
+          const next = map.getCenter();
+          setCenter({ lat: next.getLat(), lng: next.getLng() });
+        }}
       >
-        <PlaceMarkers places={visiblePlaces} level={level} selectedId={selectedId} onSelect={openPlace} />
+        {isBrowsing && (
+          <PlaceMarkers places={visiblePlaces} level={level} selectedId={selectedId} onSelect={openPlace} />
+        )}
       </KakaoMap>
 
-      <div className={`absolute inset-x-0 top-3 z-20 ${selectedId !== null ? 'lg:left-100' : ''}`}>
-        <PlaceCategoryChips selected={category} onSelect={selectCategory} />
-      </div>
+      {isBrowsing && (
+        <div className={`absolute inset-x-0 top-3 z-20 ${selectedId !== null ? 'lg:left-100' : ''}`}>
+          <PlaceCategoryChips selected={category} onSelect={selectCategory} />
+        </div>
+      )}
 
-      {isError && (
+      {isBrowsing && isError && (
         <div className="absolute inset-x-0 top-16 z-20 flex justify-center px-4">
           <button
             type="button"
@@ -116,49 +166,81 @@ function DonggleMapCanvas() {
           </button>
         </div>
       )}
-      {places && places.length === 0 && (
+      {isBrowsing && places && places.length === 0 && (
         <p className="absolute inset-x-0 top-16 z-20 mx-auto w-fit rounded-full bg-white px-4 py-2 text-body-s text-coolgray-60 shadow-md">
-          아직 등록된 장소가 없어요.
+          아직 등록된 장소가 없어요. 첫 장소를 등록해보세요.
         </p>
       )}
 
-      <div
-        className={`absolute right-4 z-20 flex flex-col gap-3 transition-[bottom] duration-200 ${
-          selectedId !== null ? 'bottom-[calc(42%+16px)] lg:bottom-6' : 'bottom-6'
-        }`}
-      >
-        <div className="flex flex-col overflow-hidden rounded-full bg-white shadow-md">
-          <button
-            type="button"
-            aria-label="지도 확대"
-            onClick={() => zoomBy(-1)}
-            disabled={level <= MAP_MIN_LEVEL}
-            className={MAP_ZOOM_BUTTON_CLASS}
-          >
-            <span aria-hidden="true">+</span>
-          </button>
-          <span aria-hidden="true" className="mx-3 h-px bg-coolgray-10" />
-          <button
-            type="button"
-            aria-label="지도 축소"
-            onClick={() => zoomBy(1)}
-            disabled={level >= MAP_MAX_LEVEL}
-            className={MAP_ZOOM_BUTTON_CLASS}
-          >
-            <span aria-hidden="true">−</span>
-          </button>
-        </div>
-        <button
-          type="button"
-          aria-label="학교로 이동"
-          onClick={moveToCampus}
-          className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white text-coolgray-90 shadow-md hover:text-primary-60"
+      {mode !== 'form' && (
+        <div
+          className={`absolute right-4 z-20 flex flex-col items-center gap-3 transition-[bottom] duration-200 ${
+            mode === 'locate'
+              ? 'bottom-56 lg:bottom-6'
+              : selectedId !== null
+                ? 'bottom-[calc(42%+16px)] lg:bottom-6'
+                : 'bottom-6'
+          }`}
         >
-          <School aria-hidden="true" className="h-6 w-6" />
-        </button>
-      </div>
+          <div className="flex flex-col overflow-hidden rounded-full bg-white shadow-md">
+            <button
+              type="button"
+              aria-label="지도 확대"
+              onClick={() => zoomBy(-1)}
+              disabled={level <= MAP_MIN_LEVEL}
+              className={MAP_ZOOM_BUTTON_CLASS}
+            >
+              <span aria-hidden="true">+</span>
+            </button>
+            <span aria-hidden="true" className="mx-3 h-px bg-coolgray-10" />
+            <button
+              type="button"
+              aria-label="지도 축소"
+              onClick={() => zoomBy(1)}
+              disabled={level >= MAP_MAX_LEVEL}
+              className={MAP_ZOOM_BUTTON_CLASS}
+            >
+              <span aria-hidden="true">−</span>
+            </button>
+          </div>
+          <button
+            type="button"
+            aria-label="학교로 이동"
+            onClick={moveToCampus}
+            className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white text-coolgray-90 shadow-md hover:text-primary-60"
+          >
+            <School aria-hidden="true" className="h-6 w-6" />
+          </button>
+          {/* 확대(+)와 헷갈리지 않도록 장소 추가는 주황 채움 원으로 구분한다. */}
+          {isBrowsing && (
+            <button
+              type="button"
+              aria-label="장소 추가"
+              onClick={startRegister}
+              className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-primary-60 text-white shadow-lg hover:opacity-90"
+            >
+              <Plus aria-hidden="true" className="h-7 w-7" />
+            </button>
+          )}
+        </div>
+      )}
 
-      {selectedId !== null && <PlaceSheet key={selectedId} placeId={selectedId} onClose={closePlace} />}
+      {isBrowsing && selectedId !== null && <PlaceSheet key={selectedId} placeId={selectedId} onClose={closePlace} />}
+      {mode === 'locate' && (
+        <PlaceRegisterLocator center={center} onConfirm={confirmLocation} onCancel={() => setMode('browse')} />
+      )}
+      {mode === 'form' && registerPoint && (
+        <PlaceRegisterForm
+          point={registerPoint}
+          onBack={() => setMode('locate')}
+          onRegistered={finishRegister}
+          onSelectExisting={(placeId) => {
+            setMode('browse');
+            setRegisterPoint(null);
+            showPlace(placeId);
+          }}
+        />
+      )}
     </div>
   );
 }

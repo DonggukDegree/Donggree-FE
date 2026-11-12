@@ -1,5 +1,5 @@
 /** [마이페이지 > 학교 이메일 인증] 페이지 (/my-page/school-email-verification) */
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Check from '@/assets/icons/check.svg?react';
 import Inbox from '@/assets/icons/inbox.svg?react';
@@ -25,9 +25,10 @@ export default function SchoolEmailVerification() {
   );
 }
 
-/** 인증 직후와 재조회 후에 같은 완료 화면을 표시한다. */
+/** 인증 직후와 재조회 후에 같은 완료 화면을 표시한다. 동글맵 인증 안내에서 왔으면 동글맵으로 돌려보낸다. */
 function VerificationComplete() {
   const navigate = useNavigate();
+  const fromMap = (useLocation().state as { returnTo?: string } | null)?.returnTo === '/map';
   return (
     <>
       <Check aria-hidden="true" className="h-10 w-10 shrink-0 lg:h-20 lg:w-20" />
@@ -38,8 +39,8 @@ function VerificationComplete() {
           {'이제 동그리의 다양한 서비스를 사용할 수 있어요.\n사용하다가 미흡한 점이 있으면 고객지원에 문의해주세요.'}
         </p>
       </div>
-      <Button className="w-40 max-w-full" onClick={() => navigate('/my-page/profile')}>
-        닫기
+      <Button className="w-40 max-w-full" onClick={() => navigate(fromMap ? '/map' : '/my-page/profile')}>
+        {fromMap ? '동글맵으로 돌아가기' : '닫기'}
       </Button>
     </>
   );

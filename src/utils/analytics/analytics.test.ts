@@ -48,6 +48,15 @@ describe('GA 발송 경계', () => {
     expect(sent.find((event) => event[1] === 'place_select')?.[2]).toMatchObject({ place_category: 'CAFE' });
     expect(sent.find((event) => event[1] === 'place_select')?.[2]).not.toHaveProperty('place_name');
     expect(sent.find((event) => event[1] === 'place_category_select')?.[2]).not.toHaveProperty('place_category');
+    analytics.trackEvent('place_duplicate_shown', { duplicate_type: 'exact' });
+    analytics.trackEvent('student_verification_select', { verification_method: 'school_email', email: 'x' });
+    expect(events().find((event) => event[1] === 'place_duplicate_shown')?.[2]).toMatchObject({
+      duplicate_type: 'exact',
+    });
+    expect(events().find((event) => event[1] === 'student_verification_select')?.[2]).toEqual(
+      expect.objectContaining({ verification_method: 'school_email' }),
+    );
+    expect(events().find((event) => event[1] === 'student_verification_select')?.[2]).not.toHaveProperty('email');
     expect(sent.find((event) => event[1] === 'error_shown')?.[2]).toMatchObject({
       error_source: 'donggle_map',
       code: 'PLACE404_1',

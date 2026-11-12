@@ -58,5 +58,34 @@ export type TPlaceDetail = TPlaceSummary & {
   updatedAt: string; // 마지막 정보 수정 시각(ISO)
 };
 
+// POST /api/places 요청. 위치는 지도 중심 핀 좌표이며 주소는 보내지 않는다(카카오 주소 저장 금지).
+export type TPlaceRegisterRequest = {
+  name: string;
+  category: TPlaceCategory;
+  subCategory: TPlaceSubCategory;
+  latitude: number;
+  longitude: number;
+  businessHours: string | null;
+  description: string | null;
+  menus: TPlaceMenu[];
+};
+
+// GET /api/places/duplicates 후보. 반경 50m 안 장소.
+export type TPlaceDuplicateCandidate = {
+  id: number;
+  name: string;
+  category: TPlaceCategory;
+  subCategory: TPlaceSubCategory;
+  distanceMeters: number;
+};
+
+// exact가 있으면 등록 불가(정규화 이름 동일), similar는 확인 안내(한쪽 이름이 다른 쪽을 포함).
+export type TPlaceDuplicates = {
+  exact: TPlaceDuplicateCandidate[];
+  similar: TPlaceDuplicateCandidate[];
+};
+
 export type TGetPlacesResponse = TCommonResponse<TPlaceSummary[]>;
 export type TGetPlaceDetailResponse = TCommonResponse<TPlaceDetail>;
+export type TGetPlaceDuplicatesResponse = TCommonResponse<TPlaceDuplicates>;
+export type TPostPlaceResponse = TCommonResponse<number>;

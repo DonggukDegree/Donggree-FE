@@ -1,6 +1,7 @@
 /**
  * [동글맵] 장소 핀
- * 레벨 3 이하는 이름 라벨 핀, 4~6은 카테고리 아이콘 핀이며 가까운 핀은 개수 묶음(클러스터)으로 보여준다.
+ * 레벨 3 이하는 카테고리 이모지 + 이름 라벨 핀, 4~6은 카테고리 아이콘 핀이며 가까운 핀은 개수 묶음(클러스터)으로 보여준다.
+ * 핀 아래 꼬리(화살표)는 본체 밑 레이어로 겹쳐, 본체 테두리가 꼬리 위를 덮도록 한다.
  * 별점은 리뷰 기능이 열린 뒤 라벨 옆에 붙인다.
  */
 import { CustomOverlayMap, MarkerClusterer } from 'react-kakao-maps-sdk';
@@ -57,21 +58,19 @@ export default function PlaceMarkers({ places, level, selectedId, onSelect }: IP
             >
               {showLabel ? (
                 <span
-                  className={`flex max-w-40 items-center gap-1.5 rounded-full border bg-white px-3 py-1.5 text-body-s font-semibold text-coolgray-90 shadow-md transition-transform ${
+                  className={`relative z-10 flex max-w-40 items-center gap-1 rounded-full border bg-white px-3 py-1.5 text-body-s font-semibold text-coolgray-90 shadow-md transition-transform ${
                     isSelected ? 'scale-110 border-primary-60' : 'border-coolgray-20'
                   }`}
                 >
-                  <span
-                    aria-hidden="true"
-                    className="h-2 w-2 shrink-0 rounded-full"
-                    style={{ background: category.color }}
-                  />
+                  <span aria-hidden="true" className="shrink-0">
+                    {category.emoji}
+                  </span>
                   <span className="truncate">{place.name}</span>
                 </span>
               ) : (
                 <span
                   aria-hidden="true"
-                  className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-body-s shadow-md transition-transform ${
+                  className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-body-s shadow-md transition-transform ${
                     isSelected ? 'scale-125 border-primary-60' : 'border-white'
                   }`}
                   style={{ background: category.color }}
@@ -81,7 +80,7 @@ export default function PlaceMarkers({ places, level, selectedId, onSelect }: IP
               )}
               <span
                 aria-hidden="true"
-                className="-mt-px h-0 w-0 border-x-[6px] border-t-[7px] border-x-transparent"
+                className="relative z-0 -mt-1 h-0 w-0 border-x-[6px] border-t-[9px] border-x-transparent"
                 style={{ borderTopColor: showLabel ? '#ffffff' : category.color }}
               />
             </button>

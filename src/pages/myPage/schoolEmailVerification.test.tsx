@@ -76,6 +76,17 @@ describe('학교 이메일 인증 화면', () => {
     expect(html).not.toContain('<input');
   });
 
+  it('동글맵 인증 안내에서 왔으면 완료 후 동글맵으로 돌아가는 버튼 표시', () => {
+    state.status.schoolEmailVerified = true;
+    const html = renderToStaticMarkup(
+      <MemoryRouter initialEntries={[{ pathname: '/my-page/school-email-verification', state: { returnTo: '/map' } }]}>
+        <SchoolEmailVerification />
+      </MemoryRouter>,
+    );
+    expect(html).toContain('>동글맵으로 돌아가기</button>');
+    expect(html).not.toContain('>닫기</button>');
+  });
+
   it('인증 성공 직후에도 재조회 후와 동일한 완료 화면 표시', () => {
     state.form.isConfirmed = true;
     const html = render();

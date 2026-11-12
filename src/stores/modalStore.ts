@@ -3,6 +3,7 @@
  * 화면 어디서든 모달을 열 수 있도록 '무엇을 열지'만 담아 둔다.
  * 실제 렌더는 레이아웃의 ModalProvider가 type을 보고 결정한다.
  *  - alert: 안내 / onboarding: 온보딩 / confirm: 관리자 저장 확인 / survey: 만족도 조사
+ *  - studentVerification: 동글맵 쓰기 전 학생 인증 안내(학교 이메일·성적표 두 경로)
  */
 import type { ComponentType, ReactNode, SVGProps } from 'react';
 import { create } from 'zustand';
@@ -10,7 +11,7 @@ import { create } from 'zustand';
 import type { TErrorSource, TTranscriptNoticeParams } from '@/constants/analytics';
 import { createAttemptId } from '@/utils/analytics/analytics';
 
-type TModalType = 'alert' | 'onboarding' | 'confirm' | 'survey';
+type TModalType = 'alert' | 'onboarding' | 'confirm' | 'survey' | 'studentVerification';
 
 interface IAlertContent {
   analyticsDisplayId?: string;
@@ -48,6 +49,7 @@ interface IModalActions {
   openOnboarding: () => void;
   openConfirm: (content: IConfirmContent) => void;
   openSurvey: () => void;
+  openStudentVerification: () => void;
   closeModal: () => void;
 }
 
@@ -65,5 +67,6 @@ export const useModalStore = create<IModalState & IModalActions>((set) => ({
   openConfirm: (content) => set({ type: 'confirm', alertContent: null, confirmContent: content }),
   // 자동 설문은 이미 열린 필수 안내·확인 모달을 덮어쓰지 않는다.
   openSurvey: () => set((state) => (state.type === null ? { ...initialState, type: 'survey' } : state)),
+  openStudentVerification: () => set({ ...initialState, type: 'studentVerification' }),
   closeModal: () => set(initialState),
 }));

@@ -209,6 +209,8 @@ const sanitizeParams = (params: Record<string, unknown>) => {
       result[key] = value;
     if (key === 'course_type' && typeof value === 'string' && COURSE_TYPES.includes(value as TCourseType))
       result[key] = value;
+    if (key === 'duplicate_type' && ['exact', 'similar'].includes(String(value))) result[key] = value;
+    if (key === 'verification_method' && ['school_email', 'transcript'].includes(String(value))) result[key] = value;
     // 동글맵은 장소명 등 사용자 입력 없이 카테고리 코드만 보낸다. ALL은 '전체' 칩.
     if (key === 'place_category' && (value === 'ALL' || PLACE_CATEGORIES.some((category) => category.value === value)))
       result[key] = value;

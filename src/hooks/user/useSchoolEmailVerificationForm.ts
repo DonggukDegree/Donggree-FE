@@ -88,6 +88,8 @@ export default function useSchoolEmailVerificationForm() {
     onSuccess: async () => {
       trackEvent('school_email_verification_success');
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SCHOOL_EMAIL_VERIFICATION });
+      // 내 정보의 schoolEmailVerified로 동글맵 쓰기 권한을 판단하므로 함께 갱신한다. (하위 키만 무효화하면 부모 키는 남는다)
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_USER_INFO, exact: true });
       toast.success('학교 이메일 인증이 완료되었어요.');
     },
     onError: (error) => {

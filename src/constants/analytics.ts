@@ -47,6 +47,11 @@ export const EVENT_NAMES = {
   unsupported_major_notice: '판정 정확도 유의사항 표시',
   place_category_select: '동글맵 카테고리 칩 선택',
   place_select: '동글맵 장소 선택',
+  place_register_start: '동글맵 장소 등록 시작',
+  place_register_complete: '동글맵 장소 등록 완료',
+  place_duplicate_shown: '동글맵 중복 장소 안내 표시',
+  student_verification_shown: '학생 인증 안내 표시',
+  student_verification_select: '학생 인증 안내에서 인증 방법 선택',
 } as const;
 export type TAnalyticsEvent = keyof typeof EVENT_NAMES;
 export type TTranscriptNoticeParams = {
