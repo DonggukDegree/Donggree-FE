@@ -115,9 +115,13 @@ describe('리뷰 영역', () => {
     expect(html).toContain('리뷰 더보기');
   });
 
-  it('제목의 리뷰와 개수 사이에 평균 별점을 표시', () => {
-    expect(render()).toMatch(
-      /리뷰 <span class="text-primary-60"><span aria-hidden="true">★<\/span>3\.1 <\/span><span class="text-coolgray-60">2<\/span>/,
+  it('제목은 리뷰와 개수만, 평균 별점은 오른쪽 끝에 표시', () => {
+    const html = render();
+    expect(html).toMatch(
+      /리뷰 <span class="text-coolgray-60">2<\/span><\/h3><div class="ml-auto flex items-center gap-2">/,
+    );
+    expect(html).toMatch(
+      /<span class="text-button-m text-primary-60"><span aria-hidden="true">★<\/span><span class="sr-only">평균 별점 <\/span>3\.1<\/span>/,
     );
   });
 });

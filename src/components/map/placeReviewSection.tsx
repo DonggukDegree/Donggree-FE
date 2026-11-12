@@ -68,25 +68,28 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
     <section className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-button-m text-coolgray-90">
-          리뷰{' '}
+          리뷰 <span className="text-coolgray-60">{place.reviewCount}</span>
+        </h3>
+        {/* 평균 별점은 제목과 떨어뜨려 오른쪽 끝에 두고, 리뷰 쓰기 버튼이 있으면 그 앞에 둔다. */}
+        <div className="ml-auto flex items-center gap-2">
           {place.averageRating !== null && (
-            <span className="text-primary-60">
+            <span className="text-button-m text-primary-60">
               <span aria-hidden="true">★</span>
-              {formatAverageRating(place.averageRating)}{' '}
+              <span className="sr-only">평균 별점 </span>
+              {formatAverageRating(place.averageRating)}
             </span>
           )}
-          <span className="text-coolgray-60">{place.reviewCount}</span>
-        </h3>
-        {!myReview && (
-          <button
-            type="button"
-            onClick={() => openIfVerified({ type: 'write' })}
-            className="flex cursor-pointer items-center gap-1 rounded-full bg-primary-60 px-3 py-1 text-body-xs text-white hover:opacity-90"
-          >
-            <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
-            리뷰 쓰기
-          </button>
-        )}
+          {!myReview && (
+            <button
+              type="button"
+              onClick={() => openIfVerified({ type: 'write' })}
+              className="flex cursor-pointer items-center gap-1 rounded-full bg-primary-60 px-3 py-1 text-body-xs text-white hover:opacity-90"
+            >
+              <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
+              리뷰 쓰기
+            </button>
+          )}
+        </div>
       </div>
 
       {myReview && (
