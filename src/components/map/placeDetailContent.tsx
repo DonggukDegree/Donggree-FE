@@ -50,7 +50,7 @@ export default function PlaceDetailContent({ place, onEdit }: IPlaceDetailConten
             {withMenuKeys(menus).map(({ key, menu }) => (
               <li key={key} className="flex justify-between gap-4 py-2.5 text-body-s">
                 <span className="break-keep text-coolgray-90">{menu.name}</span>
-                <span className="shrink-0 text-coolgray-60">{formatMenuPrice(menu.price)}</span>
+                <span className="shrink-0 text-coolgray-90">{formatMenuPrice(menu.price)}</span>
               </li>
             ))}
           </ul>
@@ -77,14 +77,26 @@ export default function PlaceDetailContent({ place, onEdit }: IPlaceDetailConten
         <p className="text-body-xs text-coolgray-60">
           최초 등록 {formatPlaceDate(place.createdAt)} · 마지막 수정 {formatPlaceDate(place.updatedAt)}
         </p>
-        <button
-          type="button"
-          aria-label="영업시간·설명·메뉴 수정"
-          onClick={onEdit}
-          className="cursor-pointer rounded-full border border-coolgray-30 px-2.5 py-0.5 text-body-xs text-coolgray-60 hover:border-primary-60 hover:text-primary-60"
-        >
-          수정
-        </button>
+        {/* 호버·키보드 포커스 시 칩 아래에 위쪽 꼬리 말풍선을 띄운다. 칩이 줄 끝에 오므로 말풍선은 오른쪽 끝을 맞춘다. */}
+        <div className="group relative">
+          <button
+            type="button"
+            aria-label="영업시간·설명·메뉴 수정"
+            aria-describedby="place-edit-tooltip"
+            onClick={onEdit}
+            className="cursor-pointer rounded-full border border-coolgray-30 px-2.5 py-0.5 text-body-xs text-coolgray-60 hover:border-primary-60 hover:text-primary-60"
+          >
+            수정
+          </button>
+          <span
+            id="place-edit-tooltip"
+            role="tooltip"
+            className="pointer-events-none absolute top-full right-0 z-10 mt-2 translate-y-1 rounded-lg bg-coolgray-90 px-3 py-1.5 text-body-xs whitespace-nowrap text-white opacity-0 shadow-md transition duration-150 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100"
+          >
+            <span aria-hidden="true" className="absolute -top-1 right-4 h-2 w-2 rotate-45 bg-coolgray-90" />
+            장소 정보를 추가해주세요!
+          </span>
+        </div>
       </div>
     </div>
   );
