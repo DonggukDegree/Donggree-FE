@@ -1,0 +1,36 @@
+/** [동글맵] 장소 핀의 카테고리 이모지 표시와 꼬리 레이어 순서 검사 */
+import type { ReactNode } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { describe, expect, it, vi } from 'vitest';
+
+import PlaceMarkers from '@/components/map/placeMarkers';
+import type { TPlaceSummary } from '@/types/place/TPlace';
+
+vi.mock('react-kakao-maps-sdk', () => ({
+  MarkerClusterer: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  CustomOverlayMap: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+}));
+
+const places: TPlaceSummary[] = [
+  { id: 1, name: '동국반점', category: 'RESTAURANT', subCategory: 'CHINESE', latitude: 37.558, longitude: 127 },
+  { id: 2, name: '필동커피', category: 'CAFE', subCategory: 'COFFEE', latitude: 37.559, longitude: 127 },
+];
+
+const render = (level: number) =>
+  renderToStaticMarkup(<PlaceMarkers places={places} level={level} selectedId={null} onSelect={vi.fn()} />);
+
+describe('동글맵 장소 핀', () => {
+  it('확대 레벨의 라벨 핀은 카테고리 이모지를 이름 앞에 표시', () => {
+    const html = render(3);
+    expect(html).toMatch(/<span aria-hidden="true" class="shrink-0">🍚<\/span><span class="truncate">동국반점<\/span>/);
+    expect(html).toMatch(/<span aria-hidden="true" class="shrink-0">☕<\/span><span class="truncate">필동커피<\/span>/);
+  });
+
+  it('본체는 꼬리보다 위 레이어, 꼬리는 본체 밑으로 겹쳐 표시', () => {
+    for (const level of [3, 5]) {
+      const html = render(level);
+      expect(html.match(/relative z-10 flex/g)).toHaveLength(2);
+      expect(html.match(/relative z-0 -mt-1 h-0 w-0/g)).toHaveLength(2);
+    }
+  });
+});
