@@ -6,6 +6,7 @@ import {
   filterPlacesByCategory,
   formatMenuPrice,
   formatPlaceDate,
+  groupNearbyPlaces,
   parsePlaceIdParam,
   placeMarkerZIndex,
   shouldShowPlaceLabel,
@@ -59,5 +60,17 @@ describe('동글맵 표시 규칙', () => {
     expect(placeMarkerZIndex(2, 2, 1)).toBe(20);
     expect(placeMarkerZIndex(2, 2, null)).toBe(20);
     expect(placeMarkerZIndex(3, 2, 1)).toBe(1);
+  });
+
+  it('기준 장소에서 5m 안의 장소만 한 묶음으로 모으고 기준 장소 ID를 key로 씀', () => {
+    const at = (id: number, lat: number, lng: number) => ({ id, latitude: lat, longitude: lng });
+    const groups = groupNearbyPlaces(
+      [at(1, 37.5585, 127), at(2, 37.55851, 127), at(3, 37.5585, 127.00003), at(4, 37.55856, 127)],
+      5,
+    );
+    expect(groups.map((group) => [group.key, group.places.map((member) => member.id)])).toEqual([
+      [1, [1, 2, 3]],
+      [4, [4]],
+    ]);
   });
 });

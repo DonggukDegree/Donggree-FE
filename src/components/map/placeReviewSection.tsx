@@ -1,11 +1,13 @@
 /**
  * [동글맵 > 리뷰] 장소 정보의 리뷰 영역
- * 내 리뷰를 맨 위에 따로 두고(수정·삭제), 다른 회원 리뷰는 최신순 10개씩 "더보기"로 보여준다(신고 가능).
+ * 내 리뷰를 맨 위에 따로 두고(수정·삭제), 다른 회원 리뷰는 최신순으로 처음 5개, "리뷰 더보기"마다 10개씩 더 보여준다
+ * (서버는 10개씩 커서 조회, 받아 둔 리뷰가 모자랄 때만 다음 페이지를 요청). 신고 가능.
  * 작성자 닉네임이 없으면 "탈퇴한 회원", 프로필 사진이 없으면 기본 아바타를 쓴다.
  * 작성·수정·신고는 인증 학생만 하며, 미인증 회원도 버튼은 보고 누르면 인증 안내를 받는다.
  */
 import { useState } from 'react';
 
+import ChevronDown from '@/assets/icons/chevron-down.svg?react';
 import Pencil from '@/assets/icons/pencil.svg?react';
 import Siren from '@/assets/icons/siren.svg?react';
 import UserThumb from '@/assets/profile/userThumb.svg?react';
@@ -13,7 +15,7 @@ import Button from '@/components/common/inputs/button';
 import PlaceReviewFormDialog from '@/components/map/placeReviewFormDialog';
 import ReviewReportDialog from '@/components/map/reviewReportDialog';
 import { ReviewStars } from '@/components/map/reviewStars';
-import { WITHDRAWN_MEMBER_LABEL } from '@/constants/place';
+import { PLACE_REVIEW_INITIAL_COUNT, PLACE_REVIEW_MORE_COUNT, WITHDRAWN_MEMBER_LABEL } from '@/constants/place';
 import { usePlaceReviewDelete } from '@/hooks/place/usePlaceReviewMutations';
 import usePlaceReviews from '@/hooks/place/usePlaceReviews';
 import useUserInfo from '@/hooks/user/useUserInfo';
@@ -22,7 +24,7 @@ import type { TPlaceDetail, TPlaceReview } from '@/types/place/TPlace';
 import { trackEvent } from '@/utils/analytics/analytics';
 import { formatPlaceDate } from '@/utils/place/place';
 import { canWritePlace } from '@/utils/place/placeForm';
-import { shouldFoldReview } from '@/utils/place/placeReview';
+import { formatAverageRating, shouldFoldReview } from '@/utils/place/placeReview';
 
 const ACTION_CLASS = 'flex cursor-pointer items-center gap-1 text-body-xs text-coolgray-60';
 
@@ -41,7 +43,16 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
   const openStudentVerification = useModalStore((state) => state.openStudentVerification);
   const [dialog, setDialog] = useState<TDialog>(null);
   const closeDialog = () => setDialog(null);
+  const [visibleCount, setVisibleCount] = useState<number>(PLACE_REVIEW_INITIAL_COUNT);
   const others = reviews.filter((review) => !review.mine);
+  const shownReviews = others.slice(0, visibleCount);
+  const canShowMore = visibleCount < others.length || hasNextPage;
+
+  const showMore = () => {
+    const next = visibleCount + PLACE_REVIEW_MORE_COUNT;
+    setVisibleCount(next);
+    if (next > others.length && hasNextPage) void fetchNextPage();
+  };
 
   // 작성·수정·신고는 인증 학생만. 서버도 요청마다 다시 검증한다.
   const openIfVerified = (next: NonNullable<TDialog>) => {
@@ -57,7 +68,14 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
     <section className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-button-m text-coolgray-90">
-          리뷰 <span className="text-coolgray-60">{place.reviewCount}</span>
+          리뷰{' '}
+          {place.averageRating !== null && (
+            <span className="text-primary-60">
+              <span aria-hidden="true">★</span>
+              {formatAverageRating(place.averageRating)}{' '}
+            </span>
+          )}
+          <span className="text-coolgray-60">{place.reviewCount}</span>
         </h3>
         {!myReview && (
           <button
@@ -109,7 +127,7 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
         </p>
       ) : (
         <ul className="flex flex-col divide-y divide-coolgray-10">
-          {others.map((review) => (
+          {shownReviews.map((review) => (
             <li key={review.id} className="py-3">
               <ReviewItem review={review}>
                 <button
@@ -126,13 +144,14 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
         </ul>
       )}
 
-      {hasNextPage && (
+      {canShowMore && !isPending && (
         <button
           type="button"
           disabled={isFetchingNextPage}
-          onClick={() => void fetchNextPage()}
-          className="cursor-pointer self-center text-button-s text-coolgray-60 hover:text-primary-60 disabled:cursor-default"
+          onClick={showMore}
+          className="flex w-full cursor-pointer items-center justify-center gap-1 rounded-lg border border-coolgray-30 py-3 text-button-s text-coolgray-60 hover:border-primary-60 hover:text-primary-60 disabled:cursor-default"
         >
+          <ChevronDown aria-hidden="true" className="h-4 w-4" />
           {isFetchingNextPage ? '불러오는 중' : '리뷰 더보기'}
         </button>
       )}

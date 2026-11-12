@@ -32,6 +32,7 @@ const place = {
   category: 'RESTAURANT',
   subCategory: 'CHINESE',
   reviewCount: 2,
+  averageRating: 3.1,
 } as TPlaceDetail;
 
 const review = (id: number, overrides: Partial<TPlaceReview> = {}): TPlaceReview => ({
@@ -94,12 +95,29 @@ describe('리뷰 영역', () => {
     expect(html).toContain('>삭제</button>');
   });
 
-  it('긴 본문은 3줄로 접고 펼치기, 다음 페이지가 있으면 더보기', () => {
+  it('긴 본문은 3줄로 접고 펼치기, 다음 페이지가 있으면 꺾쇠가 붙은 넓은 더보기 버튼', () => {
     state.reviews = [review(2, { content: '가'.repeat(120) })];
     state.hasNextPage = true;
     const html = render();
     expect(html).toContain('line-clamp-3');
     expect(html).toContain('펼치기');
+    expect(html).toMatch(
+      /<button[^>]*w-full[^>]*rounded-lg border border-coolgray-30[^>]*><svg[^>]*>.*?<\/svg>리뷰 더보기<\/button>/,
+    );
+  });
+
+  it('처음에는 리뷰 5개만 보이고 더 받아 둔 리뷰가 있으면 더보기', () => {
+    state.reviews = Array.from({ length: 10 }, (_, index) =>
+      review(100 - index, { content: `리뷰 본문 ${index}번째입니다` }),
+    );
+    const html = render();
+    expect(html.match(/리뷰 본문 \d번째입니다/g)).toHaveLength(5);
     expect(html).toContain('리뷰 더보기');
+  });
+
+  it('제목의 리뷰와 개수 사이에 평균 별점을 표시', () => {
+    expect(render()).toMatch(
+      /리뷰 <span class="text-primary-60"><span aria-hidden="true">★<\/span>3\.1 <\/span><span class="text-coolgray-60">2<\/span>/,
+    );
   });
 });

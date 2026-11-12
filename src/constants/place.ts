@@ -108,3 +108,10 @@ export const REVIEW_REPORT_REASONS: { value: TReviewReportReason; label: string 
   { value: 'PRIVACY', label: '개인정보가 노출됐어요' },
   { value: 'OTHER', label: '기타' },
 ];
+
+// 리뷰 목록은 처음 5개만 보이고, "리뷰 더보기"마다 10개씩 더 보인다(서버는 10개씩 커서 조회).
+export const PLACE_REVIEW_INITIAL_COUNT = 5;
+export const PLACE_REVIEW_MORE_COUNT = 10;
+
+// 이 거리(m) 안의 장소는 최대로 확대해도 라벨 핀이 겹쳐 고를 수 없으므로 개수 핀 하나로 묶는다.
+export const PLACE_OVERLAP_GROUP_METERS = 5;
