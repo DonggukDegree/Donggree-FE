@@ -1,7 +1,7 @@
 /**
  * [동글맵 > 장소 신고] 신고 모달
  * 장소 정보 위에 띄운다(모바일 아래, PC 가운데). 사유 하나를 고르고, 기타는 내용을 꼭 적게 한다.
- * 신고만으로 장소가 바로 숨겨지지 않는다는 점을 먼저 알린다.
+ * [신고하기]를 누르면 확인 모달을 한 번 더 띄워 허위 신고 시 제재를 받을 수 있음을 알린 뒤 보낸다.
  */
 import Button from '@/components/common/inputs/button';
 import { INPUT_CLASS } from '@/constants/inputStyles';
@@ -94,11 +94,52 @@ export default function PlaceReportDialog({ place, onClose }: IPlaceReportDialog
           <Button type="button" variant="outlined" className="flex-1" onClick={onClose}>
             취소
           </Button>
-          <Button type="submit" variant={report.isSubmitting ? 'disabled' : 'alert'} className="flex-1">
-            {report.isSubmitting ? '신고 중' : '신고하기'}
+          <Button type="submit" variant="alert" className="flex-1">
+            신고하기
           </Button>
         </div>
       </form>
+
+      {report.isConfirming && (
+        <div className="absolute inset-0 flex items-center justify-center bg-overlay p-4">
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="place-report-confirm-title"
+            aria-describedby="place-report-confirm-description"
+            className="flex w-full max-w-100 flex-col gap-5 rounded-2xl bg-white p-5"
+          >
+            <div className="flex flex-col gap-2">
+              <h2 id="place-report-confirm-title" className="text-heading-6 text-coolgray-90">
+                이 장소를 신고할까요?
+              </h2>
+              <p id="place-report-confirm-description" className="break-keep text-body-s text-coolgray-60">
+                신고 내용은 관리자가 확인해요. 사실과 다른{' '}
+                <strong className="text-alert">허위 신고는 서비스 이용 제한 등 제재</strong>를 받을 수 있어요.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outlined"
+                className="flex-1"
+                disabled={report.isSubmitting}
+                onClick={report.cancelConfirm}
+              >
+                돌아가기
+              </Button>
+              <Button
+                type="button"
+                variant={report.isSubmitting ? 'disabled' : 'alert'}
+                className="flex-1"
+                onClick={report.confirm}
+              >
+                {report.isSubmitting ? '신고 중' : '신고하기'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
