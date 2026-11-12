@@ -50,6 +50,9 @@ export const EVENT_NAMES = {
   place_register_start: '동글맵 장소 등록 시작',
   place_register_complete: '동글맵 장소 등록 완료',
   place_duplicate_shown: '동글맵 중복 장소 안내 표시',
+  place_edit_start: '동글맵 장소 정보 수정 시작',
+  place_edit_complete: '동글맵 장소 정보 수정 완료',
+  place_edit_conflict_shown: '동글맵 장소 정보 수정 충돌 안내 표시',
   student_verification_shown: '학생 인증 안내 표시',
   student_verification_select: '학생 인증 안내에서 인증 방법 선택',
 } as const;

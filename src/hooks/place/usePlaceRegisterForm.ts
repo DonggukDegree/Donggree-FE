@@ -13,18 +13,14 @@ import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useCoreMutation } from '@/hooks/customQuery';
 import { useModalStore } from '@/stores/modalStore';
 import type { TPlaceCategory, TPlaceDuplicates, TPlaceSubCategory } from '@/types/place/TPlace';
-import type { TLatLng, TPlaceForm, TPlaceFormErrors } from '@/types/place/TPlaceForm';
+import type { TLatLng, TPlaceForm, TPlaceFormErrors, TPlaceInfoForm } from '@/types/place/TPlaceForm';
 import { trackEvent } from '@/utils/analytics/analytics';
 import { trackErrorShown } from '@/utils/analytics/analyticsError';
 import { getErrorCode, getErrorMessage } from '@/utils/error';
 import {
-  addMenuRow,
   changeCategory,
   createEmptyPlaceForm,
   hasPlaceFormErrors,
-  moveMenuRow,
-  removeMenuRow,
-  sanitizePriceInput,
   toPlaceRegisterRequest,
   validatePlaceForm,
 } from '@/utils/place/placeForm';
@@ -108,25 +104,9 @@ export default function usePlaceRegisterForm(point: TLatLng, onRegistered: (plac
     changeName: (name: string) => update({ name }),
     changeCategory: (category: TPlaceCategory) => setForm((current) => changeCategory(current, category)),
     changeSubCategory: (subCategory: TPlaceSubCategory) => update({ subCategory }),
-    changeBusinessHours: (businessHours: string) => update({ businessHours }),
-    changeDescription: (description: string) => update({ description }),
-    addMenu: () => setForm((current) => ({ ...current, menus: addMenuRow(current.menus) })),
-    removeMenu: (key: string) => setForm((current) => ({ ...current, menus: removeMenuRow(current.menus, key) })),
-    moveMenu: (key: string, direction: -1 | 1) =>
-      setForm((current) => ({ ...current, menus: moveMenuRow(current.menus, key, direction) })),
-    changeMenu: (key: string, patch: { name?: string; price?: string }) =>
-      setForm((current) => ({
-        ...current,
-        menus: current.menus.map((row) =>
-          row.key === key
-            ? {
-                ...row,
-                ...(patch.name !== undefined && { name: patch.name }),
-                ...(patch.price !== undefined && { price: sanitizePriceInput(patch.price) }),
-              }
-            : row,
-        ),
-      })),
+    // 영업시간·설명·메뉴는 수정 폼과 같은 입력 칸(PlaceInfoFields)이 갱신 함수로 바꾼다.
+    changeInfo: (change: (current: TPlaceInfoForm) => TPlaceInfoForm) =>
+      setForm((current) => ({ ...current, ...change(current) })),
     submit,
     confirmDifferentPlace,
     closeDuplicateNotice: () => setDuplicateNotice(null),

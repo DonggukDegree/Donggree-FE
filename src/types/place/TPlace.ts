@@ -56,6 +56,7 @@ export type TPlaceDetail = TPlaceSummary & {
   menus: TPlaceMenu[];
   createdAt: string; // 최초 등록 시각(ISO)
   updatedAt: string; // 마지막 정보 수정 시각(ISO)
+  version: number; // 정보 수정 요청에 그대로 돌려보내는 장소 버전. 다른 회원이 먼저 고치면 올라간다
 };
 
 // POST /api/places 요청. 위치는 지도 중심 핀 좌표이며 주소는 보내지 않는다(카카오 주소 저장 금지).
@@ -68,6 +69,14 @@ export type TPlaceRegisterRequest = {
   businessHours: string | null;
   description: string | null;
   menus: TPlaceMenu[];
+};
+
+// PUT /api/places/{placeId}/info 요청. 영업시간·설명·메뉴 전체를 보내 교체한다(이름·위치·카테고리는 수정 불가).
+export type TPlaceInfoEditRequest = {
+  version: number;
+  businessHours: string | null; // null이면 삭제
+  description: string | null; // null이면 삭제
+  menus: TPlaceMenu[]; // 빈 배열이면 메뉴 전체 삭제
 };
 
 // GET /api/places/duplicates 후보. 반경 50m 안 장소.
@@ -89,3 +98,4 @@ export type TGetPlacesResponse = TCommonResponse<TPlaceSummary[]>;
 export type TGetPlaceDetailResponse = TCommonResponse<TPlaceDetail>;
 export type TGetPlaceDuplicatesResponse = TCommonResponse<TPlaceDuplicates>;
 export type TPostPlaceResponse = TCommonResponse<number>;
+export type TPutPlaceInfoResponse = TCommonResponse<TPlaceDetail>;
