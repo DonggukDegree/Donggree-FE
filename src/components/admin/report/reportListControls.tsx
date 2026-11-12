@@ -4,8 +4,7 @@
  */
 import { useState } from 'react';
 
-import Button from '@/components/common/inputs/button';
-import { INPUT_CLASS } from '@/constants/inputStyles';
+import { ADMIN_COMPACT_INPUT_CLASS } from '@/constants/inputStyles';
 import type { TReportStatus } from '@/types/admin/TAdminReport';
 import { REPORT_STATUS_LABELS } from '@/utils/admin/report';
 
@@ -71,8 +70,9 @@ export function KeywordSearch({
 }) {
   const [input, setInput] = useState('');
   return (
+    // 졸업 요건 관리 필터처럼 작은 입력칸과 가로로 긴 둥근 버튼을 한 줄에 둔다.
     <form
-      className="flex gap-2"
+      className="flex items-center gap-2"
       onSubmit={(event) => {
         event.preventDefault();
         onSearch(input);
@@ -83,11 +83,14 @@ export function KeywordSearch({
         value={input}
         onChange={(event) => setInput(event.target.value)}
         placeholder={placeholder}
-        className={`${INPUT_CLASS} w-60 border-coolgray-30`}
+        className={`${ADMIN_COMPACT_INPUT_CLASS} w-60`}
       />
-      <Button type="submit" className="px-6">
+      <button
+        type="submit"
+        className="shrink-0 cursor-pointer whitespace-nowrap rounded-full bg-primary-60 px-5 py-1.5 text-button-s text-white hover:opacity-90"
+      >
         검색
-      </Button>
+      </button>
     </form>
   );
 }
