@@ -37,7 +37,7 @@ describe('동글맵 카테고리 칩', () => {
     expect(html.match(/aria-pressed="true"/g)).toHaveLength(3);
     expect(html).toMatch(/aria-pressed="true"[^>]*><span aria-hidden="true" class="mr-1">☕<\/span>카페/);
     expect(html).toContain('aria-label="세부 카테고리"');
-    for (const label of ['프랜차이즈', '디저트/베이커리', '커피 맛집', '기타'])
+    for (const label of ['프랜차이즈', '디저트/베이커리', '커피 전문', '기타'])
       expect(html).toContain(`>${label}</button>`);
     expect(html).toMatch(/aria-pressed="true"[^>]*>프랜차이즈<\/button>/);
     expect(html).toMatch(/aria-pressed="false"[^>]*>디저트\/베이커리<\/button>/);

@@ -68,7 +68,7 @@ export const PLACE_SUB_CATEGORY_LABELS: Record<TPlaceSubCategory, string> = {
   RESTAURANT_ETC: '기타',
   FRANCHISE: '프랜차이즈',
   DESSERT: '디저트/베이커리',
-  COFFEE: '커피 맛집',
+  COFFEE: '커피 전문',
   CAFE_ETC: '기타',
   PUB: '호프/요리주점',
   IZAKAYA: '이자카야',

@@ -14,6 +14,13 @@ export const QUERY_KEYS = {
   FAQS_ROOT: ['faqs'] as const,
   GET_FAQS: (tag: string | null) => ['faqs', { tag }] as const,
   ADMIN_ROOT: ['admin'] as const,
+  // 신고 관리. 처리·정지 후 목록·상세·회원을 한 번에 무효화하기 위한 접두사 키.
+  ADMIN_REPORTS_ROOT: ['admin', 'reports'] as const,
+  GET_ADMIN_REPORTS: (target: 'places' | 'reviews', filters: object) => ['admin', 'reports', target, filters] as const,
+  GET_ADMIN_REPORT: (target: 'places' | 'reviews', reportId: number) =>
+    ['admin', 'reports', target, 'detail', reportId] as const,
+  GET_ADMIN_MEMBERS: (filters: object) => ['admin', 'reports', 'members', filters] as const,
+  GET_ADMIN_MEMBER: (memberId: number) => ['admin', 'reports', 'members', 'detail', memberId] as const,
   GET_ADMIN_AREA_TYPES: ['admin', 'area-types'] as const,
   // 관리자 과목 분류 조회를 필터별로 캐시하고, 저장 후에는 이 접두사로 한 번에 무효화한다.
   ADMIN_COURSE_CLASSIFICATIONS_ROOT: ['admin', 'course-classifications'] as const,

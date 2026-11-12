@@ -23,6 +23,7 @@ import {
   AdminFaqs,
   AdminGraduationRequirements,
   AdminReportPreview,
+  AdminReports,
   Curriculum,
   DonggleMap,
   Faq,
@@ -134,6 +135,10 @@ export const router = createBrowserRouter([
                   {
                     path: 'report-preview',
                     element: tracked(<AdminReportPreview />),
+                  },
+                  {
+                    path: 'reports',
+                    element: tracked(<AdminReports />),
                   },
                 ],
               },

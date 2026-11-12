@@ -19,6 +19,7 @@ export const PAGE_NAMES: Record<string, string> = {
   '/admin/graduation-requirements': '관리자 졸업 요건 관리',
   '/admin/faqs': '관리자 FAQ 관리',
   '/admin/report-preview': '관리자 PDF 리포트 테스트',
+  '/admin/reports': '관리자 신고 관리',
 };
 export const EVENT_NAMES = {
   page_view: '화면 조회',

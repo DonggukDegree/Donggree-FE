@@ -26,3 +26,4 @@ export const AdminCourseClassifications = lazy(() => import('@/pages/admin/cours
 export const AdminGraduationRequirements = lazy(() => import('@/pages/admin/graduationRequirements'));
 export const AdminFaqs = lazy(() => import('@/pages/admin/faqs'));
 export const AdminReportPreview = lazy(() => import('@/pages/admin/reportPreview'));
+export const AdminReports = lazy(() => import('@/pages/admin/reports'));
