@@ -38,7 +38,7 @@ export default function usePlaceReportForm(place: Pick<TPlaceDetail, 'id' | 'cat
       trackEvent('place_report_submit', { place_category: place.category, report_reason: body.reason });
       // 이 신고로 자동 숨김됐을 수 있어 핀 목록만 다시 받는다(열린 장소 정보는 그대로 둔다).
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.GET_PLACES, exact: true });
-      toast.success('신고를 접수했어요. 확인 후 처리할게요.');
+      toast.success('신고를 접수했어요. 도움을 주셔서 감사합니다.');
       onClose();
     },
     onError: (error) => {
