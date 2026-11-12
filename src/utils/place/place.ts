@@ -1,5 +1,5 @@
 import { MAP_LABEL_MAX_LEVEL } from '@/constants/place';
-import type { TPlaceCategory, TPlaceMenu, TPlaceSummary } from '@/types/place/TPlace';
+import type { TPlaceCategory, TPlaceMenu, TPlaceSubCategory, TPlaceSummary, TPlaceTag } from '@/types/place/TPlace';
 import { distanceMeters } from '@/utils/place/placeForm';
 
 // [동글맵] 화면 표시용 순수 함수 모음.
@@ -53,3 +53,43 @@ export const groupNearbyPlaces = <TPlace extends Pick<TPlaceSummary, 'id' | 'lat
   }
   return groups;
 };
+
+// 지도 칩 필터. 카테고리는 하나만(null은 전체) 고르고 그 안의 세부는 여러 개(하나라도 해당).
+// 숨은 맛집은 카테고리와 같이 고를 수 없는 별도 모드로, 태그 여러 개(하나라도 해당)·태그 미선택은 태그가 있는 장소 전체.
+export type TPlaceFilter =
+  | { mode: 'category'; category: TPlaceCategory | null; subCategories: TPlaceSubCategory[] }
+  | { mode: 'hiddenGem'; tags: TPlaceTag[] };
+
+export const ALL_PLACES_FILTER: TPlaceFilter = { mode: 'category', category: null, subCategories: [] };
+
+export const filterPlaces = (places: TPlaceSummary[], filter: TPlaceFilter) => {
+  if (filter.mode === 'hiddenGem')
+    return places.filter((place) =>
+      filter.tags.length === 0 ? place.tags.length > 0 : place.tags.some((tag) => filter.tags.includes(tag)),
+    );
+  if (filter.category === null) return places;
+  return places.filter(
+    (place) =>
+      place.category === filter.category &&
+      (filter.subCategories.length === 0 || filter.subCategories.includes(place.subCategory)),
+  );
+};
+
+// 같은 카테고리를 다시 누르면 전체로 돌아가고, 다른 카테고리를 누르면 세부 선택을 비운다.
+export const selectCategoryFilter = (filter: TPlaceFilter, category: TPlaceCategory | null): TPlaceFilter =>
+  filter.mode === 'category' && filter.category === category && category !== null
+    ? ALL_PLACES_FILTER
+    : { mode: 'category', category, subCategories: [] };
+
+// 숨은 맛집을 누르면 카테고리 선택을 모두 해제하고 전용 모드로, 다시 누르면 전체로 돌아간다.
+export const toggleHiddenGemFilter = (filter: TPlaceFilter): TPlaceFilter =>
+  filter.mode === 'hiddenGem' ? ALL_PLACES_FILTER : { mode: 'hiddenGem', tags: [] };
+
+const toggleValue = <TValue>(values: readonly TValue[], value: TValue) =>
+  values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
+
+export const toggleSubCategoryFilter = (filter: TPlaceFilter, subCategory: TPlaceSubCategory): TPlaceFilter =>
+  filter.mode === 'category' ? { ...filter, subCategories: toggleValue(filter.subCategories, subCategory) } : filter;
+
+export const toggleTagFilter = (filter: TPlaceFilter, tag: TPlaceTag): TPlaceFilter =>
+  filter.mode === 'hiddenGem' ? { ...filter, tags: toggleValue(filter.tags, tag) } : filter;

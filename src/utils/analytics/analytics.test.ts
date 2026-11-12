@@ -82,6 +82,18 @@ describe('GA 발송 경계', () => {
       report_reason: 'ABUSE',
     });
     expect(events().find((event) => event[1] === 'place_review_edit')?.[2]).not.toHaveProperty('review_rating');
+    analytics.trackEvent('place_category_select', { place_category: 'HIDDEN_GEM' });
+    analytics.trackEvent('place_sub_filter_select', { place_filter: 'SOLO_DINING' });
+    expect(
+      events()
+        .filter((event) => event[1] === 'place_category_select')
+        .at(-1)?.[2],
+    ).toMatchObject({
+      place_category: 'HIDDEN_GEM',
+    });
+    expect(events().find((event) => event[1] === 'place_sub_filter_select')?.[2]).toMatchObject({
+      place_filter: 'SOLO_DINING',
+    });
     expect(sent.find((event) => event[1] === 'error_shown')?.[2]).toMatchObject({
       error_source: 'donggle_map',
       code: 'PLACE404_1',

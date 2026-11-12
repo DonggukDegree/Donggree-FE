@@ -27,11 +27,20 @@ import { CAMPUS_CENTER, MAP_INITIAL_LEVEL, MAP_MAX_LEVEL, MAP_MIN_LEVEL } from '
 import usePlaces from '@/hooks/place/usePlaces';
 import useUserInfo from '@/hooks/user/useUserInfo';
 import { useModalStore } from '@/stores/modalStore';
-import type { TPlaceCategory, TPlaceDetail, TPlaceSummary } from '@/types/place/TPlace';
+import type { TPlaceCategory, TPlaceDetail, TPlaceSubCategory, TPlaceSummary, TPlaceTag } from '@/types/place/TPlace';
 import type { TLatLng } from '@/types/place/TPlaceForm';
 import { trackEvent } from '@/utils/analytics/analytics';
 import { trackErrorShown } from '@/utils/analytics/analyticsError';
-import { filterPlacesByCategory, parsePlaceIdParam } from '@/utils/place/place';
+import {
+  ALL_PLACES_FILTER,
+  filterPlaces,
+  parsePlaceIdParam,
+  selectCategoryFilter,
+  toggleHiddenGemFilter,
+  toggleSubCategoryFilter,
+  toggleTagFilter,
+  type TPlaceFilter,
+} from '@/utils/place/place';
 import { canWritePlace } from '@/utils/place/placeForm';
 
 const KAKAO_MAP_KEY = import.meta.env.VITE_KAKAO_MAP_KEY;
@@ -56,7 +65,7 @@ function DonggleMapCanvas() {
   const { data: places, isError, error, refetch } = usePlaces();
   const { data: user } = useUserInfo();
   const openStudentVerification = useModalStore((state) => state.openStudentVerification);
-  const [category, setCategory] = useState<TPlaceCategory | null>(null);
+  const [filter, setFilter] = useState<TPlaceFilter>(ALL_PLACES_FILTER);
   const [level, setLevel] = useState(MAP_INITIAL_LEVEL);
   // 등록 흐름: browse(둘러보기) → locate(핀 위치 지정) → form(입력). 등록 위치는 locate 확정 시점에 고정한다.
   const [mode, setMode] = useState<TMapMode>('browse');
@@ -72,7 +81,10 @@ function DonggleMapCanvas() {
   const location = useLocation();
   const navigate = useNavigate();
   const selectedId = parsePlaceIdParam(searchParams.get('place'));
-  const visiblePlaces = filterPlacesByCategory(places ?? [], category);
+  const visiblePlaces = filterPlaces(places ?? [], filter);
+  // 세부 칩 줄이 열리면 안내 문구를 그 아래로 내린다.
+  const hasSubChipRow = filter.mode === 'hiddenGem' || filter.category !== null;
+  const bannerTop = hasSubChipRow ? 'top-26' : 'top-16';
   const isBrowsing = mode === 'browse';
 
   useEffect(() => {
@@ -99,9 +111,30 @@ function DonggleMapCanvas() {
     else setSearchParams({}, { replace: true });
   };
 
+  // 칩을 바꾸면 펼쳐 둔 겹친 장소 목록은 닫는다.
+  const changeFilter = (next: TPlaceFilter) => {
+    setFilter(next);
+    setOpenGroupKey(null);
+  };
+
   const selectCategory = (next: TPlaceCategory | null) => {
     trackEvent('place_category_select', { place_category: next ?? 'ALL' });
-    setCategory(next);
+    changeFilter(selectCategoryFilter(filter, next));
+  };
+
+  const toggleHiddenGem = () => {
+    if (filter.mode !== 'hiddenGem') trackEvent('place_category_select', { place_category: 'HIDDEN_GEM' });
+    changeFilter(toggleHiddenGemFilter(filter));
+  };
+
+  const toggleSubCategory = (subCategory: TPlaceSubCategory) => {
+    trackEvent('place_sub_filter_select', { place_filter: subCategory });
+    changeFilter(toggleSubCategoryFilter(filter, subCategory));
+  };
+
+  const toggleTag = (tag: TPlaceTag) => {
+    trackEvent('place_sub_filter_select', { place_filter: tag });
+    changeFilter(toggleTagFilter(filter, tag));
   };
 
   // 지도 레벨은 숫자가 작을수록 확대. 레벨 변경은 onZoomChanged로 상태에 다시 반영된다.
@@ -158,7 +191,7 @@ function DonggleMapCanvas() {
   const finishRegister = (placeId: number) => {
     setMode('browse');
     setRegisterPoint(null);
-    setCategory(null);
+    setFilter(ALL_PLACES_FILTER);
     showPlace(placeId);
   };
 
@@ -189,18 +222,25 @@ function DonggleMapCanvas() {
             onSelect={openPlace}
             openGroupKey={openGroupKey}
             onToggleGroup={setOpenGroupKey}
+            hiddenGemMode={filter.mode === 'hiddenGem'}
           />
         )}
       </KakaoMap>
 
       {isBrowsing && (
         <div className={`absolute inset-x-0 top-3 z-20 ${selectedId !== null ? 'lg:left-100' : ''}`}>
-          <PlaceCategoryChips selected={category} onSelect={selectCategory} />
+          <PlaceCategoryChips
+            filter={filter}
+            onSelectCategory={selectCategory}
+            onToggleHiddenGem={toggleHiddenGem}
+            onToggleSubCategory={toggleSubCategory}
+            onToggleTag={toggleTag}
+          />
         </div>
       )}
 
       {isBrowsing && isError && (
-        <div className="absolute inset-x-0 top-16 z-20 flex justify-center px-4">
+        <div className={`absolute inset-x-0 ${bannerTop} z-20 flex justify-center px-4`}>
           <button
             type="button"
             onClick={() => refetch()}
@@ -210,9 +250,15 @@ function DonggleMapCanvas() {
           </button>
         </div>
       )}
-      {isBrowsing && places && places.length === 0 && (
-        <p className="absolute inset-x-0 top-16 z-20 mx-auto w-fit rounded-full bg-white px-4 py-2 text-body-s text-coolgray-60 shadow-md">
-          아직 등록된 장소가 없어요. 첫 장소를 등록해보세요.
+      {isBrowsing && places && visiblePlaces.length === 0 && (
+        <p
+          className={`absolute inset-x-0 ${bannerTop} z-20 mx-auto w-fit rounded-full bg-white px-4 py-2 text-body-s text-coolgray-60 shadow-md`}
+        >
+          {places.length === 0
+            ? '아직 등록된 장소가 없어요. 첫 장소를 등록해보세요.'
+            : filter.mode === 'hiddenGem'
+              ? '아직 이 조건의 숨은 맛집이 없어요.'
+              : '이 조건에 맞는 장소가 없어요.'}
         </p>
       )}
 

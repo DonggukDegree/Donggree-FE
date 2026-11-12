@@ -46,6 +46,7 @@ export const EVENT_NAMES = {
   report_area_tab_click: '리포트 영역 탭 선택',
   unsupported_major_notice: '판정 정확도 유의사항 표시',
   place_category_select: '동글맵 카테고리 칩 선택',
+  place_sub_filter_select: '동글맵 세부 칩 선택',
   place_select: '동글맵 장소 선택',
   place_register_start: '동글맵 장소 등록 시작',
   place_register_complete: '동글맵 장소 등록 완료',

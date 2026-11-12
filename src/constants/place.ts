@@ -1,4 +1,10 @@
-import type { TPlaceCategory, TPlaceReportReason, TPlaceSubCategory, TReviewReportReason } from '@/types/place/TPlace';
+import type {
+  TPlaceCategory,
+  TPlaceReportReason,
+  TPlaceSubCategory,
+  TPlaceTag,
+  TReviewReportReason,
+} from '@/types/place/TPlace';
 
 // 동글맵 기준값. 캠퍼스 중심은 BE CampusArea.CENTER와 같은 좌표를 쓴다.
 export const CAMPUS_CENTER = { lat: 37.55828693771417, lng: 127.00018391368702 } as const;
@@ -24,13 +30,14 @@ export const MAP_MAX_LEVEL = 6;
 
 export const PLACE_MENU_PREVIEW_COUNT = 5;
 
-// 칩·핀 공용 카테고리 정의. 순서가 곧 칩 노출 순서다.
+// 칩·핀 공용 카테고리 정의. 순서가 곧 칩 노출 순서다. 색은 아이콘 핀 배경이라 이모지가 잘 보이는 색을 쓴다.
 export const PLACE_CATEGORIES: readonly { value: TPlaceCategory; label: string; emoji: string; color: string }[] = [
   { value: 'RESTAURANT', label: '음식점', emoji: '🍚', color: '#ff7124' },
   { value: 'CAFE', label: '카페', emoji: '☕', color: '#a0522d' },
   { value: 'BAR', label: '술집', emoji: '🍺', color: '#d4a017' },
   { value: 'STUDY', label: '스터디', emoji: '📚', color: '#3b6fd8' },
-  { value: 'LIFE', label: '생활', emoji: '🛒', color: '#519c66' },
+  { value: 'LIFE', label: '생활', emoji: '🛒', color: '#2f343b' },
+  { value: 'ENTERTAINMENT', label: '오락', emoji: '🎮', color: '#d9c2f5' },
   { value: 'ETC', label: '기타', emoji: '📍', color: '#697077' },
 ] as const;
 
@@ -41,10 +48,11 @@ export const PLACE_CATEGORY_BY_VALUE = Object.fromEntries(
 // 카테고리별 상세카테고리. 순서가 곧 선택지 노출 순서이며 BE PlaceSubCategory의 상위 카테고리와 일치해야 한다.
 export const PLACE_SUB_CATEGORIES_BY_CATEGORY: Record<TPlaceCategory, readonly TPlaceSubCategory[]> = {
   RESTAURANT: ['KOREAN', 'CHINESE', 'JAPANESE', 'WESTERN', 'SNACK', 'ASIAN', 'MEAT', 'FAST_FOOD', 'RESTAURANT_ETC'],
-  CAFE: ['COFFEE', 'DESSERT', 'CAFE_ETC'],
-  BAR: ['PUB', 'IZAKAYA', 'POCHA', 'WINE_BAR', 'BAR_ETC'],
-  STUDY: ['STUDY_CAFE', 'STUDY_FRIENDLY_CAFE', 'CAMPUS_FACILITY', 'STUDY_ETC'],
-  LIFE: ['CONVENIENCE_STORE', 'PRINT', 'STATIONERY', 'MEDICAL', 'BEAUTY', 'LIFE_ETC'],
+  CAFE: ['FRANCHISE', 'DESSERT', 'COFFEE', 'CAFE_ETC'],
+  BAR: ['PUB', 'IZAKAYA', 'WINE_BAR', 'BAR_ETC'],
+  STUDY: ['STUDY_CAFE', 'CAMPUS_FACILITY', 'LIBRARY', 'STUDY_ETC'],
+  LIFE: ['CONVENIENCE_STORE', 'PRINT', 'STATIONERY', 'MEDICAL', 'BEAUTY', 'MART', 'FITNESS', 'LIFE_ETC'],
+  ENTERTAINMENT: ['BILLIARDS', 'BOWLING', 'KARAOKE', 'PC_ROOM', 'ENTERTAINMENT_ETC'],
   ETC: ['ETC'],
 };
 
@@ -58,26 +66,52 @@ export const PLACE_SUB_CATEGORY_LABELS: Record<TPlaceSubCategory, string> = {
   MEAT: '고기/구이',
   FAST_FOOD: '패스트푸드',
   RESTAURANT_ETC: '기타',
-  COFFEE: '커피',
+  FRANCHISE: '프랜차이즈',
   DESSERT: '디저트/베이커리',
+  COFFEE: '커피 맛집',
   CAFE_ETC: '기타',
   PUB: '호프/요리주점',
   IZAKAYA: '이자카야',
-  POCHA: '포차',
   WINE_BAR: '바/와인',
   BAR_ETC: '기타',
-  STUDY_CAFE: '스터디카페',
-  STUDY_FRIENDLY_CAFE: '카공 카페',
+  STUDY_CAFE: '스터디카페/독서실',
   CAMPUS_FACILITY: '학교 시설',
+  LIBRARY: '도서관',
   STUDY_ETC: '기타',
   CONVENIENCE_STORE: '편의점',
   PRINT: '인쇄/복사',
   STATIONERY: '문구',
   MEDICAL: '병원/약국',
   BEAUTY: '미용',
+  MART: '마트',
+  FITNESS: '헬스/운동',
   LIFE_ETC: '기타',
+  BILLIARDS: '당구장',
+  BOWLING: '볼링장',
+  KARAOKE: '노래방',
+  PC_ROOM: 'PC방',
+  ENTERTAINMENT_ETC: '기타',
   ETC: '기타',
 };
+
+// ✨ 숨은 맛집. 메인 카테고리와 별개인 태그로, 지도에서는 전용 칩을 눌렀을 때만 남색 ✨ 핀으로 보인다.
+export const HIDDEN_GEM = { label: '숨은 맛집', emoji: '✨', color: '#1f2a5c' } as const;
+
+// 숨은 맛집 태그. 순서가 곧 체크박스·칩 노출 순서이며 BE PlaceTag 순서와 같다.
+export const PLACE_TAGS: readonly { value: TPlaceTag; label: string }[] = [
+  { value: 'COFFEE', label: '커피 맛집' },
+  { value: 'STUDY', label: '카공 맛집' },
+  { value: 'GATHERING', label: '회식 맛집' },
+  { value: 'MOOD', label: '분위기 맛집' },
+  { value: 'BAR_SNACK', label: '안주 맛집' },
+  { value: 'MEAL_DATE', label: '밥약 맛집' },
+  { value: 'SOLO_DINING', label: '혼밥 맛집' },
+];
+
+export const PLACE_TAG_LABELS = Object.fromEntries(PLACE_TAGS.map(({ value, label }) => [value, label])) as Record<
+  TPlaceTag,
+  string
+>;
 
 // 장소 신고 사유. 서버 enum 코드 순서대로 보여준다. 기타는 설명이 필수다.
 export const PLACE_REPORT_REASONS: { value: TPlaceReportReason; label: string }[] = [

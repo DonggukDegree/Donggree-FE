@@ -3,13 +3,19 @@ import { describe, expect, it } from 'vitest';
 
 import type { TPlaceSummary } from '@/types/place/TPlace';
 import {
+  ALL_PLACES_FILTER,
+  filterPlaces,
   filterPlacesByCategory,
   formatMenuPrice,
   formatPlaceDate,
   groupNearbyPlaces,
   parsePlaceIdParam,
   placeMarkerZIndex,
+  selectCategoryFilter,
   shouldShowPlaceLabel,
+  toggleHiddenGemFilter,
+  toggleSubCategoryFilter,
+  toggleTagFilter,
 } from '@/utils/place/place';
 
 const place = (id: number, category: TPlaceSummary['category']): TPlaceSummary => ({
@@ -21,6 +27,7 @@ const place = (id: number, category: TPlaceSummary['category']): TPlaceSummary =
   longitude: 127.0,
   averageRating: null,
   reviewCount: 0,
+  tags: [],
 });
 
 describe('동글맵 표시 규칙', () => {
@@ -72,5 +79,41 @@ describe('동글맵 표시 규칙', () => {
       [1, [1, 2, 3]],
       [4, [4]],
     ]);
+  });
+
+  it('카테고리는 하나만, 세부는 여러 개(하나라도 해당), 세부를 안 고르면 카테고리 전체', () => {
+    const list = [
+      { ...place(1, 'CAFE'), subCategory: 'FRANCHISE' as const },
+      { ...place(2, 'CAFE'), subCategory: 'COFFEE' as const },
+      { ...place(3, 'CAFE'), subCategory: 'DESSERT' as const },
+      place(4, 'RESTAURANT'),
+    ];
+    let filter = selectCategoryFilter(ALL_PLACES_FILTER, 'CAFE');
+    expect(filterPlaces(list, filter).map(({ id }) => id)).toEqual([1, 2, 3]);
+    filter = toggleSubCategoryFilter(toggleSubCategoryFilter(filter, 'FRANCHISE'), 'COFFEE');
+    expect(filterPlaces(list, filter).map(({ id }) => id)).toEqual([1, 2]);
+    expect(selectCategoryFilter(filter, 'RESTAURANT')).toEqual({
+      mode: 'category',
+      category: 'RESTAURANT',
+      subCategories: [],
+    });
+    expect(selectCategoryFilter(filter, 'CAFE')).toEqual(ALL_PLACES_FILTER);
+    expect(filterPlaces(list, ALL_PLACES_FILTER)).toHaveLength(4);
+  });
+
+  it('숨은 맛집은 카테고리 선택을 풀고 태그가 있는 장소만, 태그를 고르면 하나라도 해당', () => {
+    const list = [
+      { ...place(1, 'CAFE'), tags: ['COFFEE' as const] },
+      { ...place(2, 'RESTAURANT'), tags: ['SOLO_DINING' as const, 'MEAL_DATE' as const] },
+      place(3, 'RESTAURANT'),
+    ];
+    let filter = toggleHiddenGemFilter(selectCategoryFilter(ALL_PLACES_FILTER, 'CAFE'));
+    expect(filter).toEqual({ mode: 'hiddenGem', tags: [] });
+    expect(filterPlaces(list, filter).map(({ id }) => id)).toEqual([1, 2]);
+    filter = toggleTagFilter(toggleTagFilter(filter, 'SOLO_DINING'), 'COFFEE');
+    expect(filterPlaces(list, filter).map(({ id }) => id)).toEqual([1, 2]);
+    expect(filterPlaces(list, toggleTagFilter(filter, 'COFFEE')).map(({ id }) => id)).toEqual([2]);
+    expect(toggleHiddenGemFilter(filter)).toEqual(ALL_PLACES_FILTER);
+    expect(toggleSubCategoryFilter(filter, 'COFFEE')).toBe(filter);
   });
 });

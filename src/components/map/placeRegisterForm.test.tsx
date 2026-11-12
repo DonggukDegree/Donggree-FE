@@ -54,6 +54,7 @@ describe('장소 등록 폼', () => {
         { key: 'a', name: '짜장면', price: '7000' },
         { key: 'b', name: '', price: '' },
       ],
+      tags: ['SOLO_DINING'],
     };
     state.errors = {};
     state.duplicateNotice = null;
@@ -73,6 +74,14 @@ describe('장소 등록 폼', () => {
     expect(html).toMatch(/aria-label="2번째 메뉴 아래로" disabled=""/);
     expect(html).toContain('aria-label="2번째 메뉴 삭제"');
     expect(html).toContain('+ 메뉴 추가');
+  });
+
+  it('숨은 맛집 태그 7종을 체크박스로 두고 강력한 추천 안내를 표시, 고른 태그는 체크', () => {
+    const html = render();
+    expect(html).toContain('강력한 추천인 경우에만 눌러주세요!');
+    expect(html.match(/type="checkbox"/g)).toHaveLength(7);
+    expect(html).toMatch(/<input type="checkbox"(?=[^>]*checked="")(?=[^>]*value="SOLO_DINING")[^>]*>/);
+    expect(html).toContain('혼밥 맛집');
   });
 
   it('검증 오류를 해당 칸 아래에 표시', () => {

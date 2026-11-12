@@ -104,7 +104,7 @@ export default function PlaceRegisterForm({ point, onBack, onRegistered, onSelec
           </Field>
         </div>
         <p className="-mt-3 break-keep text-body-xs text-coolgray-60">
-          이름·위치·카테고리는 등록 후 바꿀 수 없어요. 영업시간·설명·메뉴는 나중에도 수정할 수 있어요.
+          이름·위치·카테고리는 등록 후 바꿀 수 없어요. 영업시간·설명·숨은 맛집·메뉴는 나중에도 수정할 수 있어요.
         </p>
 
         <PlaceInfoFields form={form} errors={errors} onChange={register.changeInfo} />
