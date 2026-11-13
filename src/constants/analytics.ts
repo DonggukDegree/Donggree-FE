@@ -63,6 +63,8 @@ export const EVENT_NAMES = {
   place_review_delete: '동글맵 리뷰 삭제',
   place_review_report_submit: '동글맵 리뷰 신고 제출',
   student_verification_shown: '학생 인증 안내 표시',
+  map_onboarding_shown: '동글맵 튜토리얼 표시',
+  map_onboarding_complete: '동글맵 튜토리얼 시작하기 선택',
   student_verification_select: '학생 인증 안내에서 인증 방법 선택',
 } as const;
 export type TAnalyticsEvent = keyof typeof EVENT_NAMES;

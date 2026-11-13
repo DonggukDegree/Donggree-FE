@@ -8,6 +8,7 @@
  * 장소 정보 시트의 정보 수정·신고도 인증 학생만 진행한다. 수정 폼을 닫으면 같은 장소 시트로 돌아오고,
  * 신고 모달은 시트 위에 띄운다.
  * 레이아웃은 /map에서만 폭 제한·푸터를 풀고 헤더 아래 화면 전체를 지도로 쓴다.
+ * 이 브라우저에서 튜토리얼을 끝까지 본 적이 없으면 처음 들어올 때 4단계 튜토리얼 모달을 띄운다.
  */
 import { useEffect, useRef, useState } from 'react';
 import { Map as KakaoMap, useKakaoLoader } from 'react-kakao-maps-sdk';
@@ -31,6 +32,7 @@ import type { TPlaceCategory, TPlaceDetail, TPlaceSubCategory, TPlaceSummary, TP
 import type { TLatLng } from '@/types/place/TPlaceForm';
 import { trackEvent } from '@/utils/analytics/analytics';
 import { trackErrorShown } from '@/utils/analytics/analyticsError';
+import { hasSeenMapOnboarding } from '@/utils/place/mapOnboarding';
 import {
   ALL_PLACES_FILTER,
   filterPlaces,
@@ -90,6 +92,14 @@ function DonggleMapCanvas() {
   useEffect(() => {
     if (isError) trackErrorShown('donggle_map', error, true);
   }, [isError, error]);
+
+  // 튜토리얼은 전역 모달이라, 뒤로 가기 등으로 지도를 떠나면 다른 화면에 남지 않도록 닫는다.
+  useEffect(() => {
+    if (!hasSeenMapOnboarding()) useModalStore.getState().openMapOnboarding();
+    return () => {
+      if (useModalStore.getState().type === 'mapOnboarding') useModalStore.getState().closeModal();
+    };
+  }, []);
 
   // 링크로 바로 들어온 경우에도 선택한 장소가 화면에 보이도록 옮긴다.
   useEffect(() => {
