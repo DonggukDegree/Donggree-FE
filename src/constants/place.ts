@@ -1,3 +1,7 @@
+import mapOnboarding1 from '@/assets/map/onboarding1.webp';
+import mapOnboarding2 from '@/assets/map/onboarding2.webp';
+import mapOnboarding3 from '@/assets/map/onboarding3.webp';
+import mapOnboarding4 from '@/assets/map/onboarding4.webp';
 import type {
   TPlaceCategory,
   TPlaceReportReason,
@@ -153,16 +157,26 @@ export const PLACE_REVIEW_MORE_COUNT = 10;
 // 이 거리(m) 안의 장소는 최대로 확대해도 라벨 핀이 겹쳐 고를 수 없으므로 개수 핀 하나로 묶는다.
 export const PLACE_OVERLAP_GROUP_METERS = 5;
 
-// 동글맵 첫 방문 튜토리얼 단계. image는 4:3 프리뷰 이미지로, 비어 있으면 같은 비율의 빈 자리를 보여준다.
+// 동글맵 첫 방문 튜토리얼 단계. image는 4:3 프리뷰 이미지(1200×900)로, 비어 있으면 같은 비율의 빈 자리를 보여준다.
 export const MAP_ONBOARDING_STEPS: { title: string; body: string; image?: string }[] = [
-  { title: '동글맵이 출시되었어요!', body: '상단 칩을 눌러 학교 주변 "동글인 보증" 맛집을 알아보세요.' },
-  { title: '좋아하는 장소를 등록해요.', body: '새내기 동글인을 위해 직접 장소를 등록하고 공유해 주세요.' },
+  {
+    title: '동글맵이 출시되었어요!',
+    body: '상단 칩을 눌러 학교 주변 "동글인 보증" 맛집을 알아보세요.',
+    image: mapOnboarding1,
+  },
+  {
+    title: '좋아하는 장소를 등록해요.',
+    body: '새내기 동글인을 위해 직접 장소를 등록하고 공유해 주세요.',
+    image: mapOnboarding2,
+  },
   {
     title: '장소 정보를 보완하고, 리뷰를 적을 수 있어요.',
     body: '장소 수정을 통해 더 나은 정보를 제공하고, 리뷰를 달아 이 장소를 검증해주세요.',
+    image: mapOnboarding3,
   },
   {
     title: '숨은 맛집을 찾아내요!',
     body: '동글맵만의 숨은 맛집을 등록해 동국대생만 공유하는 진짜 명소를 모아봐요.',
+    image: mapOnboarding4,
   },
 ];

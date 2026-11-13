@@ -10,6 +10,7 @@ describe('MapOnboardingModal', () => {
     const html = renderToStaticMarkup(<MapOnboardingModal />);
 
     expect(html).toContain('aspect-[4/3]');
+    expect(html).toMatch(/<img src="[^"]*onboarding1[^"]*\.webp" alt=""/);
     expect(html).toContain('동글맵이 출시되었어요!');
     expect(html).toContain('상단 칩을 눌러 학교 주변 &quot;동글인 보증&quot; 맛집을 알아보세요.');
     expect(html).toContain('aria-label="4단계 중 1단계"');
