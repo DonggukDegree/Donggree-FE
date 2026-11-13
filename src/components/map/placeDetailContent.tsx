@@ -4,8 +4,9 @@
  * (탈퇴했으면 "탈퇴한 회원"), 수정자는 표시하지 않는다.
  * 영업시간·설명·메뉴는 인증 회원 누구나 고치고 신고할 수 있어 장소 수정·신고 칩을 두며, 미인증 회원도 칩은 보게 한다.
  * 이름 아래에 평균 별점·리뷰 수를 두고, 아래 리뷰 영역에서 목록·작성·신고를 한다.
+ * 숨은 맛집 태그가 있으면 카테고리 줄보다 위에 선정 배너를 둔다.
  */
-import { type ReactNode, useState } from 'react';
+import { Fragment, type ReactNode, useState } from 'react';
 
 import Pencil from '@/assets/icons/pencil.svg?react';
 import Siren from '@/assets/icons/siren.svg?react';
@@ -40,6 +41,25 @@ export default function PlaceDetailContent({ place, onEdit, onReport }: IPlaceDe
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
+        {place.tags.length > 0 && (
+          <p
+            aria-label="숨은 맛집"
+            className="mb-3 rounded-lg bg-primary-30 px-4 py-3 text-center text-body-s font-semibold break-keep text-primary-60"
+          >
+            {/* 태그 이름(예: 밥약 맛집)이 줄 끝에서 둘로 갈라지지 않게 태그마다 한 덩어리로 묶는다. */}
+            🎊 동글인 선정 동국대{' '}
+            {place.tags.map((tag, index) => (
+              <Fragment key={tag}>
+                {index > 0 && ' '}
+                <span className="whitespace-nowrap">
+                  {PLACE_TAG_LABELS[tag]}
+                  {index < place.tags.length - 1 && ','}
+                </span>
+              </Fragment>
+            ))}{' '}
+            👑
+          </p>
+        )}
         <p className="flex items-center gap-1.5 text-body-s text-coolgray-60">
           <span aria-hidden="true">{category.emoji}</span>
           {category.label} · {PLACE_SUB_CATEGORY_LABELS[place.subCategory]}
@@ -92,14 +112,6 @@ export default function PlaceDetailContent({ place, onEdit, onReport }: IPlaceDe
             </button>
           )}
         </section>
-      )}
-
-      {place.tags.length > 0 && (
-        <ul aria-label="숨은 맛집" className="flex flex-wrap gap-x-2 gap-y-1 text-body-s text-primary-90">
-          {place.tags.map((tag) => (
-            <li key={tag}>#{PLACE_TAG_LABELS[tag].replace(/\s/g, '')}</li>
-          ))}
-        </ul>
       )}
 
       <PlaceReviewSection place={place} />
