@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 
 import useUpsertGraduationRules from '@/hooks/admin/mutations/useUpsertGraduationRules';
 import useAdminAreaTypes from '@/hooks/admin/queries/useAdminAreaTypes';
+import useAdminColleges from '@/hooks/admin/queries/useAdminColleges';
+import useAdminDepartments from '@/hooks/admin/queries/useAdminDepartments';
 import useAdminGraduationRules from '@/hooks/admin/queries/useAdminGraduationRules';
 import useAdminRequirementSets from '@/hooks/admin/queries/useAdminRequirementSets';
 import useAdminRuleTypes from '@/hooks/admin/queries/useAdminRuleTypes';
@@ -17,6 +19,7 @@ import type { TGraduationRuleDraft, TGraduationRuleDraftChange } from '@/types/a
 import type { TGraduationRuleFilters } from '@/types/admin/graduationRule/TGetGraduationRules';
 import type { TGraduationRuleUpsertItem } from '@/types/admin/graduationRule/TPutGraduationRules';
 import type { TCourseType } from '@/types/course';
+import { filterSetsByCollege } from '@/utils/admin/academicOrganization';
 import {
   EMPTY_RULE_DRAFT,
   toggleCourseType,
@@ -34,6 +37,8 @@ export default function useGraduationRuleEditor() {
   // 드롭다운을 만지는 동안에는 목록이 흔들리지 않는다.
   const [selectedRuleTypeIds, setSelectedRuleTypeIds] = useState<number[]>([]);
   const [selectedCourseTypes, setSelectedCourseTypes] = useState<TCourseType[]>([]);
+  // 단과대는 적용 세트 선택지를 좁히는 용도로만 쓰며, 규칙 조회 조건에는 들어가지 않는다.
+  const [selectedCollegeId, setSelectedCollegeId] = useState('');
   const [selectedSetId, setSelectedSetId] = useState('');
   const [appliedFilters, setAppliedFilters] = useState<TGraduationRuleFilters>({});
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -43,6 +48,13 @@ export default function useGraduationRuleEditor() {
   const { data: ruleTypes = [], isError: isRuleTypeError } = useAdminRuleTypes();
   // '적용 세트' 필터의 선택지. 필터 없이 전체 세트를 받는다.
   const { data: requirementSets = [] } = useAdminRequirementSets({});
+  const { data: colleges = [] } = useAdminColleges();
+  const { data: departments = [] } = useAdminDepartments();
+  const setOptions = filterSetsByCollege(
+    requirementSets,
+    departments,
+    selectedCollegeId ? toPositiveInteger(selectedCollegeId) : null,
+  );
   // 규칙 종류·이수구분·적용 세트 모두 서버가 AND로 걸러 준다. (requirementSetId 파라미터 지원)
   const {
     data: rules = [],
@@ -64,6 +76,15 @@ export default function useGraduationRuleEditor() {
     setSelectedCourseTypes((prev) => toggleCourseType(prev, courseType));
   };
 
+  // 고른 세트가 새 단과대 범위 밖이면 보이지 않는 세트로 조회되지 않도록 선택을 비운다.
+  const onCollegeChange = (value: string) => {
+    setSelectedCollegeId(value);
+    const collegeSets = filterSetsByCollege(requirementSets, departments, value ? toPositiveInteger(value) : null);
+    if (selectedSetId && !collegeSets.some((set) => String(set.id) === selectedSetId)) {
+      setSelectedSetId('');
+    }
+  };
+
   // 목록이 바뀌면 화면에 없는 규칙을 편집 중인 상태가 남지 않도록 draft를 비운다.
   const applyFilters = () => {
     clearDrafts();
@@ -78,6 +99,7 @@ export default function useGraduationRuleEditor() {
   const resetFilters = () => {
     setSelectedRuleTypeIds([]);
     setSelectedCourseTypes([]);
+    setSelectedCollegeId('');
     setSelectedSetId('');
     setAppliedFilters({});
     clearDrafts();
@@ -245,15 +267,19 @@ export default function useGraduationRuleEditor() {
     areaTypes,
     ruleTypes,
     isRuleTypeError,
-    requirementSets,
+    colleges,
+    departments,
+    setOptions,
     rules,
     isRulesLoading,
     isRulesError,
     selectedRuleTypeIds,
     selectedCourseTypes,
+    selectedCollegeId,
     selectedSetId,
     onRuleTypeToggle,
     onCourseTypeToggle,
+    onCollegeChange,
     onSetChange: setSelectedSetId,
     applyFilters,
     resetFilters,

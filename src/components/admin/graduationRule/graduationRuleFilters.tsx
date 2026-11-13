@@ -5,6 +5,7 @@
  *
  * 적용 세트: 저장된 졸업 세트를 고르면 그 세트에 연결된 규칙만 남는다.
  * 다른 필터와는 AND로 걸린다. (예: 이수 구분 '공통교양' + 특정 세트 → 그 세트의 공통교양 규칙만)
+ * 단과대: 세트가 많아 고르기 어려우므로 적용 세트 선택지만 그 단과대 학과의 세트로 좁힌다. 규칙 조회 조건은 아니다.
  */
 import AdminFilterBar, { FilterField } from '@/components/admin/common/adminFilterBar';
 import MultiSelectDropdown from '@/components/admin/common/multiSelectDropdown';
@@ -12,20 +13,24 @@ import SelectChevron from '@/components/common/inputs/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
 import { REQUIREMENT_TRACK_LABEL } from '@/constants/requirementTrack';
 import type { TAdminRuleType } from '@/types/admin/graduationRule/TGetRuleTypes';
-import type { TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
+import type { TAdminCollege, TAdminDepartment } from '@/types/admin/TGetAcademicOrganizations';
 import type { TAdminRequirementSetSummary } from '@/types/admin/TRequirementSets';
 import { COURSE_LABEL, COURSE_TYPES, type TCourseType } from '@/types/course';
 import { getDepartmentLabel } from '@/utils/admin/academicOrganization';
 
 interface IGraduationRuleFiltersProps {
   ruleTypes: TAdminRuleType[];
+  // 단과대 선택으로 이미 좁혀진 적용 세트 선택지
   requirementSets: TAdminRequirementSetSummary[];
+  colleges: TAdminCollege[];
   departments: TAdminDepartment[];
   selectedRuleTypeIds: number[];
   selectedCourseTypes: TCourseType[];
+  selectedCollegeId: string;
   selectedSetId: string;
   onRuleTypeToggle: (ruleTypeId: number) => void;
   onCourseTypeToggle: (courseType: TCourseType) => void;
+  onCollegeChange: (value: string) => void;
   onSetChange: (value: string) => void;
   onApply: () => void;
   onReset: () => void;
@@ -34,12 +39,15 @@ interface IGraduationRuleFiltersProps {
 export default function GraduationRuleFilters({
   ruleTypes,
   requirementSets,
+  colleges,
   departments = [],
   selectedRuleTypeIds,
   selectedCourseTypes,
+  selectedCollegeId,
   selectedSetId,
   onRuleTypeToggle,
   onCourseTypeToggle,
+  onCollegeChange,
   onSetChange,
   onApply,
   onReset,
@@ -54,7 +62,7 @@ export default function GraduationRuleFilters({
   return (
     <AdminFilterBar
       title="졸업 규칙 필터"
-      description="미선택 시 전체를 조회합니다. 적용 세트를 고르면 해당 세트에 연결된 규칙만 남습니다."
+      description="미선택 시 전체를 조회합니다. 적용 세트를 고르면 해당 세트에 연결된 규칙만 남습니다. 단과대는 적용 세트 선택지만 좁힙니다."
       onApply={onApply}
       onReset={onReset}
     >
@@ -72,6 +80,24 @@ export default function GraduationRuleFilters({
           selectedValues={selectedCourseTypes}
           onToggle={onCourseTypeToggle}
         />
+      </FilterField>
+
+      <FilterField label="단과대" className="min-w-44 flex-1">
+        <div className="relative">
+          <select
+            value={selectedCollegeId}
+            onChange={(event) => onCollegeChange(event.target.value)}
+            className={`${ADMIN_INPUT_CLASS} ${SELECT_RESET_CLASS}`}
+          >
+            <option value="">전체 단과대</option>
+            {colleges.map((college) => (
+              <option key={college.id} value={college.id}>
+                {college.collegeName}
+              </option>
+            ))}
+          </select>
+          <SelectChevron />
+        </div>
       </FilterField>
 
       <FilterField label="적용 세트" className="min-w-64 flex-1">

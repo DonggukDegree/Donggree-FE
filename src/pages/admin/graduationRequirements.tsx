@@ -157,14 +157,17 @@ export default function AdminGraduationRequirements() {
 
         {/* 졸업 규칙 필터와 목록은 두 탭이 공유한다. 필터 바를 목록 바로 위에 가로로 길게 둔다. */}
         <GraduationRuleFilters
-          departments={setEditor.departments}
+          colleges={ruleEditor.colleges}
+          departments={ruleEditor.departments}
           ruleTypes={ruleEditor.ruleTypes}
-          requirementSets={ruleEditor.requirementSets}
+          requirementSets={ruleEditor.setOptions}
           selectedRuleTypeIds={ruleEditor.selectedRuleTypeIds}
           selectedCourseTypes={ruleEditor.selectedCourseTypes}
+          selectedCollegeId={ruleEditor.selectedCollegeId}
           selectedSetId={ruleEditor.selectedSetId}
           onRuleTypeToggle={ruleEditor.onRuleTypeToggle}
           onCourseTypeToggle={ruleEditor.onCourseTypeToggle}
+          onCollegeChange={ruleEditor.onCollegeChange}
           onSetChange={ruleEditor.onSetChange}
           onApply={ruleEditor.applyFilters}
           onReset={ruleEditor.resetFilters}
