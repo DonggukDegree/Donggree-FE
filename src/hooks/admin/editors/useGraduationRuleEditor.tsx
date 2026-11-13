@@ -9,18 +9,23 @@ import { toast } from 'sonner';
 
 import useUpsertGraduationRules from '@/hooks/admin/mutations/useUpsertGraduationRules';
 import useAdminAreaTypes from '@/hooks/admin/queries/useAdminAreaTypes';
+import useAdminColleges from '@/hooks/admin/queries/useAdminColleges';
+import useAdminDepartments from '@/hooks/admin/queries/useAdminDepartments';
 import useAdminGraduationRules from '@/hooks/admin/queries/useAdminGraduationRules';
 import useAdminRequirementSets from '@/hooks/admin/queries/useAdminRequirementSets';
 import useAdminRuleTypes from '@/hooks/admin/queries/useAdminRuleTypes';
+import useUnsavedChangesWarning from '@/hooks/useUnsavedChangesWarning';
 import { useModalStore } from '@/stores/modalStore';
 import type { TGraduationRuleDraft, TGraduationRuleDraftChange } from '@/types/admin/forms/graduationRuleForm';
 import type { TGraduationRuleFilters } from '@/types/admin/graduationRule/TGetGraduationRules';
 import type { TGraduationRuleUpsertItem } from '@/types/admin/graduationRule/TPutGraduationRules';
 import type { TCourseType } from '@/types/course';
+import { filterSetsByCollege } from '@/utils/admin/academicOrganization';
 import {
   EMPTY_RULE_DRAFT,
   toggleCourseType,
   toggleNumber,
+  toggleVisibleRuleDrafts,
   toPositiveInteger,
   toRuleDraft,
 } from '@/utils/admin/adminForm';
@@ -34,6 +39,8 @@ export default function useGraduationRuleEditor() {
   // 드롭다운을 만지는 동안에는 목록이 흔들리지 않는다.
   const [selectedRuleTypeIds, setSelectedRuleTypeIds] = useState<number[]>([]);
   const [selectedCourseTypes, setSelectedCourseTypes] = useState<TCourseType[]>([]);
+  // 단과대는 적용 세트 선택지를 좁히는 용도로만 쓰며, 규칙 조회 조건에는 들어가지 않는다.
+  const [selectedCollegeId, setSelectedCollegeId] = useState('');
   const [selectedSetId, setSelectedSetId] = useState('');
   const [appliedFilters, setAppliedFilters] = useState<TGraduationRuleFilters>({});
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -43,6 +50,13 @@ export default function useGraduationRuleEditor() {
   const { data: ruleTypes = [], isError: isRuleTypeError } = useAdminRuleTypes();
   // '적용 세트' 필터의 선택지. 필터 없이 전체 세트를 받는다.
   const { data: requirementSets = [] } = useAdminRequirementSets({});
+  const { data: colleges = [] } = useAdminColleges();
+  const { data: departments = [] } = useAdminDepartments();
+  const setOptions = filterSetsByCollege(
+    requirementSets,
+    departments,
+    selectedCollegeId ? toPositiveInteger(selectedCollegeId) : null,
+  );
   // 규칙 종류·이수구분·적용 세트 모두 서버가 AND로 걸러 준다. (requirementSetId 파라미터 지원)
   const {
     data: rules = [],
@@ -50,6 +64,8 @@ export default function useGraduationRuleEditor() {
     isError: isRulesError,
   } = useAdminGraduationRules(appliedFilters);
   const { mutate: upsertGraduationRules, isPending: isSaving } = useUpsertGraduationRules();
+  // 저장 전 작성 중인 규칙이 있으면 새로고침·탭 닫기 전에 확인을 받는다.
+  useUnsavedChangesWarning(drafts.length > 0);
 
   const clearDrafts = () => {
     setSelectedIds(new Set());
@@ -64,9 +80,18 @@ export default function useGraduationRuleEditor() {
     setSelectedCourseTypes((prev) => toggleCourseType(prev, courseType));
   };
 
-  // 목록이 바뀌면 화면에 없는 규칙을 편집 중인 상태가 남지 않도록 draft를 비운다.
+  // 고른 세트가 새 단과대 범위 밖이면 보이지 않는 세트로 조회되지 않도록 선택을 비운다.
+  const onCollegeChange = (value: string) => {
+    setSelectedCollegeId(value);
+    const collegeSets = filterSetsByCollege(requirementSets, departments, value ? toPositiveInteger(value) : null);
+    if (selectedSetId && !collegeSets.some((set) => String(set.id) === selectedSetId)) {
+      setSelectedSetId('');
+    }
+  };
+
+  // 필터는 하단 목록 조회 조건만 바꾼다. 작성 중인 규칙(draft)과 체크 상태는 건드리지 않아
+  // 목록에서 가려진 규칙도 위 수정 폼에 그대로 남는다.
   const applyFilters = () => {
-    clearDrafts();
     const requirementSetId = toPositiveInteger(selectedSetId);
     setAppliedFilters({
       ...(selectedRuleTypeIds.length > 0 ? { ruleTypeIds: selectedRuleTypeIds } : {}),
@@ -78,9 +103,9 @@ export default function useGraduationRuleEditor() {
   const resetFilters = () => {
     setSelectedRuleTypeIds([]);
     setSelectedCourseTypes([]);
+    setSelectedCollegeId('');
     setSelectedSetId('');
     setAppliedFilters({});
-    clearDrafts();
   };
 
   const addDraft = () => {
@@ -141,7 +166,7 @@ export default function useGraduationRuleEditor() {
     );
   };
 
-  // 하단 공유 테이블에서 "전체 선택"을 눌렀을 때(규칙 편집 모드) 현재 목록을 draft로 시딩한다.
+  // 하단 공유 테이블에서 "전체 선택"을 눌렀을 때(규칙 편집 모드) 현재 보이는 목록만 draft에 넣고 뺀다.
   const selectRows = (checked: boolean) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -154,13 +179,7 @@ export default function useGraduationRuleEditor() {
       });
       return next;
     });
-    setDrafts((prev) => {
-      const newDrafts = prev.filter((draft) => draft.id === null);
-      if (!checked) return newDrafts;
-      const existingDraftIds = new Set(prev.filter((draft) => draft.id !== null).map((draft) => draft.id));
-      const visibleDrafts = rules.filter((rule) => !existingDraftIds.has(rule.id)).map((rule) => toRuleDraft(rule));
-      return [...prev, ...visibleDrafts];
-    });
+    setDrafts((prev) => toggleVisibleRuleDrafts(prev, rules, checked));
   };
 
   // 하단 공유 테이블에서 행 하나를 토글했을 때(규칙 편집 모드) draft를 추가/제거한다.
@@ -245,15 +264,19 @@ export default function useGraduationRuleEditor() {
     areaTypes,
     ruleTypes,
     isRuleTypeError,
-    requirementSets,
+    colleges,
+    departments,
+    setOptions,
     rules,
     isRulesLoading,
     isRulesError,
     selectedRuleTypeIds,
     selectedCourseTypes,
+    selectedCollegeId,
     selectedSetId,
     onRuleTypeToggle,
     onCourseTypeToggle,
+    onCollegeChange,
     onSetChange: setSelectedSetId,
     applyFilters,
     resetFilters,

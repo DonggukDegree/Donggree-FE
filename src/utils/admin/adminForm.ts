@@ -295,3 +295,20 @@ export const toRequirementSetForm = (
   sheetImageUrl: set.sheetImageUrl ?? '',
   active: set.active,
 });
+
+/**
+ * 규칙 목록 "전체 선택"을 눌렀을 때 작성 중인 규칙(draft)을 맞춘다.
+ * 지금 목록에 보이는 규칙만 추가·제거하고, 필터로 가려진 규칙의 draft와 신규 규칙 draft는 그대로 둔다.
+ */
+export const toggleVisibleRuleDrafts = (
+  drafts: TGraduationRuleDraft[],
+  visibleRules: TAdminGraduationRule[],
+  checked: boolean,
+): TGraduationRuleDraft[] => {
+  if (!checked) {
+    const visibleIds = new Set(visibleRules.map((rule) => rule.id));
+    return drafts.filter((draft) => draft.id === null || !visibleIds.has(draft.id));
+  }
+  const draftIds = new Set(drafts.map((draft) => draft.id));
+  return [...drafts, ...visibleRules.filter((rule) => !draftIds.has(rule.id)).map((rule) => toRuleDraft(rule))];
+};
