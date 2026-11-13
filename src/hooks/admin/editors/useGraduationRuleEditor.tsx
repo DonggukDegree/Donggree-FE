@@ -14,6 +14,7 @@ import useAdminDepartments from '@/hooks/admin/queries/useAdminDepartments';
 import useAdminGraduationRules from '@/hooks/admin/queries/useAdminGraduationRules';
 import useAdminRequirementSets from '@/hooks/admin/queries/useAdminRequirementSets';
 import useAdminRuleTypes from '@/hooks/admin/queries/useAdminRuleTypes';
+import useUnsavedChangesWarning from '@/hooks/useUnsavedChangesWarning';
 import { useModalStore } from '@/stores/modalStore';
 import type { TGraduationRuleDraft, TGraduationRuleDraftChange } from '@/types/admin/forms/graduationRuleForm';
 import type { TGraduationRuleFilters } from '@/types/admin/graduationRule/TGetGraduationRules';
@@ -24,6 +25,7 @@ import {
   EMPTY_RULE_DRAFT,
   toggleCourseType,
   toggleNumber,
+  toggleVisibleRuleDrafts,
   toPositiveInteger,
   toRuleDraft,
 } from '@/utils/admin/adminForm';
@@ -62,6 +64,8 @@ export default function useGraduationRuleEditor() {
     isError: isRulesError,
   } = useAdminGraduationRules(appliedFilters);
   const { mutate: upsertGraduationRules, isPending: isSaving } = useUpsertGraduationRules();
+  // 저장 전 작성 중인 규칙이 있으면 새로고침·탭 닫기 전에 확인을 받는다.
+  useUnsavedChangesWarning(drafts.length > 0);
 
   const clearDrafts = () => {
     setSelectedIds(new Set());
@@ -85,9 +89,9 @@ export default function useGraduationRuleEditor() {
     }
   };
 
-  // 목록이 바뀌면 화면에 없는 규칙을 편집 중인 상태가 남지 않도록 draft를 비운다.
+  // 필터는 하단 목록 조회 조건만 바꾼다. 작성 중인 규칙(draft)과 체크 상태는 건드리지 않아
+  // 목록에서 가려진 규칙도 위 수정 폼에 그대로 남는다.
   const applyFilters = () => {
-    clearDrafts();
     const requirementSetId = toPositiveInteger(selectedSetId);
     setAppliedFilters({
       ...(selectedRuleTypeIds.length > 0 ? { ruleTypeIds: selectedRuleTypeIds } : {}),
@@ -102,7 +106,6 @@ export default function useGraduationRuleEditor() {
     setSelectedCollegeId('');
     setSelectedSetId('');
     setAppliedFilters({});
-    clearDrafts();
   };
 
   const addDraft = () => {
@@ -163,7 +166,7 @@ export default function useGraduationRuleEditor() {
     );
   };
 
-  // 하단 공유 테이블에서 "전체 선택"을 눌렀을 때(규칙 편집 모드) 현재 목록을 draft로 시딩한다.
+  // 하단 공유 테이블에서 "전체 선택"을 눌렀을 때(규칙 편집 모드) 현재 보이는 목록만 draft에 넣고 뺀다.
   const selectRows = (checked: boolean) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -176,13 +179,7 @@ export default function useGraduationRuleEditor() {
       });
       return next;
     });
-    setDrafts((prev) => {
-      const newDrafts = prev.filter((draft) => draft.id === null);
-      if (!checked) return newDrafts;
-      const existingDraftIds = new Set(prev.filter((draft) => draft.id !== null).map((draft) => draft.id));
-      const visibleDrafts = rules.filter((rule) => !existingDraftIds.has(rule.id)).map((rule) => toRuleDraft(rule));
-      return [...prev, ...visibleDrafts];
-    });
+    setDrafts((prev) => toggleVisibleRuleDrafts(prev, rules, checked));
   };
 
   // 하단 공유 테이블에서 행 하나를 토글했을 때(규칙 편집 모드) draft를 추가/제거한다.
