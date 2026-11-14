@@ -94,19 +94,20 @@ describe('장소 정보', () => {
     expect(html).toMatch(/★<\/span><span class="text-coolgray-90">4\.0<\/span><span>· 리뷰 12<\/span>/);
   });
 
-  it('숨은 맛집 태그를 리뷰 위에 주황 해시태그로 표시하고, 없으면 표시하지 않음', () => {
+  it('숨은 맛집 태그가 있으면 카테고리보다 위에 선정 배너를 두고, 여러 태그는 쉼표로 나열한다', () => {
     expect(
       renderToStaticMarkup(<PlaceDetailContent place={place} onEdit={vi.fn()} onReport={vi.fn()} />),
     ).not.toContain('aria-label="숨은 맛집"');
     const html = renderToStaticMarkup(
       <PlaceDetailContent
-        place={{ ...place, tags: ['SOLO_DINING', 'MEAL_DATE'] }}
+        place={{ ...place, tags: ['MEAL_DATE', 'SOLO_DINING'] }}
         onEdit={vi.fn()}
         onReport={vi.fn()}
       />,
     );
     expect(html).toMatch(
-      /<ul aria-label="숨은 맛집" class="[^"]*text-primary-90"><li>#혼밥맛집<\/li><li>#밥약맛집<\/li><\/ul><section>리뷰 영역/,
+      /^<div[^>]*><div[^>]*><p aria-label="숨은 맛집" class="[^"]*bg-primary-30[^"]*text-primary-60">🎊 동글인 선정 동국대 <span class="whitespace-nowrap">밥약 맛집,<\/span> <span class="whitespace-nowrap">혼밥 맛집<\/span> 👑<\/p><p[^>]*>/,
     );
+    expect(html).not.toContain('#밥약맛집');
   });
 });

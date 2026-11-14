@@ -4,6 +4,7 @@
  * 실제 렌더는 레이아웃의 ModalProvider가 type을 보고 결정한다.
  *  - alert: 안내 / onboarding: 온보딩 / confirm: 관리자 저장 확인 / survey: 만족도 조사
  *  - studentVerification: 동글맵 쓰기 전 학생 인증 안내(학교 이메일·성적표 두 경로)
+ *  - mapOnboarding: 동글맵 첫 방문 튜토리얼
  */
 import type { ComponentType, ReactNode, SVGProps } from 'react';
 import { create } from 'zustand';
@@ -11,7 +12,7 @@ import { create } from 'zustand';
 import type { TErrorSource, TTranscriptNoticeParams } from '@/constants/analytics';
 import { createAttemptId } from '@/utils/analytics/analytics';
 
-type TModalType = 'alert' | 'onboarding' | 'confirm' | 'survey' | 'studentVerification';
+type TModalType = 'alert' | 'onboarding' | 'confirm' | 'survey' | 'studentVerification' | 'mapOnboarding';
 
 interface IAlertContent {
   analyticsDisplayId?: string;
@@ -50,6 +51,7 @@ interface IModalActions {
   openConfirm: (content: IConfirmContent) => void;
   openSurvey: () => void;
   openStudentVerification: () => void;
+  openMapOnboarding: () => void;
   closeModal: () => void;
 }
 
@@ -68,5 +70,7 @@ export const useModalStore = create<IModalState & IModalActions>((set) => ({
   // 자동 설문은 이미 열린 필수 안내·확인 모달을 덮어쓰지 않는다.
   openSurvey: () => set((state) => (state.type === null ? { ...initialState, type: 'survey' } : state)),
   openStudentVerification: () => set({ ...initialState, type: 'studentVerification' }),
+  // 튜토리얼은 이미 열린 다른 모달을 덮어쓰지 않는다.
+  openMapOnboarding: () => set((state) => (state.type === null ? { ...initialState, type: 'mapOnboarding' } : state)),
   closeModal: () => set(initialState),
 }));
