@@ -1,6 +1,7 @@
 /** [동글맵] 칩 필터·라벨 레벨·주소창 장소 ID·표시 형식 검사 */
 import { describe, expect, it } from 'vitest';
 
+import { PLACE_SUB_CATEGORIES_BY_CATEGORY, PLACE_SUB_CATEGORY_LABELS } from '@/constants/place';
 import type { TPlaceSummary } from '@/types/place/TPlace';
 import {
   ALL_PLACES_FILTER,
@@ -115,5 +116,12 @@ describe('동글맵 표시 규칙', () => {
     expect(filterPlaces(list, toggleTagFilter(filter, 'COFFEE')).map(({ id }) => id)).toEqual([2]);
     expect(toggleHiddenGemFilter(filter)).toEqual(ALL_PLACES_FILTER);
     expect(toggleSubCategoryFilter(filter, 'COFFEE')).toBe(filter);
+  });
+});
+
+describe('음식점 상세카테고리', () => {
+  it('학식당은 음식점 상세 칩에서 기타 바로 앞에 온다', () => {
+    expect(PLACE_SUB_CATEGORIES_BY_CATEGORY.RESTAURANT.slice(-2)).toEqual(['CAFETERIA', 'RESTAURANT_ETC']);
+    expect(PLACE_SUB_CATEGORY_LABELS.CAFETERIA).toBe('학식당');
   });
 });
