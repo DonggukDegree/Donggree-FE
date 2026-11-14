@@ -49,7 +49,7 @@ describe('동글맵 카테고리 칩', () => {
     expect(html).toContain('aria-label="숨은 맛집 종류"');
     const labels = [
       '지름길 맛집',
-      '카공 맛집',
+      '공부 맛집',
       '회식 맛집',
       '밥약 맛집',
       '분위기 맛집',
