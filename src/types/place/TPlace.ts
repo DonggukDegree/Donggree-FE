@@ -13,6 +13,7 @@ export type TPlaceSubCategory =
   | 'ASIAN'
   | 'MEAT'
   | 'FAST_FOOD'
+  | 'CAFETERIA'
   | 'RESTAURANT_ETC'
   | 'FRANCHISE'
   | 'DESSERT'

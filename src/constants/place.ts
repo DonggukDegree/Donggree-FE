@@ -51,7 +51,18 @@ export const PLACE_CATEGORY_BY_VALUE = Object.fromEntries(
 
 // 카테고리별 상세카테고리. 순서가 곧 선택지 노출 순서이며 BE PlaceSubCategory의 상위 카테고리와 일치해야 한다.
 export const PLACE_SUB_CATEGORIES_BY_CATEGORY: Record<TPlaceCategory, readonly TPlaceSubCategory[]> = {
-  RESTAURANT: ['KOREAN', 'CHINESE', 'JAPANESE', 'WESTERN', 'SNACK', 'ASIAN', 'MEAT', 'FAST_FOOD', 'RESTAURANT_ETC'],
+  RESTAURANT: [
+    'KOREAN',
+    'CHINESE',
+    'JAPANESE',
+    'WESTERN',
+    'SNACK',
+    'ASIAN',
+    'MEAT',
+    'FAST_FOOD',
+    'CAFETERIA',
+    'RESTAURANT_ETC',
+  ],
   CAFE: ['FRANCHISE', 'DESSERT', 'COFFEE', 'CAFE_ETC'],
   BAR: ['PUB', 'IZAKAYA', 'WINE_BAR', 'BAR_ETC'],
   STUDY: ['STUDY_CAFE', 'CAMPUS_FACILITY', 'LIBRARY', 'STUDY_ETC'],
@@ -69,6 +80,7 @@ export const PLACE_SUB_CATEGORY_LABELS: Record<TPlaceSubCategory, string> = {
   ASIAN: '아시안',
   MEAT: '고기/구이',
   FAST_FOOD: '패스트푸드',
+  CAFETERIA: '학식당',
   RESTAURANT_ETC: '기타',
   FRANCHISE: '프랜차이즈',
   DESSERT: '디저트/베이커리',
@@ -104,7 +116,7 @@ export const HIDDEN_GEM = { label: '숨은 맛집', emoji: '✨', color: '#1f2a5
 // 숨은 맛집 태그. 순서가 곧 체크박스·칩 노출 순서이며 BE PlaceTag 순서와 같다.
 export const PLACE_TAGS: readonly { value: TPlaceTag; label: string }[] = [
   { value: 'SHORTCUT', label: '지름길 맛집' },
-  { value: 'STUDY', label: '카공 맛집' },
+  { value: 'STUDY', label: '공부 맛집' },
   { value: 'GATHERING', label: '회식 맛집' },
   { value: 'MEAL_DATE', label: '밥약 맛집' },
   { value: 'MOOD', label: '분위기 맛집' },
