@@ -104,7 +104,7 @@ export const HIDDEN_GEM = { label: '숨은 맛집', emoji: '✨', color: '#1f2a5
 // 숨은 맛집 태그. 순서가 곧 체크박스·칩 노출 순서이며 BE PlaceTag 순서와 같다.
 export const PLACE_TAGS: readonly { value: TPlaceTag; label: string }[] = [
   { value: 'SHORTCUT', label: '지름길 맛집' },
-  { value: 'STUDY', label: '카공 맛집' },
+  { value: 'STUDY', label: '공부 맛집' },
   { value: 'GATHERING', label: '회식 맛집' },
   { value: 'MEAL_DATE', label: '밥약 맛집' },
   { value: 'MOOD', label: '분위기 맛집' },
