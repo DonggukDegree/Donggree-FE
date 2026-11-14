@@ -18,6 +18,7 @@ import {
 // 항목별 동작 구분: 실제 페이지(link), 외부 링크(external), 미개발 안내(toast).
 const NAV_ITEMS = [
   { name: '졸업 판정', type: 'link', path: '/graduation' },
+  { name: '동글맵', type: 'link', path: '/map' },
   { name: '커리큘럼', type: 'toast' },
   { name: '고객지원', type: 'external', href: KAKAO_CHAT_URL },
   { name: '동그리 소개', type: 'toast' },

@@ -18,6 +18,7 @@ import {
 import { analyticsError } from '@/utils/analytics/analyticsError';
 import { getRoleFromAccessToken, isAdminRole } from '@/utils/auth/authRole';
 import { consumeLoginAttempt } from '@/utils/auth/loginAttempt';
+import { formatSuspensionMessage, parseSuspensionParams, SUSPENSION_TOAST_ID } from '@/utils/auth/suspension';
 import { resetSurveyPromptForLogin } from '@/utils/surveyPrompt';
 
 // 카카오 OAuth 로그인 성공 후 백엔드가 리다이렉트하는 콜백 페이지.
@@ -36,6 +37,7 @@ export default function AuthCallback() {
     handledRef.current = true;
 
     const previousRole = getRoleFromAccessToken(useAuthStore.getState().accessToken);
+    const suspension = parseSuspensionParams(searchParams);
     const failed = Boolean(searchParams.get('error'));
     const accessToken = searchParams.get('accessToken');
     const attemptId = consumeLoginAttempt();
@@ -46,6 +48,16 @@ export default function AuthCallback() {
     if (accessToken && !failed) setAccessToken(accessToken);
     setSearchParams({}, { replace: true });
     trackPageView('/login/callback', window.history.state?.key ?? 'default');
+
+    // 정지 회원은 토큰을 받지 못한다. 정지 기간을 공용 토스트로 알리고 홈으로 보낸다.
+    if (suspension) {
+      clearAuth();
+      syncAnalyticsIdentity(isAdminRole(previousRole) ? 'excluded' : 'allowed', null);
+      trackEvent('login_failure', { method: 'kakao', attempt_id: attemptId, code: 'MEMBER_SUSPENDED', status: 403 });
+      toast(formatSuspensionMessage(suspension), { id: SUSPENSION_TOAST_ID, duration: 10_000 });
+      navigate('/', { replace: true });
+      return;
+    }
 
     if (failed || !accessToken) {
       clearAuth();

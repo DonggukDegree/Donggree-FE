@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-plugin-svgr/client" />
+/// <reference types="kakao.maps.d.ts" />
 
 // 아래 세 인터페이스는 TS 전역 타입 보강용이라 이름을 바꿀 수 없어(ImportMetaEnv/ImportMeta/Window),
 // I 접두사 네이밍 규칙만 파일 단위로 예외 처리한다.
@@ -10,6 +11,8 @@ interface ImportMetaEnv {
   readonly VITE_API_URL: string;
   // GA4 측정 ID(G-XXXXXXXXXX). 없으면 analytics가 no-op으로 동작한다.
   readonly VITE_GA_ID?: string;
+  // 카카오 지도 JavaScript 키. 카카오 콘솔의 JavaScript SDK 도메인에 등록된 도메인에서만 동작한다.
+  readonly VITE_KAKAO_MAP_KEY?: string;
 }
 
 interface ImportMeta {

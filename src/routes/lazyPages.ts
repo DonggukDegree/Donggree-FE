@@ -10,6 +10,7 @@ import { lazy } from 'react';
 
 export const Faq = lazy(() => import('@/pages/faq'));
 export const Curriculum = lazy(() => import('@/pages/curriculum'));
+export const DonggleMap = lazy(() => import('@/pages/map'));
 export const OnBoarding = lazy(() => import('@/pages/auth/onBoarding'));
 
 export const MyPage = lazy(() => import('@/pages/myPage/index'));
@@ -25,3 +26,4 @@ export const AdminCourseClassifications = lazy(() => import('@/pages/admin/cours
 export const AdminGraduationRequirements = lazy(() => import('@/pages/admin/graduationRequirements'));
 export const AdminFaqs = lazy(() => import('@/pages/admin/faqs'));
 export const AdminReportPreview = lazy(() => import('@/pages/admin/reportPreview'));
+export const AdminReports = lazy(() => import('@/pages/admin/reports'));

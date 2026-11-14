@@ -39,6 +39,67 @@ beforeEach(async () => {
 });
 
 describe('GA 발송 경계', () => {
+  it('동글맵 이벤트는 카테고리 코드만 보내고 장소명·PLACE 오류 코드 외 값은 버림', () => {
+    location.pathname = '/map';
+    analytics.trackEvent('place_select', { place_category: 'CAFE', place_name: '동국반점' });
+    analytics.trackEvent('place_category_select', { place_category: 'UNKNOWN' });
+    analytics.trackEvent('error_shown', { error_source: 'donggle_map', code: 'PLACE404_1', status: 404 });
+    const sent = events();
+    expect(sent.find((event) => event[1] === 'place_select')?.[2]).toMatchObject({ place_category: 'CAFE' });
+    expect(sent.find((event) => event[1] === 'place_select')?.[2]).not.toHaveProperty('place_name');
+    expect(sent.find((event) => event[1] === 'place_category_select')?.[2]).not.toHaveProperty('place_category');
+    analytics.trackEvent('place_duplicate_shown', { duplicate_type: 'exact' });
+    analytics.trackEvent('student_verification_select', { verification_method: 'school_email', email: 'x' });
+    expect(events().find((event) => event[1] === 'place_duplicate_shown')?.[2]).toMatchObject({
+      duplicate_type: 'exact',
+    });
+    expect(events().find((event) => event[1] === 'student_verification_select')?.[2]).toEqual(
+      expect.objectContaining({ verification_method: 'school_email' }),
+    );
+    expect(events().find((event) => event[1] === 'student_verification_select')?.[2]).not.toHaveProperty('email');
+    analytics.trackEvent('place_report_submit', {
+      place_category: 'CAFE',
+      report_reason: 'OTHER',
+      description: '사장님 연락처 010',
+    });
+    analytics.trackEvent('place_report_start', { report_reason: 'UNKNOWN' });
+    expect(events().find((event) => event[1] === 'place_report_submit')?.[2]).toMatchObject({
+      place_category: 'CAFE',
+      report_reason: 'OTHER',
+    });
+    expect(events().find((event) => event[1] === 'place_report_submit')?.[2]).not.toHaveProperty('description');
+    expect(events().find((event) => event[1] === 'place_report_start')?.[2]).not.toHaveProperty('report_reason');
+    analytics.trackEvent('place_review_submit', {
+      place_category: 'CAFE',
+      review_rating: 4,
+      content: '맛있어요 맛있어요',
+    });
+    analytics.trackEvent('place_review_report_submit', { report_reason: 'ABUSE' });
+    analytics.trackEvent('place_review_edit', { review_rating: 9 });
+    expect(events().find((event) => event[1] === 'place_review_submit')?.[2]).toMatchObject({ review_rating: 4 });
+    expect(events().find((event) => event[1] === 'place_review_submit')?.[2]).not.toHaveProperty('content');
+    expect(events().find((event) => event[1] === 'place_review_report_submit')?.[2]).toMatchObject({
+      report_reason: 'ABUSE',
+    });
+    expect(events().find((event) => event[1] === 'place_review_edit')?.[2]).not.toHaveProperty('review_rating');
+    analytics.trackEvent('place_category_select', { place_category: 'HIDDEN_GEM' });
+    analytics.trackEvent('place_sub_filter_select', { place_filter: 'SOLO_DINING' });
+    expect(
+      events()
+        .filter((event) => event[1] === 'place_category_select')
+        .at(-1)?.[2],
+    ).toMatchObject({
+      place_category: 'HIDDEN_GEM',
+    });
+    expect(events().find((event) => event[1] === 'place_sub_filter_select')?.[2]).toMatchObject({
+      place_filter: 'SOLO_DINING',
+    });
+    expect(sent.find((event) => event[1] === 'error_shown')?.[2]).toMatchObject({
+      error_source: 'donggle_map',
+      code: 'PLACE404_1',
+    });
+  });
+
   it('오류 위치를 error_source로 보내고 캠페인·개인정보 키는 버림', () => {
     analytics.trackEvent('error_shown', {
       error_source: 'transcript_upload',

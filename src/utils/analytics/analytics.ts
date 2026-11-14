@@ -1,5 +1,12 @@
 /** [공통 > 분석] 환경·권한·URL·개인정보를 검사하는 유일한 GA 발송 경로 */
 import { ERROR_SOURCES, EVENT_NAMES, PAGE_NAMES, type TAnalyticsEvent } from '@/constants/analytics';
+import {
+  PLACE_CATEGORIES,
+  PLACE_REPORT_REASONS,
+  PLACE_SUB_CATEGORY_LABELS,
+  PLACE_TAGS,
+  REVIEW_REPORT_REASONS,
+} from '@/constants/place';
 import { COURSE_TYPES, type TCourseType } from '@/types/course';
 
 const GA_ID = import.meta.env.VITE_GA_ID;
@@ -195,7 +202,7 @@ const sanitizeParams = (params: Record<string, unknown>) => {
     if (
       key === 'code' &&
       typeof value === 'string' &&
-      /^(?:COMMON|USER|TRANSCRIPT|GRADUATION|EMAIL)\d{3}_\d{1,2}$|^(?:NETWORK_ERROR|UNKNOWN_ERROR|INVALID_PDF|LOGIN_FAILED|MISSING_TOKEN|USER_CHECK_FAILED|RENDER_ERROR|NOT_FOUND|VALIDATION_ERROR)$/.test(
+      /^(?:COMMON|USER|TRANSCRIPT|GRADUATION|EMAIL|PLACE)\d{3}_\d{1,2}$|^(?:NETWORK_ERROR|UNKNOWN_ERROR|INVALID_PDF|LOGIN_FAILED|MISSING_TOKEN|MEMBER_SUSPENDED|USER_CHECK_FAILED|RENDER_ERROR|NOT_FOUND|VALIDATION_ERROR)$/.test(
         value,
       )
     )
@@ -207,6 +214,30 @@ const sanitizeParams = (params: Record<string, unknown>) => {
     )
       result[key] = value;
     if (key === 'course_type' && typeof value === 'string' && COURSE_TYPES.includes(value as TCourseType))
+      result[key] = value;
+    if (key === 'duplicate_type' && ['exact', 'similar'].includes(String(value))) result[key] = value;
+    if (key === 'verification_method' && ['school_email', 'transcript'].includes(String(value))) result[key] = value;
+    // 신고는 사유 코드만 보내고 사용자가 쓴 설명은 보내지 않는다.
+    if (
+      key === 'report_reason' &&
+      [...PLACE_REPORT_REASONS, ...REVIEW_REPORT_REASONS].some((reason) => reason.value === value)
+    )
+      result[key] = value;
+    // 리뷰는 별점 숫자(1~5)만 보내고 본문은 보내지 않는다.
+    if (key === 'review_rating' && typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 5)
+      result[key] = value;
+    // 동글맵은 장소명 등 사용자 입력 없이 카테고리 코드만 보낸다. ALL은 '전체' 칩.
+    if (
+      key === 'place_category' &&
+      (value === 'ALL' || value === 'HIDDEN_GEM' || PLACE_CATEGORIES.some((category) => category.value === value))
+    )
+      result[key] = value;
+    // 세부 칩은 상세카테고리·숨은 맛집 태그 코드만 보낸다.
+    if (
+      key === 'place_filter' &&
+      typeof value === 'string' &&
+      (value in PLACE_SUB_CATEGORY_LABELS || PLACE_TAGS.some((tag) => tag.value === value))
+    )
       result[key] = value;
   }
   return result;

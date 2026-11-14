@@ -16,6 +16,7 @@ import { KAKAO_CHAT_URL } from '@/constants/links';
 
 const NAV_ITEMS = [
   { name: '졸업 판정', path: '/graduation' },
+  { name: '동글맵', path: '/map' },
   { name: '자주 묻는 질문', path: '/faq' },
 ] as const;
 
@@ -24,6 +25,7 @@ const ADMIN_NAV_ITEMS = [
   { name: '졸업 요건 관리', path: '/admin/graduation-requirements' },
   { name: 'FAQ 관리', path: '/admin/faqs' },
   { name: 'PDF 리포트 테스트', path: '/admin/report-preview' },
+  { name: '신고 관리', path: '/admin/reports' },
 ] as const;
 
 // 모바일 드로어 안 항목 공통 스타일. (가로 배치가 아니라 세로 목록이므로 PC와 모양을 따로 둔다)

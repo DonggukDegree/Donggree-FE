@@ -6,7 +6,8 @@ export type TUserInfo = {
   studentId: string | null;
   name: string | null;
   nickname: string | null;
-  identityVerified: boolean;
+  identityVerified: boolean; // PDF 본인인증
+  schoolEmailVerified: boolean; // 학교 이메일 인증. 둘 중 하나라도 완료하면 동글맵 쓰기 가능
 };
 
 export type TGetUserInfoResponse = TCommonResponse<TUserInfo>;
