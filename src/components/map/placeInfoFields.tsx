@@ -100,7 +100,8 @@ export default function PlaceInfoFields({ form, errors, onChange }: IPlaceInfoFi
 
       <fieldset className="flex flex-col gap-3">
         <legend className="mb-2 text-button-m text-coolgray-90">
-          메뉴 <span className="text-body-xs text-coolgray-60">선택 · 가격을 비우면 가격 변동</span>
+          메뉴{' '}
+          <span className="text-body-xs text-coolgray-60">선택 · 가격을 비우면 가격 변동 · 👍로 추천 메뉴 표시</span>
         </legend>
         {form.menus.map((row, index) => {
           const rowError = errors.menus?.[row.key];
@@ -132,6 +133,20 @@ export default function PlaceInfoFields({ form, errors, onChange }: IPlaceInfoFi
                   error={rowError?.price}
                 />
                 <div className="flex shrink-0 items-center">
+                  <button
+                    type="button"
+                    aria-label={`${index + 1}번째 메뉴 추천`}
+                    aria-pressed={row.recommended}
+                    title={row.recommended ? '추천 메뉴 해제' : '추천 메뉴로 표시'}
+                    onClick={() =>
+                      updateMenus((menus) => changeMenuRow(menus, row.key, { recommended: !row.recommended }))
+                    }
+                    className={`flex h-12 w-8 cursor-pointer items-center justify-center text-body-m transition ${
+                      row.recommended ? '' : 'opacity-40 grayscale hover:opacity-70'
+                    }`}
+                  >
+                    <span aria-hidden="true">👍</span>
+                  </button>
                   <IconButton
                     label={`${index + 1}번째 메뉴 위로`}
                     disabled={index === 0}

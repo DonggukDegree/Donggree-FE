@@ -14,6 +14,7 @@ import {
   placeMarkerZIndex,
   selectCategoryFilter,
   shouldShowPlaceLabel,
+  sortMenusForDisplay,
   toggleHiddenGemFilter,
   toggleSubCategoryFilter,
   toggleTagFilter,
@@ -61,6 +62,16 @@ describe('동글맵 표시 규칙', () => {
     expect(formatMenuPrice(null)).toBe('가격 변동');
     expect(formatPlaceDate('2026-10-27T09:30:00')).toBe('2026.10.27');
     expect(formatPlaceDate('')).toBe('');
+  });
+
+  it('추천 메뉴를 앞으로 모으고 각 묶음 안에서는 입력 순서 유지', () => {
+    const menus = [
+      { name: 'a', price: 1, recommended: false },
+      { name: 'b', price: 2, recommended: true },
+      { name: 'c', price: 3, recommended: false },
+      { name: 'd', price: 4, recommended: true },
+    ];
+    expect(sortMenusForDisplay(menus).map((menu) => menu.name)).toEqual(['b', 'd', 'a', 'c']);
   });
 
   it('겹친 핀은 커서를 올린 핀이 선택한 핀보다도 위, 나머지는 같은 높이', () => {

@@ -69,6 +69,7 @@ export type TPlaceSummary = {
 export type TPlaceMenu = {
   name: string;
   price: number | null; // null이면 가격 변동
+  recommended: boolean; // 추천 메뉴. 회원별이 아니라 장소 정보의 일부로, 정보 수정으로 누구나 바꾼다.
 };
 
 // GET /api/places/{placeId} 응답. 주소는 저장하지 않으므로 좌표로 실시간 조회한다.

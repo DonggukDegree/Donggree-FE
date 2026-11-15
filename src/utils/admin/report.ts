@@ -42,7 +42,8 @@ export const describeInfoChanges = (before: TAdminInfoSnapshot, after: TAdminInf
     changes.push(`영업시간: ${before.businessHours ?? '없음'} → ${after.businessHours ?? '없음'}`);
   if (before.description !== after.description)
     changes.push(`설명: ${before.description ?? '없음'} → ${after.description ?? '없음'}`);
-  const menus = (snapshot: TAdminInfoSnapshot) => snapshot.menus.map((menu) => menu.name).join(', ') || '없음';
+  const menus = (snapshot: TAdminInfoSnapshot) =>
+    snapshot.menus.map((menu) => `${menu.name}${menu.recommended ? '(추천)' : ''}`).join(', ') || '없음';
   if (menus(before) !== menus(after) || JSON.stringify(before.menus) !== JSON.stringify(after.menus))
     changes.push(`메뉴: ${menus(before)} → ${menus(after)}`);
   const tags = (snapshot: TAdminInfoSnapshot) => snapshot.tags.map((tag) => PLACE_TAG_LABELS[tag]).join(', ') || '없음';
