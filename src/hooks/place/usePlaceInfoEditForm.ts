@@ -44,7 +44,7 @@ export default function usePlaceInfoEditForm(place: TPlaceDetail, onSaved: () =>
       onSaved();
       // 이 장소를 처음 고친 경우에만 적립되므로, 서버에 이번 수정의 적립 여부를 물어 붙인다.
       const reward = await acknowledgePointReward({ reason: 'PLACE_INFO_EDIT', targetId: updated.id });
-      toast.success(withRewardSuffix('장소 정보 수정을 완료했어요!', reward));
+      toast.success(withRewardSuffix('장소 정보를 수정했어요.', reward));
     },
     onError: (error) => {
       const code = getErrorCode(error);
