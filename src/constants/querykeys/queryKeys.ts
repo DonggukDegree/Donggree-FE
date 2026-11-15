@@ -2,6 +2,9 @@ export const QUERY_KEYS = {
   GET_USER_INFO: ['users', 'me'] as const,
   SCHOOL_EMAIL_VERIFICATION: ['users', 'me', 'school-email-verification'] as const,
   GET_USER_REPORTS: ['users', 'me', 'reports'] as const,
+  // 내 포인트. 적립은 활동 뒤 서버에서 비동기로 반영되므로 화면을 열 때마다 다시 받는다.
+  GET_POINT_SUMMARY: ['points', 'me'] as const,
+  GET_POINT_HISTORIES: ['points', 'me', 'histories'] as const,
   // 졸업 판정 리포트(요약·영역상세)를 한 번에 무효화하기 위한 접두사 키.
   REPORTS_ROOT: ['reports'] as const,
   GET_REPORT_SUMMARY: ['reports', 'summary'] as const,

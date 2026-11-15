@@ -1,6 +1,7 @@
 /**
  * [마이페이지] 페이지 (/my-page)
  * 프로필 관리 · 내 학업 정보 관리로 가는 갈림길 화면이자 로그아웃 자리.
+ * 제목 아래 내 포인트 카드를 눌러 포인트 적립 내역(/my-page/points)으로 간다.
  */
 import { Link } from 'react-router-dom';
 
@@ -9,11 +10,14 @@ import Setting from '@/assets/icons/setting.svg?react';
 import User from '@/assets/icons/user.svg?react';
 import Button from '@/components/common/inputs/button';
 import useLogout from '@/hooks/auth/useLogout';
+import usePointSummary from '@/hooks/point/usePointSummary';
 import useInView from '@/hooks/useInView';
+import { formatPoints } from '@/utils/point/point';
 
 export default function MyPage() {
   const [ref, isInView] = useInView();
   const { mutate: logout, isPending } = useLogout();
+  const { data: pointSummary } = usePointSummary();
 
   return (
     <div
@@ -24,6 +28,21 @@ export default function MyPage() {
         <Setting className="w-10 h-10 lg:w-20 lg:h-20 shrink-0" />
         <p className="text-heading-4 lg:text-heading-2 text-coolgray-90">마이페이지</p>
       </div>
+      {/* 포인트는 불러오는 중이거나 실패하면 숫자 대신 "-"로 두고, 눌러서 내역에서 다시 확인하게 한다. */}
+      <Link
+        to="/my-page/points"
+        className="flex w-full max-w-100 items-center justify-between gap-4 rounded-2xl bg-primary-30 px-6 py-4 hover:brightness-97"
+      >
+        <span className="text-body-m text-coolgray-90">내 포인트</span>
+        <span className="flex items-center gap-2">
+          <span className="text-heading-5 text-primary-60">
+            {pointSummary ? formatPoints(pointSummary.totalPoints) : '-'}
+          </span>
+          <span aria-hidden="true" className="text-body-m text-coolgray-60">
+            ›
+          </span>
+        </span>
+      </Link>
       {/* 두 갈림길은 모바일에서 좌우로 나누기엔 좁아 위아래로 쌓고, 구분선도 가로로 눕힌다. */}
       <div className="w-full flex flex-col lg:flex-row items-center justify-center">
         <Link
