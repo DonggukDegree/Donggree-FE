@@ -22,6 +22,7 @@ import {
   PLACE_REVIEW_MORE_COUNT,
   WITHDRAWN_MEMBER_LABEL,
 } from '@/constants/place';
+import { POINT_HINTS } from '@/constants/point';
 import { usePlaceReviewDelete } from '@/hooks/place/usePlaceReviewMutations';
 import usePlaceReviews from '@/hooks/place/usePlaceReviews';
 import useUserInfo from '@/hooks/user/useUserInfo';
@@ -86,14 +87,26 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
             </span>
           )}
           {!myReview && (
-            <button
-              type="button"
-              onClick={() => openIfVerified({ type: 'write' })}
-              className="flex cursor-pointer items-center gap-1 rounded-full bg-primary-60 px-3 py-1 text-body-xs text-white hover:opacity-90"
-            >
-              <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
-              리뷰 쓰기
-            </button>
+            // 호버·키보드 포커스 시 버튼 아래에 적립 안내 말풍선. 버튼이 오른쪽 끝에 붙어 있어 말풍선도 오른쪽에 맞춘다.
+            <div className="group relative">
+              <button
+                type="button"
+                aria-describedby="review-write-tooltip"
+                onClick={() => openIfVerified({ type: 'write' })}
+                className="flex cursor-pointer items-center gap-1 rounded-full bg-primary-60 px-3 py-1 text-body-xs text-white hover:opacity-90"
+              >
+                <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
+                리뷰 쓰기
+              </button>
+              <span
+                id="review-write-tooltip"
+                role="tooltip"
+                className="pointer-events-none absolute top-full right-0 z-10 mt-2 translate-y-1 rounded-lg bg-coolgray-90 px-3 py-1.5 text-body-xs whitespace-nowrap text-white opacity-0 shadow-md transition duration-150 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100"
+              >
+                <span aria-hidden="true" className="absolute -top-1 right-8 h-2 w-2 rotate-45 bg-coolgray-90" />
+                {POINT_HINTS.REVIEW_WRITE}
+              </span>
+            </div>
           )}
         </div>
       </div>
@@ -131,8 +144,9 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
       ) : isError ? (
         <p className="py-4 text-center text-body-s text-coolgray-60">리뷰를 불러오지 못했어요.</p>
       ) : others.length === 0 && !myReview ? (
-        <p className="rounded-lg bg-coolgray-10 px-4 py-5 text-center text-body-s text-coolgray-60">
+        <p className="rounded-lg bg-coolgray-10 px-4 py-5 text-center text-body-s break-keep text-coolgray-60">
           아직 리뷰가 없어요. 첫 리뷰를 남겨주세요.
+          <span className="mt-1 block font-semibold text-primary-60">{POINT_HINTS.firstReview(place.name)}</span>
         </p>
       ) : (
         <ul className="flex flex-col divide-y divide-coolgray-10">

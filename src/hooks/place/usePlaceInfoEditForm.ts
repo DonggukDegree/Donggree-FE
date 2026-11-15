@@ -25,6 +25,7 @@ import {
   toPlaceInfoEditRequest,
   validatePlaceInfoForm,
 } from '@/utils/place/placeForm';
+import { acknowledgePointReward, withRewardSuffix } from '@/utils/point/pointReward';
 
 export default function usePlaceInfoEditForm(place: TPlaceDetail, onSaved: () => void) {
   const queryClient = useQueryClient();
@@ -37,11 +38,13 @@ export default function usePlaceInfoEditForm(place: TPlaceDetail, onSaved: () =>
   const detailKey = QUERY_KEYS.GET_PLACE_DETAIL(place.id);
 
   const save = useCoreMutation(putPlaceInfo, {
-    onSuccess: (updated) => {
+    onSuccess: async (updated) => {
       trackEvent('place_edit_complete', { place_category: updated.category });
       queryClient.setQueryData(detailKey, updated);
-      toast.success('장소 정보를 수정했어요.');
       onSaved();
+      // 이 장소를 처음 고친 경우에만 적립되므로, 서버에 이번 수정의 적립 여부를 물어 붙인다.
+      const reward = await acknowledgePointReward({ reason: 'PLACE_INFO_EDIT', targetId: updated.id });
+      toast.success(withRewardSuffix('장소 정보 수정을 완료했어요!', reward));
     },
     onError: (error) => {
       const code = getErrorCode(error);

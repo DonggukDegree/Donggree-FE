@@ -62,6 +62,15 @@ describe('리뷰 영역', () => {
     expect(html).toContain('리뷰 쓰기');
   });
 
+  it('첫 리뷰 적립을 primary 굵은 글씨 둘째 줄로, 리뷰 쓰기 말풍선에 리뷰 적립을 안내', () => {
+    const html = render();
+    expect(html).toMatch(
+      /첫 리뷰를 남겨주세요\.<span class="mt-1 block font-semibold text-primary-60">동국반점의 첫 리뷰 작성 시 500P 적립!<\/span>/,
+    );
+    expect(html).toContain('aria-describedby="review-write-tooltip"');
+    expect(html).toMatch(/role="tooltip"[^>]*group-hover:opacity-100[^>]*>.*리뷰 작성 시 100P 적립!/);
+  });
+
   it('다른 회원 리뷰는 기본 아바타·닉네임·별점·신고, 탈퇴 작성자는 탈퇴한 회원', () => {
     state.reviews = [review(2), review(1, { author: { nickname: null, profileUrl: null }, rating: 2 })];
     const html = render();

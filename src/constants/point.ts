@@ -19,3 +19,10 @@ export const POINT_RULES: { label: string; amount: number; note?: string }[] = [
 ];
 
 export const POINT_RULE_NOTE = '숨김 처리된 장소·리뷰로 받은 포인트는 회수돼요.';
+
+// 적립 유도 말풍선·안내 문구.
+export const POINT_HINTS = {
+  REVIEW_WRITE: '리뷰 작성 시 100P 적립!',
+  PLACE_REGISTER: '장소 등록 시 500P 적립!',
+  firstReview: (placeName: string) => `${placeName}의 첫 리뷰 작성 시 500P 적립!`,
+} as const;

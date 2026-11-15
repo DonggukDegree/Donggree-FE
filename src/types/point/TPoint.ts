@@ -27,5 +27,18 @@ export type TPointHistoryPage = {
   nextCursor: number | null;
 };
 
+// POST /api/points/me/rewards/acknowledge. 방금 한 활동의 적립을 화면이 안내했다고 기록한다.
+export type TPointRewardAcknowledgeRequest = {
+  reason: TPointReason;
+  targetId?: number; // 장소 활동이면 장소 ID, 졸업 리포트 최초 확인이면 생략
+};
+
+// 이번에 처음 안내하는 적립이면 rewarded=true. 적립 없음·이미 안내·회수면 false(amount 0).
+export type TPointRewardAcknowledge = {
+  rewarded: boolean;
+  amount: number;
+};
+
 export type TGetPointSummaryResponse = TCommonResponse<TPointSummary>;
 export type TGetPointHistoriesResponse = TCommonResponse<TPointHistoryPage>;
+export type TPostPointRewardAcknowledgeResponse = TCommonResponse<TPointRewardAcknowledge>;
