@@ -40,6 +40,9 @@ export type TPlaceSubCategory =
   | 'KARAOKE'
   | 'PC_ROOM'
   | 'ENTERTAINMENT_ETC'
+  | 'SMOKING_AREA'
+  | 'WAYFINDING'
+  | 'OUTING'
   | 'ETC';
 
 // ✨ 숨은 맛집 태그. 메인 카테고리와 별개로 장소마다 0개 이상 붙는다.
