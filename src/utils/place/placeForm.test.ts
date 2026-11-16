@@ -62,14 +62,14 @@ describe('장소 등록 폼', () => {
       ...createEmptyPlaceForm(),
       name: '가'.repeat(31),
       businessHours: '가'.repeat(101),
-      description: '가'.repeat(301),
+      description: '가'.repeat(501),
       menus: [{ key: 'm1', name: ' ', price: '1000001' }],
     });
     expect(errors.name).toContain('30자');
     expect(errors.category).toBeDefined();
     expect(errors.subCategory).toBeDefined();
     expect(errors.businessHours).toContain('100자');
-    expect(errors.description).toContain('300자');
+    expect(errors.description).toContain('500자');
     expect(errors.menus?.m1).toEqual({
       name: '메뉴명을 입력하거나 행을 삭제해주세요.',
       price: '100만 원 이하로 입력해주세요.',
