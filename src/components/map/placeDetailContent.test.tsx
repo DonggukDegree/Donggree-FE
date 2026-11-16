@@ -58,14 +58,35 @@ describe('장소 정보', () => {
   it('메뉴 가격은 메뉴명과 같은 진한 색으로 표시', () => {
     const html = renderToStaticMarkup(
       <PlaceDetailContent
-        place={{ ...place, menus: [{ name: '짜장면', price: 7000 }] }}
+        place={{ ...place, menus: [{ name: '짜장면', price: 7000, recommended: false }] }}
         onEdit={vi.fn()}
         onReport={vi.fn()}
       />,
     );
     expect(html).toMatch(
-      /<span class="break-keep text-coolgray-90">짜장면<\/span><span class="shrink-0 text-coolgray-90">/,
+      /<span class="break-keep text-coolgray-90">짜장면<\/span><\/span><span class="shrink-0 text-coolgray-90">/,
     );
+  });
+
+  it('추천 메뉴는 앞으로 모아 추천 표시, 나머지는 입력 순서', () => {
+    const html = renderToStaticMarkup(
+      <PlaceDetailContent
+        place={{
+          ...place,
+          menus: [
+            { name: '짜장면', price: 7000, recommended: false },
+            { name: '탕수육', price: null, recommended: true },
+            { name: '짬뽕', price: 8000, recommended: false },
+          ],
+        }}
+        onEdit={vi.fn()}
+        onReport={vi.fn()}
+      />,
+    );
+    expect(html.indexOf('탕수육')).toBeLessThan(html.indexOf('짜장면'));
+    expect(html.indexOf('짜장면')).toBeLessThan(html.indexOf('짬뽕'));
+    expect(html.match(/👍 추천/g)).toHaveLength(1);
+    expect(html).toMatch(/탕수육<\/span><span class="[^"]*bg-primary-30[^"]*">👍 추천/);
   });
 
   it('최초 등록일 뒤에 등록자 닉네임, 탈퇴했으면 탈퇴한 회원으로 표시', () => {

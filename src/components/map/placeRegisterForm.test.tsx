@@ -51,8 +51,8 @@ describe('장소 등록 폼', () => {
       businessHours: '',
       description: '',
       menus: [
-        { key: 'a', name: '짜장면', price: '7000' },
-        { key: 'b', name: '', price: '' },
+        { key: 'a', name: '짜장면', price: '7000', recommended: false },
+        { key: 'b', name: '', price: '', recommended: false },
       ],
       tags: ['SOLO_DINING'],
     };

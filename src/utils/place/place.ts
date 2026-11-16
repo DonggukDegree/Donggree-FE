@@ -21,6 +21,12 @@ export const parsePlaceIdParam = (value: string | null): number | null => {
 export const formatMenuPrice = (price: TPlaceMenu['price']) =>
   price === null ? '가격 변동' : `${price.toLocaleString('ko-KR')}원`;
 
+// 상세 화면 메뉴 순서. 추천 메뉴를 앞으로 모으고, 추천끼리·나머지끼리는 입력 순서를 지킨다.
+export const sortMenusForDisplay = (menus: readonly TPlaceMenu[]) => [
+  ...menus.filter((menu) => menu.recommended),
+  ...menus.filter((menu) => !menu.recommended),
+];
+
 // 서버 시각(KST, 오프셋 없는 ISO)을 날짜만 표시한다.
 export const formatPlaceDate = (value: string) => {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);

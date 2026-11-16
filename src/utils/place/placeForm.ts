@@ -45,7 +45,12 @@ export const canWritePlace = (user: Pick<TUserInfo, 'identityVerified' | 'school
   Boolean(user?.identityVerified || user?.schoolEmailVerified);
 
 let menuRowSequence = 0;
-export const createMenuRow = (): TPlaceMenuRow => ({ key: `menu-${++menuRowSequence}`, name: '', price: '' });
+export const createMenuRow = (): TPlaceMenuRow => ({
+  key: `menu-${++menuRowSequence}`,
+  name: '',
+  price: '',
+  recommended: false,
+});
 
 export const createEmptyPlaceForm = (): TPlaceForm => ({
   name: '',
@@ -73,14 +78,19 @@ export const removeMenuRow = (rows: TPlaceMenuRow[], key: string) => rows.filter
 // 가격 칸은 숫자만 남긴다. (쉼표·원 표기를 붙여 입력해도 숫자로 정리)
 export const sanitizePriceInput = (value: string) => value.replace(/\D/g, '').slice(0, 7);
 
-// 메뉴 한 행의 이름·가격을 바꾼다. 가격은 숫자만 남긴다.
-export const changeMenuRow = (rows: TPlaceMenuRow[], key: string, patch: { name?: string; price?: string }) =>
+// 메뉴 한 행의 이름·가격·추천 여부를 바꾼다. 가격은 숫자만 남긴다.
+export const changeMenuRow = (
+  rows: TPlaceMenuRow[],
+  key: string,
+  patch: { name?: string; price?: string; recommended?: boolean },
+) =>
   rows.map((row) =>
     row.key === key
       ? {
           ...row,
           ...(patch.name !== undefined && { name: patch.name }),
           ...(patch.price !== undefined && { price: sanitizePriceInput(patch.price) }),
+          ...(patch.recommended !== undefined && { recommended: patch.recommended }),
         }
       : row,
   );
@@ -144,7 +154,13 @@ export const togglePlaceTag = (tags: readonly TPlaceTag[], tag: TPlaceTag): TPla
 const toInfoPayload = (form: TPlaceInfoForm) => ({
   businessHours: form.businessHours.trim() || null,
   description: form.description.trim() || null,
-  menus: form.menus.map((row): TPlaceMenu => ({ name: row.name.trim(), price: row.price ? Number(row.price) : null })),
+  menus: form.menus.map(
+    (row): TPlaceMenu => ({
+      name: row.name.trim(),
+      price: row.price ? Number(row.price) : null,
+      recommended: row.recommended,
+    }),
+  ),
   tags: sortPlaceTags(form.tags),
 });
 
@@ -167,7 +183,12 @@ export const createPlaceInfoForm = (
 ): TPlaceInfoForm => ({
   businessHours: place.businessHours ?? '',
   description: place.description ?? '',
-  menus: place.menus.map((menu) => ({ ...createMenuRow(), name: menu.name, price: menu.price?.toString() ?? '' })),
+  menus: place.menus.map((menu) => ({
+    ...createMenuRow(),
+    name: menu.name,
+    price: menu.price?.toString() ?? '',
+    recommended: menu.recommended,
+  })),
   tags: [...place.tags],
 });
 
@@ -186,6 +207,9 @@ export const isSamePlaceInfo = (
   (place.description ?? null) === request.description &&
   place.menus.length === request.menus.length &&
   place.menus.every(
-    (menu, index) => menu.name === request.menus[index]?.name && menu.price === request.menus[index]?.price,
+    (menu, index) =>
+      menu.name === request.menus[index]?.name &&
+      menu.price === request.menus[index]?.price &&
+      menu.recommended === request.menus[index]?.recommended,
   ) &&
   sortPlaceTags(place.tags).join() === sortPlaceTags(request.tags).join();

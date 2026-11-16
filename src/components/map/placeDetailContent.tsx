@@ -20,7 +20,7 @@ import {
 } from '@/constants/place';
 import usePlaceAddress from '@/hooks/place/usePlaceAddress';
 import type { TPlaceDetail, TPlaceMenu } from '@/types/place/TPlace';
-import { formatMenuPrice, formatPlaceDate } from '@/utils/place/place';
+import { formatMenuPrice, formatPlaceDate, sortMenusForDisplay } from '@/utils/place/place';
 import { formatAverageRating } from '@/utils/place/placeReview';
 
 interface IPlaceDetailContentProps {
@@ -36,7 +36,8 @@ export default function PlaceDetailContent({ place, onEdit, onReport }: IPlaceDe
   const category = PLACE_CATEGORY_BY_VALUE[place.category];
   const { address, isLoading: isAddressLoading } = usePlaceAddress(place.latitude, place.longitude);
   const [showAllMenus, setShowAllMenus] = useState(false);
-  const menus = showAllMenus ? place.menus : place.menus.slice(0, PLACE_MENU_PREVIEW_COUNT);
+  const sortedMenus = sortMenusForDisplay(place.menus);
+  const menus = showAllMenus ? sortedMenus : sortedMenus.slice(0, PLACE_MENU_PREVIEW_COUNT);
 
   return (
     <div className="flex flex-col gap-6">
@@ -97,7 +98,14 @@ export default function PlaceDetailContent({ place, onEdit, onReport }: IPlaceDe
           <ul className="flex flex-col divide-y divide-coolgray-10 border-y border-coolgray-10">
             {withMenuKeys(menus).map(({ key, menu }) => (
               <li key={key} className="flex justify-between gap-4 py-2.5 text-body-s">
-                <span className="break-keep text-coolgray-90">{menu.name}</span>
+                <span className="flex min-w-0 flex-wrap items-center gap-1.5">
+                  <span className="break-keep text-coolgray-90">{menu.name}</span>
+                  {menu.recommended && (
+                    <span className="shrink-0 rounded-sm bg-primary-30 px-1.5 py-0.5 text-body-xs font-semibold text-primary-60">
+                      👍 추천
+                    </span>
+                  )}
+                </span>
                 <span className="shrink-0 text-coolgray-90">{formatMenuPrice(menu.price)}</span>
               </li>
             ))}
@@ -160,7 +168,7 @@ export default function PlaceDetailContent({ place, onEdit, onReport }: IPlaceDe
 function withMenuKeys(menus: TPlaceMenu[]) {
   const seen = new Map<string, number>();
   return menus.map((menu) => {
-    const base = `${menu.name}:${menu.price ?? ''}`;
+    const base = `${menu.name}:${menu.price ?? ''}:${menu.recommended}`;
     const count = seen.get(base) ?? 0;
     seen.set(base, count + 1);
     return { key: `${base}:${count}`, menu };
