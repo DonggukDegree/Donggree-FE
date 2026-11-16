@@ -35,8 +35,8 @@ const validForm = (): TPlaceForm => ({
   businessHours: '  ',
   description: ' 정문 맞은편 2층 ',
   menus: [
-    { key: 'a', name: ' 짜장면 ', price: '7000' },
-    { key: 'b', name: '탕수육', price: '' },
+    { key: 'a', name: ' 짜장면 ', price: '7000', recommended: false },
+    { key: 'b', name: '탕수육', price: '', recommended: false },
   ],
 });
 
@@ -63,7 +63,7 @@ describe('장소 등록 폼', () => {
       name: '가'.repeat(31),
       businessHours: '가'.repeat(101),
       description: '가'.repeat(501),
-      menus: [{ key: 'm1', name: ' ', price: '1000001' }],
+      menus: [{ key: 'm1', name: ' ', price: '1000001', recommended: false }],
     });
     expect(errors.name).toContain('30자');
     expect(errors.category).toBeDefined();
@@ -110,8 +110,8 @@ describe('장소 등록 폼', () => {
       businessHours: null,
       description: '정문 맞은편 2층',
       menus: [
-        { name: '짜장면', price: 7000 },
-        { name: '탕수육', price: null },
+        { name: '짜장면', price: 7000, recommended: false },
+        { name: '탕수육', price: null, recommended: false },
       ],
       tags: [],
     });
@@ -123,8 +123,8 @@ describe('장소 정보 수정 폼', () => {
     businessHours: '평일 11:00-21:00',
     description: null,
     menus: [
-      { name: '짜장면', price: 7000 },
-      { name: '탕수육', price: null },
+      { name: '짜장면', price: 7000, recommended: false },
+      { name: '탕수육', price: null, recommended: false },
     ],
     tags: ['SOLO_DINING', 'COFFEE'] as TPlaceTag[],
   };
@@ -133,9 +133,9 @@ describe('장소 정보 수정 폼', () => {
     const form = createPlaceInfoForm(place);
     expect(form.businessHours).toBe('평일 11:00-21:00');
     expect(form.description).toBe('');
-    expect(form.menus.map(({ name, price }) => ({ name, price }))).toEqual([
-      { name: '짜장면', price: '7000' },
-      { name: '탕수육', price: '' },
+    expect(form.menus.map(({ name, price, recommended }) => ({ name, price, recommended }))).toEqual([
+      { name: '짜장면', price: '7000', recommended: false },
+      { name: '탕수육', price: '', recommended: false },
     ]);
     expect(new Set(form.menus.map((row) => row.key)).size).toBe(2);
   });
@@ -144,7 +144,7 @@ describe('장소 정보 수정 폼', () => {
     const errors = validatePlaceInfoForm({
       businessHours: '가'.repeat(101),
       description: '',
-      menus: [{ key: 'm1', name: '', price: '' }],
+      menus: [{ key: 'm1', name: '', price: '', recommended: false }],
       tags: [],
     });
     expect(errors.businessHours).toContain('100자');
@@ -155,7 +155,7 @@ describe('장소 정보 수정 폼', () => {
   it('메뉴 행 이름·가격을 바꾸고 가격은 숫자만 남김', () => {
     const rows = createPlaceInfoForm(place).menus;
     const changed = changeMenuRow(rows, rows[1]!.key, { price: '8,000원' });
-    expect(changed[1]).toMatchObject({ name: '탕수육', price: '8000' });
+    expect(changed[1]).toMatchObject({ name: '탕수육', price: '8000', recommended: false });
     expect(changed[0]).toBe(rows[0]);
   });
 
@@ -166,8 +166,8 @@ describe('장소 정보 수정 폼', () => {
       businessHours: null,
       description: null,
       menus: [
-        { name: '짜장면', price: 7000 },
-        { name: '탕수육', price: null },
+        { name: '짜장면', price: 7000, recommended: false },
+        { name: '탕수육', price: null, recommended: false },
       ],
       tags: ['SOLO_DINING', 'COFFEE'],
     });
@@ -188,6 +188,10 @@ describe('장소 정보 수정 폼', () => {
       ),
     ).toBe(false);
     expect(isSamePlaceInfo(place, toPlaceInfoEditRequest({ ...form, menus: [] }, 1))).toBe(false);
+    const recommended = changeMenuRow(form.menus, form.menus[0]!.key, { recommended: true });
+    expect(recommended[0]?.recommended).toBe(true);
+    expect(isSamePlaceInfo(place, toPlaceInfoEditRequest({ ...form, menus: recommended }, 1))).toBe(false);
+    expect(toPlaceInfoEditRequest({ ...form, menus: recommended }, 1).menus[0]).toMatchObject({ recommended: true });
     expect(isSamePlaceInfo(place, toPlaceInfoEditRequest({ ...form, tags: ['COFFEE', 'SOLO_DINING'] }, 1))).toBe(true);
     expect(isSamePlaceInfo(place, toPlaceInfoEditRequest({ ...form, tags: ['COFFEE'] }, 1))).toBe(false);
   });

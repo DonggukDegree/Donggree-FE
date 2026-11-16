@@ -190,7 +190,7 @@ export function PlaceReportDetail({
         </div>
         <div className="flex gap-2">
           <dt className="w-16 shrink-0 text-coolgray-60">메뉴</dt>
-          <dd>{place.menus.map((menu) => menu.name).join(', ') || '-'}</dd>
+          <dd>{place.menus.map((menu) => `${menu.name}${menu.recommended ? '(추천)' : ''}`).join(', ') || '-'}</dd>
         </div>
         <div className="flex gap-2">
           <dt className="w-16 shrink-0 text-coolgray-60">숨은 맛집</dt>

@@ -5,6 +5,7 @@ export type TPlaceMenuRow = {
   key: string; // 행 추가·삭제·이동 시 React key와 오류 위치를 고정하기 위한 화면 전용 ID
   name: string;
   price: string;
+  recommended: boolean;
 };
 
 // 등록 후에도 인증 회원 누구나 고칠 수 있는 항목(영업시간·설명·메뉴·숨은 맛집 태그). 등록 폼과 수정 폼이 함께 쓴다.

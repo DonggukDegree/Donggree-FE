@@ -33,10 +33,36 @@ describe('신고 관리 표시', () => {
   it('수정 전후는 바뀐 항목만 요약', () => {
     expect(
       describeInfoChanges(
-        { businessHours: '평일 11:00-21:00', description: null, menus: [{ name: '짜장면', price: 7000 }], tags: [] },
-        { businessHours: '광고 문구', description: null, menus: [{ name: '짜장면', price: 7000 }], tags: ['GENUINE'] },
+        {
+          businessHours: '평일 11:00-21:00',
+          description: null,
+          menus: [{ name: '짜장면', price: 7000, recommended: false }],
+          tags: [],
+        },
+        {
+          businessHours: '광고 문구',
+          description: null,
+          menus: [{ name: '짜장면', price: 7000, recommended: false }],
+          tags: ['GENUINE'],
+        },
       ),
     ).toEqual(['영업시간: 평일 11:00-21:00 → 광고 문구', '숨은 맛집: 없음 → 진짜 맛집']);
+    expect(
+      describeInfoChanges(
+        {
+          businessHours: null,
+          description: null,
+          menus: [{ name: '짜장면', price: 7000, recommended: false }],
+          tags: [],
+        },
+        {
+          businessHours: null,
+          description: null,
+          menus: [{ name: '짜장면', price: 7000, recommended: true }],
+          tags: [],
+        },
+      ),
+    ).toEqual(['메뉴: 짜장면 → 짜장면(추천)']);
   });
 
   it('정지 일수는 1 이상의 정수만, 상한 없음', () => {
