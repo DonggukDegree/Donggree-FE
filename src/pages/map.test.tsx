@@ -55,6 +55,11 @@ describe('동글맵 지도', () => {
     // 쌓이는 순서: 확대·축소 → 학교 이동 → 장소 추가(맨 아래)
     expect(html.indexOf('지도 축소')).toBeLessThan(html.indexOf('학교로 이동'));
     expect(html.indexOf('학교로 이동')).toBeLessThan(html.indexOf('장소 추가'));
+    // 장소 추가 버튼 왼쪽에 등록 적립 말풍선
+    expect(html).toContain('aria-describedby="place-add-tooltip"');
+    expect(html).toMatch(
+      /role="tooltip" class="[^"]*right-full[^"]*group-hover:opacity-100[^"]*">.*장소 등록 시 500P 적립!/,
+    );
   });
 
   it('지도 키가 없으면 SDK를 부르지 않고 안내만 표시', async () => {

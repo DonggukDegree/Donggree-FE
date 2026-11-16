@@ -20,7 +20,7 @@ export const CAMPUS_RADIUS_METERS = 1_500;
 export const PLACE_FORM_LIMITS = {
   NAME_MAX: 30,
   BUSINESS_HOURS_MAX: 100,
-  DESCRIPTION_MAX: 300,
+  DESCRIPTION_MAX: 500,
   MENU_NAME_MAX: 30,
   MENU_MAX_COUNT: 50,
   MENU_PRICE_MAX: 1_000_000,
@@ -42,7 +42,7 @@ export const PLACE_CATEGORIES: readonly { value: TPlaceCategory; label: string; 
   { value: 'STUDY', label: '스터디', emoji: '📚', color: '#3b6fd8' },
   { value: 'LIFE', label: '생활', emoji: '🛍️', color: '#b9e3c6' },
   { value: 'ENTERTAINMENT', label: '오락', emoji: '🎮', color: '#d9c2f5' },
-  { value: 'ETC', label: '기타', emoji: '📍', color: '#697077' },
+  { value: 'ETC', label: '기타', emoji: '📍', color: '#bfe0f5' },
 ] as const;
 
 export const PLACE_CATEGORY_BY_VALUE = Object.fromEntries(
@@ -68,7 +68,7 @@ export const PLACE_SUB_CATEGORIES_BY_CATEGORY: Record<TPlaceCategory, readonly T
   STUDY: ['STUDY_CAFE', 'CAMPUS_FACILITY', 'LIBRARY', 'STUDY_ETC'],
   LIFE: ['CONVENIENCE_STORE', 'PRINT', 'STATIONERY', 'MEDICAL', 'BEAUTY', 'MART', 'FITNESS', 'LIFE_ETC'],
   ENTERTAINMENT: ['BILLIARDS', 'BOWLING', 'KARAOKE', 'PC_ROOM', 'ENTERTAINMENT_ETC'],
-  ETC: ['ETC'],
+  ETC: ['SMOKING_AREA', 'WAYFINDING', 'OUTING', 'ETC'],
 };
 
 export const PLACE_SUB_CATEGORY_LABELS: Record<TPlaceSubCategory, string> = {
@@ -107,6 +107,9 @@ export const PLACE_SUB_CATEGORY_LABELS: Record<TPlaceSubCategory, string> = {
   KARAOKE: '노래방',
   PC_ROOM: 'PC방',
   ENTERTAINMENT_ETC: '기타',
+  SMOKING_AREA: '흡연장',
+  WAYFINDING: '길찾기',
+  OUTING: '나들이',
   ETC: '기타',
 };
 
@@ -173,7 +176,7 @@ export const PLACE_OVERLAP_GROUP_METERS = 5;
 export const MAP_ONBOARDING_STEPS: { title: string; body: string; image?: string }[] = [
   {
     title: '동글맵이 출시되었어요!',
-    body: '상단 칩을 눌러 학교 주변 "동글인 보증" 맛집을 알아보세요.',
+    body: '상단 칩을 눌러 학교 주변 "동글인 보증" 맛집을 알아보세요.\n기여하면 동그리 포인트도 모을 수 있어요.',
     image: mapOnboarding1,
   },
   {

@@ -17,6 +17,8 @@ import { useModalStore } from '@/stores/modalStore';
 import type { TReportPreviewDetails } from '@/types/admin/TPostReportPreview';
 import type { TGetReportSummaryResult } from '@/types/report/TGetReportSummary';
 import { trackOncePerVisit } from '@/utils/analytics/analytics';
+import { formatPoints } from '@/utils/point/point';
+import { acknowledgePointReward } from '@/utils/point/pointReward';
 import horizontalScrollHintRef, { HORIZONTAL_SCROLL_HINT_CLASS } from '@/utils/report/horizontalScrollHint';
 
 interface IGraduationReportProps {
@@ -48,6 +50,18 @@ export default function GraduationReport({ data, preview }: IGraduationReportPro
       achievement_rate: data.summary.achievementRate,
     });
   }, [data, isPreview]);
+
+  // 졸업 리포트를 처음 확인해 받은 포인트를 한 번만 안내한다. 서버가 이미 안내한 적립은 다시 알려주지 않는다.
+  useEffect(() => {
+    if (isPreview) return;
+    let active = true;
+    void acknowledgePointReward({ reason: 'GRADUATION_REPORT_FIRST_VIEW' }).then((amount) => {
+      if (active && amount !== null) toast.success(`리포트 최초 확인으로 ${formatPoints(amount)}가 적립되었습니다.`);
+    });
+    return () => {
+      active = false;
+    };
+  }, [isPreview]);
 
   // 복수전공 판정 누락·복수전공 2·부전공·편입으로 정확도 경고가 필요하면 조회할 때마다 안내한다.
   const hasUnsupportedMajor = data?.hasUnsupportedMajor;

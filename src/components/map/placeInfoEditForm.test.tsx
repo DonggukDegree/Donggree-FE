@@ -32,7 +32,7 @@ const place: TPlaceDetail = {
   longitude: 127,
   businessHours: '평일 11:00-21:00',
   description: null,
-  menus: [{ name: '짜장면', price: 7000 }],
+  menus: [{ name: '짜장면', price: 7000, recommended: false }],
   createdAt: '2026-11-01T12:00:00',
   updatedAt: '2026-11-02T12:00:00',
   version: 2,
@@ -49,12 +49,17 @@ describe('장소 정보 수정 폼', () => {
     state.form = {
       businessHours: '평일 11:00-21:00',
       description: '',
-      menus: [{ key: 'a', name: '짜장면', price: '7000' }],
+      menus: [{ key: 'a', name: '짜장면', price: '7000', recommended: false }],
       tags: [],
     };
     state.errors = {};
     state.hasConflict = false;
     state.isSubmitting = false;
+  });
+
+  it('추천 메뉴 행은 추천 토글이 눌린 상태', () => {
+    state.form = { ...state.form, menus: [{ key: 'a', name: '짜장면', price: '7000', recommended: true }] };
+    expect(render()).toMatch(/aria-label="1번째 메뉴 추천" aria-pressed="true"/);
   });
 
   it('이름·카테고리는 입력 칸 없이 보여주고 영업시간·메뉴는 기존 값으로 채움', () => {
@@ -65,6 +70,7 @@ describe('장소 정보 수정 폼', () => {
     expect(html).not.toContain('id="place-name"');
     expect(html).toMatch(/id="place-hours"[^>]*value="평일 11:00-21:00"/);
     expect(html).toMatch(/aria-label="1번째 메뉴명"[^>]*value="짜장면"/);
+    expect(html).toMatch(/aria-label="1번째 메뉴 추천" aria-pressed="false"/);
     expect(html).toContain('placeholder="예) 2층, 정문 맞은편 골목 · 분위기 등"');
     expect(html).toContain('저장하기');
     expect(html).not.toContain('role="alert"');

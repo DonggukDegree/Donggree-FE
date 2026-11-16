@@ -30,6 +30,7 @@ import {
   Graduation,
   MyPage,
   OnBoarding,
+  Points,
   Profile,
   SchoolEmailVerification,
   UploadPage,
@@ -83,6 +84,10 @@ export const router = createBrowserRouter([
               {
                 path: 'academic-records',
                 element: tracked(<AcademicRecords />),
+              },
+              {
+                path: 'points',
+                element: tracked(<Points />),
               },
             ],
           },

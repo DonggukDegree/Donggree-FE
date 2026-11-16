@@ -17,6 +17,7 @@ export const MyPage = lazy(() => import('@/pages/myPage/index'));
 export const Profile = lazy(() => import('@/pages/myPage/profile'));
 export const SchoolEmailVerification = lazy(() => import('@/pages/myPage/schoolEmailVerification'));
 export const AcademicRecords = lazy(() => import('@/pages/myPage/academicRecords'));
+export const Points = lazy(() => import('@/pages/myPage/points'));
 
 export const Graduation = lazy(() => import('@/pages/report/graduation'));
 export const UploadPage = lazy(() => import('@/pages/report/uploadPage'));

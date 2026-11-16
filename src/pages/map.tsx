@@ -25,6 +25,7 @@ import PlaceRegisterLocator from '@/components/map/placeRegisterLocator';
 import PlaceReportDialog from '@/components/map/placeReportDialog';
 import PlaceSheet from '@/components/map/placeSheet';
 import { CAMPUS_CENTER, MAP_INITIAL_LEVEL, MAP_MAX_LEVEL, MAP_MIN_LEVEL } from '@/constants/place';
+import { POINT_HINTS } from '@/constants/point';
 import usePlaces from '@/hooks/place/usePlaces';
 import useUserInfo from '@/hooks/user/useUserInfo';
 import { useModalStore } from '@/stores/modalStore';
@@ -312,15 +313,30 @@ function DonggleMapCanvas() {
             <School aria-hidden="true" className="h-6 w-6" />
           </button>
           {/* 확대(+)와 헷갈리지 않도록 장소 추가는 주황 채움 원으로 구분한다. */}
+          {/* 호버·키보드 포커스 시 버튼 왼쪽에 오른쪽 꼬리 말풍선으로 적립을 안내한다. */}
           {isBrowsing && (
-            <button
-              type="button"
-              aria-label="장소 추가"
-              onClick={startRegister}
-              className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-primary-60 text-white shadow-lg hover:opacity-90"
-            >
-              <Plus aria-hidden="true" className="h-7 w-7" />
-            </button>
+            <div className="group relative">
+              <button
+                type="button"
+                aria-label="장소 추가"
+                aria-describedby="place-add-tooltip"
+                onClick={startRegister}
+                className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-primary-60 text-white shadow-lg hover:opacity-90"
+              >
+                <Plus aria-hidden="true" className="h-7 w-7" />
+              </button>
+              <span
+                id="place-add-tooltip"
+                role="tooltip"
+                className="pointer-events-none absolute top-1/2 right-full z-10 mr-3 -translate-y-1/2 translate-x-1 rounded-lg bg-coolgray-90 px-3 py-1.5 text-body-xs whitespace-nowrap text-white opacity-0 shadow-md transition duration-150 group-focus-within:translate-x-0 group-focus-within:opacity-100 group-hover:translate-x-0 group-hover:opacity-100"
+              >
+                <span
+                  aria-hidden="true"
+                  className="absolute top-1/2 -right-1 h-2 w-2 -translate-y-1/2 rotate-45 bg-coolgray-90"
+                />
+                {POINT_HINTS.PLACE_REGISTER}
+              </span>
+            </div>
           )}
         </div>
       )}
