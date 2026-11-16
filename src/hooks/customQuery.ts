@@ -62,6 +62,7 @@ export function useCoreInfiniteQuery<TQueryFnData, TPageParam>(
     initialPageParam: TPageParam;
     getNextPageParam: (lastPage: TQueryFnData) => TPageParam | null | undefined;
     enabled?: boolean;
+    staleTime?: number;
   },
 ): UseInfiniteQueryResult<InfiniteData<TQueryFnData, TPageParam>, TResponseError> {
   return useInfiniteQuery<TQueryFnData, TResponseError, InfiniteData<TQueryFnData, TPageParam>, QueryKey, TPageParam>({
@@ -70,5 +71,6 @@ export function useCoreInfiniteQuery<TQueryFnData, TPageParam>(
     initialPageParam: options.initialPageParam,
     getNextPageParam: (lastPage) => options.getNextPageParam(lastPage) ?? undefined,
     enabled: options.enabled,
+    staleTime: options.staleTime,
   });
 }

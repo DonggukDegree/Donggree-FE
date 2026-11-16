@@ -56,7 +56,7 @@ export default function MapOnboardingModal() {
             <h2 id="map-onboarding-title" className="break-keep text-heading-5 text-coolgray-90">
               {step?.title}
             </h2>
-            <p id="map-onboarding-body" className="break-keep text-body-s text-coolgray-60">
+            <p id="map-onboarding-body" className="whitespace-pre-line break-keep text-body-s text-coolgray-60">
               {step?.body}
             </p>
           </div>

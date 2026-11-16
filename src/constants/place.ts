@@ -173,7 +173,7 @@ export const PLACE_OVERLAP_GROUP_METERS = 5;
 export const MAP_ONBOARDING_STEPS: { title: string; body: string; image?: string }[] = [
   {
     title: '동글맵이 출시되었어요!',
-    body: '상단 칩을 눌러 학교 주변 "동글인 보증" 맛집을 알아보세요.',
+    body: '상단 칩을 눌러 학교 주변 "동글인 보증" 맛집을 알아보세요.\n기여하면 동그리 포인트도 모을 수 있어요.',
     image: mapOnboarding1,
   },
   {

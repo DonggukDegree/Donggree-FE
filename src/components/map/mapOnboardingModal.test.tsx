@@ -13,6 +13,8 @@ describe('MapOnboardingModal', () => {
     expect(html).toMatch(/<img src="[^"]*onboarding1[^"]*\.webp" alt=""/);
     expect(html).toContain('동글맵이 출시되었어요!');
     expect(html).toContain('상단 칩을 눌러 학교 주변 &quot;동글인 보증&quot; 맛집을 알아보세요.');
+    expect(html).toContain('기여하면 동그리 포인트도 모을 수 있어요.');
+    expect(html).toContain('whitespace-pre-line');
     expect(html).toContain('aria-label="4단계 중 1단계"');
     expect(html.match(/<li /g)).toHaveLength(4);
     expect(html).toContain('>다음</button>');
