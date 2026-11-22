@@ -12,7 +12,14 @@ import { create } from 'zustand';
 import type { TErrorSource, TTranscriptNoticeParams } from '@/constants/analytics';
 import { createAttemptId } from '@/utils/analytics/analytics';
 
-type TModalType = 'alert' | 'onboarding' | 'confirm' | 'survey' | 'studentVerification' | 'mapOnboarding';
+type TModalType =
+  | 'alert'
+  | 'onboarding'
+  | 'confirm'
+  | 'survey'
+  | 'studentVerification'
+  | 'mapOnboarding'
+  | 'mysteryResult';
 
 interface IAlertContent {
   analyticsDisplayId?: string;
@@ -41,6 +48,7 @@ interface IConfirmContent {
 
 interface IModalState {
   type: TModalType | null;
+  mysteryDate: string | null;
   alertContent: IAlertContent | null;
   confirmContent: IConfirmContent | null;
 }
@@ -53,10 +61,13 @@ interface IModalActions {
   openStudentVerification: () => void;
   openMapOnboarding: () => void;
   closeModal: () => void;
+  openMysteryResult: (date: string) => void;
+  closeMysteryResult: () => void;
 }
 
 const initialState: IModalState = {
   type: null,
+  mysteryDate: null,
   alertContent: null,
   confirmContent: null,
 };
@@ -72,5 +83,7 @@ export const useModalStore = create<IModalState & IModalActions>((set) => ({
   openStudentVerification: () => set({ ...initialState, type: 'studentVerification' }),
   // 튜토리얼은 이미 열린 다른 모달을 덮어쓰지 않는다.
   openMapOnboarding: () => set((state) => (state.type === null ? { ...initialState, type: 'mapOnboarding' } : state)),
+  openMysteryResult: (date) => set({ ...initialState, type: 'mysteryResult', mysteryDate: date }),
+  closeMysteryResult: () => set((state) => (state.type === 'mysteryResult' ? initialState : state)),
   closeModal: () => set(initialState),
 }));

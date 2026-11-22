@@ -17,6 +17,7 @@ import { KAKAO_CHAT_URL } from '@/constants/links';
 const NAV_ITEMS = [
   { name: '졸업 판정', path: '/graduation' },
   { name: '동글맵', path: '/map' },
+  { name: '정각원의 비밀', path: '/mystery' },
   { name: '자주 묻는 질문', path: '/faq' },
 ] as const;
 

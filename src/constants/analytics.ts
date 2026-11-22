@@ -14,6 +14,7 @@ export const PAGE_NAMES: Record<string, string> = {
   '/my-page/points': '포인트 내역',
   '/curriculum': '커리큘럼',
   '/map': '동글맵',
+  '/mystery': '정각원의 비밀',
   '/404': '페이지를 찾을 수 없음',
   '/admin': '관리자',
   '/admin/course-classifications': '관리자 과목 관리',
@@ -23,6 +24,12 @@ export const PAGE_NAMES: Record<string, string> = {
   '/admin/reports': '관리자 신고 관리',
 };
 export const EVENT_NAMES = {
+  mystery_viewed: '정각원의 비밀 진입',
+  mystery_guess_submitted: '추리 제출',
+  mystery_clue_revealed: '추리 단서 공개',
+  mystery_completed: '오늘의 추리 종료',
+  mystery_shared: '추리 결과 텍스트 복사',
+  mystery_link_copied: '추리 게임 링크 복사',
   page_view: '화면 조회',
   start_click: '홈 시작 버튼 클릭',
   transcript_notice_shown: '성적표 확인 안내 표시',
@@ -87,6 +94,7 @@ export const ERROR_SOURCES = [
   'academic_records',
   'points',
   'donggle_map',
+  'mystery',
   'mutation',
   'not_found',
   'server',

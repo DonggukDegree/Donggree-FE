@@ -14,6 +14,7 @@ import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 
 import Loading from '@/components/common/feedback/loading';
 import ModalProvider from '@/components/common/overlays/modalProvider';
+import MysteryParticles from '@/components/mystery/mysteryParticles';
 import Footer from '@/layouts/footer';
 import Header from '@/layouts/header';
 
@@ -21,9 +22,13 @@ export default function Layout() {
   const { pathname } = useLocation();
   const isAdminPage = pathname.startsWith('/admin');
   const isMapPage = pathname === '/map';
+  const isMysteryPage = pathname === '/mystery';
 
   return (
-    <div className={`w-full flex flex-col bg-white ${isMapPage ? 'h-dvh overflow-hidden' : 'min-h-dvh'}`}>
+    <div
+      className={`w-full flex flex-col bg-white ${isMysteryPage ? 'mystery-layout' : ''} ${isMapPage ? 'h-dvh overflow-hidden' : 'min-h-dvh'}`}
+    >
+      {isMysteryPage && <MysteryParticles />}
       {/* 셸. flex-1 + flex-col을 이어받아야 화면이 짧은 페이지(404 등)의 flex-1이 그대로 동작한다. */}
       <div
         className={`mx-auto w-full flex-1 flex flex-col ${

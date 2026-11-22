@@ -185,6 +185,10 @@ export const markCallbackSanitized = () => {
 const sanitizeParams = (params: Record<string, unknown>) => {
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(params)) {
+    if (key === 'mystery_round' && typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 10)
+      result[key] = value;
+    if (key === 'mystery_won' && typeof value === 'boolean') result[key] = value;
+    if (key === 'mystery_category' && ['DEPARTMENT', 'BUILDING', 'METHOD'].includes(String(value))) result[key] = value;
     if (
       ['credit_gap', 'achievement_rate', 'course_count'].includes(key) &&
       typeof value === 'number' &&
@@ -202,7 +206,7 @@ const sanitizeParams = (params: Record<string, unknown>) => {
     if (
       key === 'code' &&
       typeof value === 'string' &&
-      /^(?:COMMON|USER|TRANSCRIPT|GRADUATION|EMAIL|PLACE)\d{3}_\d{1,2}$|^(?:NETWORK_ERROR|UNKNOWN_ERROR|INVALID_PDF|LOGIN_FAILED|MISSING_TOKEN|MEMBER_SUSPENDED|USER_CHECK_FAILED|RENDER_ERROR|NOT_FOUND|VALIDATION_ERROR)$/.test(
+      /^(?:COMMON|USER|TRANSCRIPT|GRADUATION|EMAIL|PLACE|MYSTERY)\d{3}_\d{1,2}$|^(?:NETWORK_ERROR|UNKNOWN_ERROR|INVALID_PDF|LOGIN_FAILED|MISSING_TOKEN|MEMBER_SUSPENDED|USER_CHECK_FAILED|RENDER_ERROR|NOT_FOUND|VALIDATION_ERROR)$/.test(
         value,
       )
     )

@@ -1,4 +1,6 @@
 export const QUERY_KEYS = {
+  MYSTERY_ROOT: ['mystery'] as const,
+  MYSTERY_TODAY: (memberId: number | null) => ['mystery', 'today', memberId] as const,
   GET_USER_INFO: ['users', 'me'] as const,
   SCHOOL_EMAIL_VERIFICATION: ['users', 'me', 'school-email-verification'] as const,
   GET_USER_REPORTS: ['users', 'me', 'reports'] as const,

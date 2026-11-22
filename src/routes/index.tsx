@@ -29,6 +29,7 @@ import {
   Faq,
   Graduation,
   MyPage,
+  Mystery,
   OnBoarding,
   Points,
   Profile,
@@ -94,6 +95,10 @@ export const router = createBrowserRouter([
           {
             path: 'curriculum',
             element: tracked(<Curriculum />),
+          },
+          {
+            path: 'mystery',
+            element: tracked(<Mystery />),
           },
           // 동글맵은 로그인 회원 누구나 열람한다. 장소 등록 등 쓰기 권한은 화면·서버에서 따로 확인한다.
           {
