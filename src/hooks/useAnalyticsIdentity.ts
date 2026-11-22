@@ -26,6 +26,8 @@ export const observeAnalyticsIdentity = (queryClient: QueryClient) =>
       void queryClient.cancelQueries({ queryKey: QUERY_KEYS.REPORTS_ROOT });
       queryClient.removeQueries({ queryKey: QUERY_KEYS.GET_USER_INFO });
       queryClient.removeQueries({ queryKey: QUERY_KEYS.REPORTS_ROOT });
+      void queryClient.cancelQueries({ queryKey: QUERY_KEYS.MYSTERY_ROOT });
+      queryClient.removeQueries({ queryKey: QUERY_KEYS.MYSTERY_ROOT });
     }
   });
 

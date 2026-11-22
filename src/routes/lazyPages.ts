@@ -8,6 +8,7 @@
  */
 import { lazy } from 'react';
 
+export const Mystery = lazy(() => import('@/pages/mystery'));
 export const Faq = lazy(() => import('@/pages/faq'));
 export const Curriculum = lazy(() => import('@/pages/curriculum'));
 export const DonggleMap = lazy(() => import('@/pages/map'));
