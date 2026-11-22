@@ -11,13 +11,42 @@
   isolation: isolate;
   background: #fff;
 }
-.mystery-particles {
+.mystery-layout-content {
+  position: relative;
+  z-index: 1;
+}
+.mystery-backdrop {
+  --mystery-edge-width: max(14px, calc((100vw - 1168px) / 2));
   position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
+  z-index: 0;
+  overflow: hidden;
   pointer-events: none;
+  background:
+    radial-gradient(ellipse 240px 45% at 0% 28%, #f5deb12b, transparent),
+    radial-gradient(ellipse 220px 40% at 100% 68%, #ffdf8c25, transparent);
+  mask-image: linear-gradient(90deg, #000, transparent 18%, transparent 82%, #000);
+}
+.mystery-backdrop-mote {
+  position: absolute;
+  top: var(--mote-top);
+  width: var(--mote-size);
+  height: var(--mote-size);
+  border-radius: 50%;
+  background: #c9a55f;
+  box-shadow: 0 0 8px 3px #e4c78a45;
+  opacity: 0.2;
+  animation: mystery-mote-drift var(--mote-duration) ease-in-out var(--mote-delay) infinite alternate;
+}
+@keyframes mystery-mote-drift {
+  from {
+    transform: translateY(12px);
+    opacity: 0.12;
+  }
+  to {
+    transform: translateY(-20px);
+    opacity: 0.3;
+  }
 }
 .mystery-page {
   background: transparent;
@@ -702,15 +731,10 @@ button.mystery-submit-button:hover:not(:disabled) {
   margin-top: 12px;
 }
 .mystery-history li {
-  display: flex;
-  align-items: center;
-  gap: 16px;
   padding: 16px 0;
-  border-bottom: 1px solid var(--color-coolgray-20);
 }
-.mystery-history li > div {
-  flex: 1;
-  min-width: 0;
+.mystery-history li:not(:last-child) {
+  border-bottom: 1px solid var(--color-coolgray-20);
 }
 .mystery-attempt-number {
   display: block;
@@ -721,19 +745,6 @@ button.mystery-submit-button:hover:not(:disabled) {
   color: #4d3b66;
   word-break: keep-all;
   overflow-wrap: anywhere;
-}
-.mystery-attempt-result {
-  color: #b4384a;
-  background: #fbe8ec;
-  padding: 4px 10px;
-  border: 1px solid #d899a4;
-  border-radius: 4px;
-  flex-shrink: 0;
-}
-.mystery-attempt-result.is-won {
-  color: #21734c;
-  background: #e3f3ea;
-  border-color: #85b99b;
 }
 .mystery-rules {
   margin-top: 26px;
@@ -1233,9 +1244,6 @@ button.mystery-submit-button:hover:not(:disabled) {
     font-size: 20px;
     line-height: 2.1;
   }
-  .mystery-history li {
-    gap: 12px;
-  }
   .mystery-result-content {
     padding: 32px 20px 24px;
   }
@@ -1244,6 +1252,7 @@ button.mystery-submit-button:hover:not(:disabled) {
   .mystery-page *,
   .mystery-page *::before,
   .mystery-page *::after,
+  .mystery-backdrop-mote,
   .mystery-result * {
     transition: none !important;
     animation: none !important;

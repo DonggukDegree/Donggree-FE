@@ -131,19 +131,14 @@ export default function MysteryPage() {
             <ol>
               {data.attempts.map((a) => (
                 <li key={a.number}>
-                  <div>
-                    <span className="mystery-attempt-number text-body-xs">{a.number}번째 의심</span>
-                    <p className="text-body-s">
-                      {mysteryAnswerSentence({
-                        department: label('departments', a.guess.departmentId),
-                        building: label('buildings', a.guess.buildingId),
-                        method: label('methods', a.guess.methodId),
-                      }).replace('가져갔어요.', '가져갔을 거예요.')}
-                    </p>
-                  </div>
-                  <span className={`mystery-attempt-result text-body-xs ${a.correct ? 'is-won' : ''}`}>
-                    {a.correct ? '정답' : '오답'}
-                  </span>
+                  <span className="mystery-attempt-number text-body-xs">{a.number}번째 의심</span>
+                  <p className="text-body-s">
+                    {mysteryAnswerSentence({
+                      department: label('departments', a.guess.departmentId),
+                      building: label('buildings', a.guess.buildingId),
+                      method: label('methods', a.guess.methodId),
+                    }).replace('가져갔어요.', '가져갔을 거예요.')}
+                  </p>
                 </li>
               ))}
             </ol>
