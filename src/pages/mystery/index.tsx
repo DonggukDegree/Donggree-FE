@@ -147,6 +147,10 @@ export default function MysteryPage() {
         <details className="mystery-rules text-body-s text-coolgray-60">
           <summary>게임 방법</summary>
           <p>
+            매일 자정에 새로운 문제 하나가 열리고, 그날은 모두가 같은 문제를 풀어요. 단서는 각자가 제출한 추리에 따라
+            달라져요. 결과를 공유해 누가 더 적은 시도로 같은 문제를 해결했는지 비교해 보세요.
+          </p>
+          <p>
             세 덱에서 카드를 한 장씩 골라 10회 안에 정답을 맞히세요. 마우스를 올리거나 카드를 터치하면 자세히 볼 수
             있어요.
           </p>
