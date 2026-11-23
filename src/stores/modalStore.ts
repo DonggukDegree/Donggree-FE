@@ -19,6 +19,7 @@ type TModalType =
   | 'survey'
   | 'studentVerification'
   | 'mapOnboarding'
+  | 'mysteryHelp'
   | 'mysteryResult';
 
 interface IAlertContent {
@@ -61,6 +62,7 @@ interface IModalActions {
   openStudentVerification: () => void;
   openMapOnboarding: () => void;
   closeModal: () => void;
+  openMysteryHelp: () => void;
   openMysteryResult: (date: string) => void;
   closeMysteryResult: () => void;
 }
@@ -84,6 +86,7 @@ export const useModalStore = create<IModalState & IModalActions>((set) => ({
   // 튜토리얼은 이미 열린 다른 모달을 덮어쓰지 않는다.
   openMapOnboarding: () => set((state) => (state.type === null ? { ...initialState, type: 'mapOnboarding' } : state)),
   openMysteryResult: (date) => set({ ...initialState, type: 'mysteryResult', mysteryDate: date }),
+  openMysteryHelp: () => set({ ...initialState, type: 'mysteryHelp' }),
   closeMysteryResult: () => set((state) => (state.type === 'mysteryResult' ? initialState : state)),
   closeModal: () => set(initialState),
 }));
