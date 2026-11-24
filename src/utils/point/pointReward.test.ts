@@ -22,6 +22,14 @@ describe('포인트 적립 안내', () => {
     await expect(acknowledgePointReward({ reason: 'PLACE_INFO_EDIT', targetId: 10 })).resolves.toBeNull();
   });
 
+  it('문제 날짜별 정답 적립을 확인하고 재확인에는 안내하지 않는다', async () => {
+    post.mockResolvedValueOnce({ rewarded: true, amount: 10 }).mockResolvedValueOnce({ rewarded: false, amount: 0 });
+    const request = { reason: 'MYSTERY_SOLVED', targetId: 20261124 } as const;
+    await expect(acknowledgePointReward(request)).resolves.toBe(10);
+    await expect(acknowledgePointReward(request)).resolves.toBeNull();
+    expect(post).toHaveBeenCalledWith(request);
+  });
+
   it('적립이 있으면 완료 안내 뒤에 (100P 적립)', () => {
     expect(withRewardSuffix('장소 정보를 수정했어요.', 100)).toBe('장소 정보를 수정했어요. (100P 적립)');
     expect(withRewardSuffix('장소 정보를 수정했어요.', null)).toBe('장소 정보를 수정했어요.');
