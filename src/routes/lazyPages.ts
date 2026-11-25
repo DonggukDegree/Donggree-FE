@@ -12,6 +12,10 @@ export const Mystery = lazy(() => import('@/pages/mystery'));
 export const Faq = lazy(() => import('@/pages/faq'));
 export const Curriculum = lazy(() => import('@/pages/curriculum'));
 export const DonggleMap = lazy(() => import('@/pages/map'));
+export const Clubs = lazy(() => import('@/pages/clubs/index'));
+export const ClubRegister = lazy(() => import('@/pages/clubs/register'));
+export const ClubEdit = lazy(() => import('@/pages/clubs/edit'));
+export const ClubRecruitment = lazy(() => import('@/pages/clubs/recruitment'));
 export const OnBoarding = lazy(() => import('@/pages/auth/onBoarding'));
 
 export const MyPage = lazy(() => import('@/pages/myPage/index'));
