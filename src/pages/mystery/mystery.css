@@ -78,6 +78,8 @@
   z-index: 1;
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
 }
 .mystery-statistics-button {
   position: relative;
@@ -101,6 +103,10 @@
 .mystery-statistics-button svg {
   width: 24px;
   height: 24px;
+}
+.mystery-help-button {
+  width: 44px;
+  padding: 0;
 }
 .mystery-statistics-button:hover {
   background: #fff8e8;
@@ -296,6 +302,8 @@
   position: relative;
   margin-top: 20px;
   perspective: 900px;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
 }
 .mystery-deck-fan::before {
   content: '';
@@ -362,7 +370,7 @@
     border-color 0.24s;
   z-index: calc(var(--card-index) + 1);
   cursor: pointer;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
 }
 .mystery-card::before {
   content: '';
@@ -746,16 +754,49 @@ button.mystery-submit-button:hover:not(:disabled) {
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
-.mystery-rules {
-  margin-top: 26px;
-  padding-top: 18px;
-  border-top: 1px solid var(--color-coolgray-20);
+.mystery-help {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(480px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: 0;
+  color: var(--color-coolgray-90);
+  background: #fff;
+  border: 1px solid #bda16b;
+  border-radius: 12px;
 }
-.mystery-rules summary {
+.mystery-help-content {
+  padding: 20px 24px 24px;
+}
+.mystery-help-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.mystery-help-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  font-size: 26px;
   cursor: pointer;
 }
-.mystery-rules p {
-  margin-top: 12px;
+.mystery-help-close:focus-visible {
+  outline: 2px solid #c3a464;
+  outline-offset: 2px;
+}
+.mystery-help-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  line-height: 1.8;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 .mystery-inline-error {
   margin-top: 16px;
@@ -1157,6 +1198,33 @@ button.mystery-submit-button:hover:not(:disabled) {
 @media (max-width: 900px) {
   .mystery-page {
     padding: 22px 16px 36px;
+  }
+  .mystery-statistics-button {
+    min-height: 36px;
+    padding: 6px 10px;
+    gap: 6px;
+    font-size: 13px;
+  }
+  .mystery-statistics-button svg {
+    width: 18px;
+    height: 18px;
+  }
+  .mystery-help-button {
+    width: 36px;
+    padding: 0;
+  }
+  button.mystery-submit-button {
+    width: min(100%, 280px);
+    min-height: 52px;
+    padding: 12px 22px;
+    gap: 14px;
+    font-size: 15px;
+  }
+  button.mystery-submit-button > span {
+    font-size: 18px;
+  }
+  .mystery-help-content {
+    padding: 16px 20px 20px;
   }
   .mystery-title-spark--left {
     left: calc(50% - 155px);

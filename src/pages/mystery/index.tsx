@@ -7,6 +7,7 @@ import MysteryDeck from '@/components/mystery/mysteryDeck';
 import MysteryGauge from '@/components/mystery/mysteryGauge';
 import useMysteryGame from '@/hooks/mystery/useMysteryGame';
 import ServerError from '@/pages/exception/serverError';
+import { useModalStore } from '@/stores/modalStore';
 import type { TMysteryGuess } from '@/types/mystery/TMystery';
 import { mysteryAnswerSentence, mysteryLabel, mysteryObjectParticle } from '@/utils/mystery/mystery';
 
@@ -22,6 +23,7 @@ const categories: {
 ];
 export default function MysteryPage() {
   const game = useMysteryGame();
+  const showHelp = useModalStore((state) => state.openMysteryHelp);
   const data = game.data;
   if (!data && game.isPending) return <Loading />;
   if (!data) return <ServerError error={game.error} source="mystery" onRetry={() => void game.refetch()} />;
@@ -33,6 +35,18 @@ export default function MysteryPage() {
       <div className="mystery-page-inner">
         <header className="mystery-heading">
           <div className="mystery-heading-actions">
+            <button
+              type="button"
+              className="mystery-statistics-button mystery-help-button"
+              aria-label="게임 방법"
+              aria-haspopup="dialog"
+              onClick={showHelp}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <path d="M8.5 8a3.5 3.5 0 1 1 6 2.5C13 11.5 12 12 12 14" strokeLinecap="round" />
+                <circle cx="12" cy="18" r="1" fill="currentColor" stroke="none" />
+              </svg>
+            </button>
             <button
               type="button"
               className="mystery-statistics-button"
@@ -144,23 +158,6 @@ export default function MysteryPage() {
             </ol>
           </section>
         )}
-        <details className="mystery-rules text-body-s text-coolgray-60">
-          <summary>게임 방법</summary>
-          <p>
-            세 덱에서 카드를 한 장씩 골라 10회 안에 정답을 맞히세요. 마우스를 올리거나 카드를 터치하면 자세히 볼 수
-            있어요.
-          </p>
-          <p>
-            오답을 제출하면 추리 문장에서 선택한 학과·장소·수단 중 한 항목과 관련된 참인 단서 하나가 두루마리로
-            공개돼요. 제출한 선택지를 제외하거나 정답이 포함된 후보를 알려주니, 단서를 반영해 다음 추리 문장을 완성해
-            보세요.
-          </p>
-          <p>맞은 개수나 항목별 정오 여부는 알려주지 않아요.</p>
-          <p>
-            성공하거나 10회 추리를 마치면 참여일로 인정돼요. 미완료로 자정을 넘기거나 하루를 쉬면 스트릭과 통계가
-            초기화돼요.
-          </p>
-        </details>
       </div>
     </main>
   );

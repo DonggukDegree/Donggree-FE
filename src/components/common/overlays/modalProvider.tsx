@@ -9,6 +9,7 @@ import AdminConfirmModal from '@/components/admin/common/adminConfirmModal';
 import Modal from '@/components/common/overlays/modal';
 import MapOnboardingModal from '@/components/map/mapOnboardingModal';
 import StudentVerificationModal from '@/components/map/studentVerificationModal';
+import MysteryHelpModal from '@/components/mystery/mysteryHelpModal';
 import MysteryResultModal from '@/components/mystery/mysteryResultModal';
 import OnBoardingModal from '@/components/onboarding/onBoardingModal';
 import SurveyModal from '@/components/survey/surveyModal';
@@ -33,6 +34,7 @@ export default function ModalProvider() {
   if (type === 'survey') return <SurveyModal />;
   if (type === 'studentVerification') return <StudentVerificationModal />;
   if (type === 'mysteryResult') return <MysteryResultModal />;
+  if (type === 'mysteryHelp') return <MysteryHelpModal />;
   if (type === 'mapOnboarding') return <MapOnboardingModal />;
   return null;
 }
