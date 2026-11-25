@@ -1,22 +1,41 @@
 /** [정각원의 비밀] 재접속해도 같은 결과를 보여주는 전역 결과 모달. */
 import '@/pages/mystery/mystery.css';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 import LotusBadge from '@/components/mystery/lotusBadge';
 import MysteryCountdown from '@/components/mystery/mysteryCountdown';
+import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import useMysteryToday from '@/hooks/mystery/useMysteryToday';
+import { useAuthStore } from '@/stores/authStore';
 import { useModalStore } from '@/stores/modalStore';
 import { trackEvent } from '@/utils/analytics/analytics';
+import { getMemberIdFromAccessToken } from '@/utils/auth/authRole';
 import { MYSTERY_TIER_LABELS, mysteryAnswerSentence, mysteryShareText } from '@/utils/mystery/mystery';
+import { acknowledgePointReward } from '@/utils/point/pointReward';
 
 export default function MysteryResultModal() {
   const date = useModalStore((s) => s.mysteryDate);
   const close = useModalStore((s) => s.closeMysteryResult);
-  const { data } = useMysteryToday();
+  const { data, memberId } = useMysteryToday();
+  const client = useQueryClient();
   const panel = useRef<HTMLDivElement>(null);
   const game = data?.gameDate === date ? data : null;
+  const rewardDate = game?.status === 'WON' ? game.gameDate : null;
+  useEffect(() => {
+    if (!rewardDate) return;
+    // 날짜별 서버 확인으로 재접속·모달 재열기·StrictMode에서도 적립 안내를 한 번만 표시한다.
+    void acknowledgePointReward({ reason: 'MYSTERY_SOLVED', targetId: Number(rewardDate.replaceAll('-', '')) }).then(
+      (amount) => {
+        if (getMemberIdFromAccessToken(useAuthStore.getState().accessToken) !== memberId || amount !== 10) return;
+        void client.invalidateQueries({ queryKey: QUERY_KEYS.GET_POINT_SUMMARY });
+        void client.invalidateQueries({ queryKey: QUERY_KEYS.GET_POINT_HISTORIES });
+        toast.success('정답을 맞춰 10P가 적립됐어요!', { id: `mystery-reward:${memberId}:${rewardDate}` });
+      },
+    );
+  }, [client, memberId, rewardDate]);
   useEffect(() => {
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const overflow = document.body.style.overflow;

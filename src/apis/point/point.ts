@@ -16,7 +16,7 @@ export const getPointSummary = async (): Promise<TPointSummary> => {
 };
 
 // 방금 한 활동의 적립 안내 확인. 처음 안내하는 적립이면 rewarded=true와 적립액을 받고, 서버는 안내한 것으로 기록한다.
-// 장소 등록·리뷰·정보 수정 적립은 그 요청의 응답 전에 끝나 있으므로 성공 직후 바로 부르면 된다.
+// 장소 등록·리뷰·정보 수정·추리 정답 적립은 그 요청의 응답 전에 끝나 있으므로 성공 직후 바로 부르면 된다.
 export const postPointRewardAcknowledge = async (
   body: TPointRewardAcknowledgeRequest,
 ): Promise<TPointRewardAcknowledge> => {
