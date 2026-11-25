@@ -1,11 +1,11 @@
 /** [관리자 > 졸업 규칙] MIN_CREDITS 설정 입력 */
 import { FieldLabel, TextInput } from '@/components/admin/common/adminFormControls';
-import MultiSelectDropdown from '@/components/admin/common/multiSelectDropdown';
 import CreditGroupsFields from '@/components/admin/graduationRule/fields/credits/creditGroupsFields';
 import { TEACHING_AREA_OPTIONS } from '@/components/admin/graduationRule/fields/shared/fieldOptions';
 import MajorRoleSelect from '@/components/admin/graduationRule/fields/shared/majorRoleSelect';
 import type { IRuleFieldsProps } from '@/components/admin/graduationRule/fields/shared/ruleFieldsProps';
 import Button from '@/components/common/inputs/button';
+import MultiSelectDropdown from '@/components/common/inputs/multiSelectDropdown';
 import SelectChevron from '@/components/common/inputs/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
 import type { TCreditAdjustmentDraft, TGraduationRuleDraft } from '@/types/admin/forms/graduationRuleForm';

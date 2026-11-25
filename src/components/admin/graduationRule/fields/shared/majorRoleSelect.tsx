@@ -1,6 +1,6 @@
 /** [관리자 > 졸업 규칙] 마지막 적용 대상 해제를 막는 역할 선택 */
-import MultiSelectDropdown from '@/components/admin/common/multiSelectDropdown';
 import type { IRuleFieldsProps } from '@/components/admin/graduationRule/fields/shared/ruleFieldsProps';
+import MultiSelectDropdown from '@/components/common/inputs/multiSelectDropdown';
 import { MAJOR_ROLE_LABEL, MAJOR_ROLES, type TMajorRole } from '@/types/admin/graduationRule/TMajorRole';
 
 const OPTIONS = MAJOR_ROLES.map((role) => ({ value: role, label: MAJOR_ROLE_LABEL[role] }));

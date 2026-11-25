@@ -8,7 +8,7 @@
  * 단과대: 세트가 많아 고르기 어려우므로 적용 세트 선택지만 그 단과대 학과의 세트로 좁힌다. 규칙 조회 조건은 아니다.
  */
 import AdminFilterBar, { FilterField } from '@/components/admin/common/adminFilterBar';
-import MultiSelectDropdown from '@/components/admin/common/multiSelectDropdown';
+import MultiSelectDropdown from '@/components/common/inputs/multiSelectDropdown';
 import SelectChevron from '@/components/common/inputs/selectChevron';
 import { ADMIN_INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
 import { REQUIREMENT_TRACK_LABEL } from '@/constants/requirementTrack';

@@ -1,9 +1,9 @@
 /** [관리자 > 졸업 규칙] ENGLISH_COURSE 설정 입력 */
 import { FieldLabel, TextInput } from '@/components/admin/common/adminFormControls';
-import MultiSelectDropdown from '@/components/admin/common/multiSelectDropdown';
 import { COURSE_TYPE_OPTIONS } from '@/components/admin/graduationRule/fields/shared/fieldOptions';
 import MajorRoleSelect from '@/components/admin/graduationRule/fields/shared/majorRoleSelect';
 import type { IRuleFieldsProps } from '@/components/admin/graduationRule/fields/shared/ruleFieldsProps';
+import MultiSelectDropdown from '@/components/common/inputs/multiSelectDropdown';
 import type { TCourseType } from '@/types/course';
 
 export default function EnglishCourseFields({
