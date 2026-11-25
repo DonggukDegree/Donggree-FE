@@ -31,7 +31,7 @@ createRoot(document.getElementById('root')!).render(
         <App />
         <Toaster position="top-center" richColors />
         {/* 개발 환경에서만 React Query Devtools를 렌더한다. (프로덕션 번들/노출 방지) */}
-        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />}
       </QueryClientProvider>
     </ErrorBoundary>
   </StrictMode>,

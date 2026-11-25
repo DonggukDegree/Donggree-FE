@@ -12,6 +12,7 @@
 import { Suspense } from 'react';
 import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 
+import AdminModeToggle from '@/components/admin/common/adminModeToggle';
 import Loading from '@/components/common/feedback/loading';
 import ModalProvider from '@/components/common/overlays/modalProvider';
 import MysteryBackdrop from '@/components/mystery/mysteryBackdrop';
@@ -43,6 +44,7 @@ export default function Layout() {
       </div>
       {/* 모달·토스트는 셸이 아니라 뷰포트 기준으로 떠야 하므로 셸 밖에 둔다. */}
       <ModalProvider />
+      <AdminModeToggle />
       <ScrollRestoration />
     </div>
   );
