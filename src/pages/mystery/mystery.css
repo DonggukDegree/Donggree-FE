@@ -302,6 +302,8 @@
   position: relative;
   margin-top: 20px;
   perspective: 900px;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
 }
 .mystery-deck-fan::before {
   content: '';
@@ -368,7 +370,7 @@
     border-color 0.24s;
   z-index: calc(var(--card-index) + 1);
   cursor: pointer;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
 }
 .mystery-card::before {
   content: '';

@@ -11,7 +11,6 @@ import { Link, useLocation } from 'react-router-dom';
 import Logo from '@/assets/brand/logo.svg?react';
 import Headset from '@/assets/headset.svg?react';
 import UserThumb from '@/assets/profile/userThumb.svg?react';
-import AdminModeToggle from '@/components/admin/common/adminModeToggle';
 import { KAKAO_CHAT_URL } from '@/constants/links';
 
 const NAV_ITEMS = [
@@ -37,7 +36,7 @@ export default function Header() {
   const { pathname } = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isAdminPage = pathname.startsWith('/admin');
-  const navBaseClass = 'rounded-full px-5 py-3 hover:cursor-pointer hover:text-primary-60';
+  const navBaseClass = 'whitespace-nowrap rounded-full px-3 xl:px-5 py-3 hover:cursor-pointer hover:text-primary-60';
 
   // 드로어가 열려 있는 동안 뒤 화면이 같이 스크롤되지 않도록 막는다.
   useEffect(() => {
@@ -59,8 +58,8 @@ export default function Header() {
   if (isAdminPage) {
     return (
       <header className="sticky top-0 z-50 w-full border-b border-coolgray-10 bg-white text-coolgray-90">
-        <div className="flex items-center justify-between px-16 py-2">
-          <div className="flex items-center gap-12">
+        <div className="flex items-center justify-between overflow-x-auto px-8 py-2 xl:px-16">
+          <div className="flex shrink-0 items-center gap-4 xl:gap-12">
             {/* 일반 헤더와 동일하게 로고 클릭 시 관리자 메인(/admin)으로 이동하도록 Link로 감싼다. */}
             <Link to="/admin">
               <Logo className="hover:cursor-pointer w-40 h-auto" />
@@ -79,7 +78,6 @@ export default function Header() {
               ))}
             </div>
           </div>
-          <AdminModeToggle />
         </div>
       </header>
     );
@@ -87,9 +85,9 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white text-coolgray-90">
-      <div className="flex items-center justify-between py-2 px-5 lg:px-16">
-        <div className="flex items-center gap-12">
-          <Link to="/">
+      <div className="flex items-center justify-between py-2 px-5 lg:px-8 xl:px-16">
+        <div className="flex items-center gap-4 xl:gap-12">
+          <Link to="/" className="shrink-0">
             <Logo className="hover:cursor-pointer w-32 lg:w-40 h-auto" />
           </Link>
           {/* 가로 메뉴는 PC 전용. 모바일에서는 아래 드로어가 대신한다. */}
@@ -107,22 +105,21 @@ export default function Header() {
             ))}
           </div>
         </div>
-        <div className="hidden lg:flex items-center gap-8 text-body-m">
+        <div className="hidden lg:flex shrink-0 items-center gap-4 xl:gap-8 text-body-m">
           {/* 고객지원: 카카오 채널 채팅으로 연결 */}
           <a
             href={KAKAO_CHAT_URL}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2 py-3 hover:cursor-pointer"
+            className="flex items-center gap-2 whitespace-nowrap py-3 hover:cursor-pointer"
           >
             <Headset className="w-5 h-5" />
             <span>고객지원</span>
           </a>
-          <Link to="/my-page" className="flex items-center gap-2 hover:cursor-pointer">
+          <Link to="/my-page" className="flex items-center gap-2 whitespace-nowrap hover:cursor-pointer">
             <UserThumb className="w-8 h-8" />
             <span>마이페이지</span>
           </Link>
-          <AdminModeToggle />
         </div>
 
         {/* 모바일 햄버거 버튼 */}
@@ -201,15 +198,6 @@ export default function Header() {
               <UserThumb className="w-5 h-5" />
               <span>마이페이지</span>
             </Link>
-
-            {/*
-              관리자 계정이 아니면 아무것도 렌더하지 않는다.
-              토글로 관리자 화면에 넘어가면 이 헤더가 관리자 분기로 갈려 드로어가 사라지므로,
-              body 스크롤 잠금이 남지 않도록 클릭이 올라올 때 열림 상태도 함께 내린다.
-            */}
-            <div className="mt-2 px-4" onClick={() => setIsMenuOpen(false)}>
-              <AdminModeToggle />
-            </div>
           </nav>
         </div>
       )}
