@@ -1,3 +1,5 @@
+import type { TClubListParams } from '@/types/club/TClub';
+
 export const QUERY_KEYS = {
   MYSTERY_ROOT: ['mystery'] as const,
   MYSTERY_TODAY: (memberId: number | null) => ['mystery', 'today', memberId] as const,
@@ -16,6 +18,12 @@ export const QUERY_KEYS = {
   GET_PLACES: ['places', 'list'] as const,
   GET_PLACE_DETAIL: (placeId: number) => ['places', 'detail', placeId] as const,
   GET_PLACE_REVIEWS: (placeId: number) => ['places', 'reviews', placeId] as const,
+  // 동아리. 등록·수정·모집 저장 후 이 접두사로 목록·상세·내 요청을 함께 무효화한다.
+  CLUBS_ROOT: ['clubs'] as const,
+  GET_CLUBS: (params: TClubListParams) => ['clubs', 'list', params] as const,
+  GET_CLUB_DETAIL: (clubId: number) => ['clubs', 'detail', clubId] as const,
+  GET_MY_CLUB_REQUESTS: ['clubs', 'my-requests'] as const,
+  GET_CLUB_BANNERS: ['clubs', 'banners'] as const,
   FAQS_ROOT: ['faqs'] as const,
   GET_FAQS: (tag: string | null) => ['faqs', { tag }] as const,
   ADMIN_ROOT: ['admin'] as const,
