@@ -1,4 +1,4 @@
-/** [동글맵 > 리뷰] 리뷰 영역의 내 리뷰·목록·탈퇴 회원·숨김·더보기 표시 검사 */
+/** [동글맵 > 리뷰] 리뷰 영역의 내 리뷰·목록·탈퇴 회원·숨김·자동 불러오기 표시 검사 */
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -115,24 +115,22 @@ describe('리뷰 영역', () => {
     expect(html).toContain('>삭제</button>');
   });
 
-  it('긴 본문은 3줄로 접고 펼치기, 다음 페이지가 있으면 꺾쇠가 붙은 넓은 더보기 버튼', () => {
+  it('긴 본문은 3줄로 접고 펼치기, 다음 페이지가 있어도 더보기 버튼 없이 자동으로 불러온다', () => {
     state.reviews = [review(2, { content: '가'.repeat(120) })];
     state.hasNextPage = true;
     const html = render();
     expect(html).toContain('line-clamp-3');
     expect(html).toContain('펼치기');
-    expect(html).toMatch(
-      /<button[^>]*w-full[^>]*rounded-lg border border-coolgray-30[^>]*><svg[^>]*>.*?<\/svg>리뷰 더보기<\/button>/,
-    );
+    expect(html).not.toContain('리뷰 더보기');
   });
 
-  it('처음에는 리뷰 5개만 보이고 더 받아 둔 리뷰가 있으면 더보기', () => {
+  it('처음에는 리뷰 5개만 보이고 나머지는 스크롤하면 자동으로 펼친다', () => {
     state.reviews = Array.from({ length: 10 }, (_, index) =>
       review(100 - index, { content: `리뷰 본문 ${index}번째입니다` }),
     );
     const html = render();
     expect(html.match(/리뷰 본문 \d번째입니다/g)).toHaveLength(5);
-    expect(html).toContain('리뷰 더보기');
+    expect(html).not.toContain('리뷰 더보기');
   });
 
   it('제목은 리뷰와 개수만, 평균 별점은 오른쪽 끝에 표시', () => {

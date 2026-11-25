@@ -30,18 +30,26 @@ describe('포인트 내역 페이지', () => {
     };
   });
 
-  it('제목 옆 ? 툴팁, 현재 총 포인트, 적립 내역과 더보기', () => {
+  it('제목 옆 ? 툴팁, 현재 총 포인트, 적립 내역, 더보기 버튼 없이 자동 불러오기', () => {
     const html = renderToStaticMarkup(<Points />);
     expect(html).toMatch(/포인트 내역<\/h1>.*aria-label="포인트 적립 기준"/);
     expect(html).toMatch(/현재 포인트.*1,100P/);
     expect(html).toContain('동글맵 새 장소 등록');
     expect(html).toContain('+500P');
-    expect(html).toContain('더보기');
+    expect(html).not.toContain('더보기');
+    expect(html).not.toContain('animate-pulse');
   });
 
-  it('마지막 페이지면 더보기 없음, 조회 실패면 오류 화면', () => {
+  it('다음 묶음을 받는 동안 깜빡이는 줄 뼈대', () => {
+    state.histories = { ...state.histories, isFetchingNextPage: true };
+    const html = renderToStaticMarkup(<Points />);
+    expect(html).toContain('animate-pulse');
+    expect(html).toContain('목록을 더 불러오는 중이에요');
+  });
+
+  it('마지막 페이지면 뼈대 없음, 조회 실패면 오류 화면', () => {
     state.histories = { ...state.histories, hasNextPage: false };
-    expect(renderToStaticMarkup(<Points />)).not.toContain('더보기');
+    expect(renderToStaticMarkup(<Points />)).not.toContain('animate-pulse');
     state.summary = { isPending: false, isError: true, error: new Error('x'), data: undefined };
     expect(renderToStaticMarkup(<Points />)).toContain('오류 화면');
   });
