@@ -10,8 +10,9 @@ import Button from '@/components/common/inputs/button';
 import Toggle from '@/components/common/inputs/toggle';
 import { CLUB_LIMITS, CLUB_POINTS } from '@/constants/club';
 import { INPUT_CLASS } from '@/constants/inputStyles';
+import type { TClubResubmit } from '@/hooks/club/useClubForm';
 import useClubRecruitmentForm from '@/hooks/club/useClubRecruitmentForm';
-import type { TClubDetail } from '@/types/club/TClub';
+import type { TClubDetail, TClubRecruitmentSaveRequest } from '@/types/club/TClub';
 import { dateTextClass } from '@/utils/club/clubForm';
 
 const inputClass = (error?: string) => `${INPUT_CLASS} ${error ? 'border-alert' : 'border-coolgray-30'}`;
@@ -21,9 +22,15 @@ const MODE_OPTIONS: { value: 'PERIOD' | 'ALWAYS'; label: string }[] = [
   { value: 'ALWAYS', label: '상시모집' },
 ];
 
-export default function ClubRecruitmentForm({ club }: { club: TClubDetail }) {
+export default function ClubRecruitmentForm({
+  club,
+  resubmit,
+}: {
+  club: TClubDetail;
+  resubmit?: TClubResubmit<TClubRecruitmentSaveRequest>;
+}) {
   const navigate = useNavigate();
-  const recruitmentForm = useClubRecruitmentForm(club);
+  const recruitmentForm = useClubRecruitmentForm(club, { resubmit });
   const { form, errors, update } = recruitmentForm;
 
   return (
@@ -128,9 +135,11 @@ export default function ClubRecruitmentForm({ club }: { club: TClubDetail }) {
 
       {recruitmentForm.needsApproval && (
         <RequesterConsentFields
+          role={form.requesterRole}
           contact={form.contact}
           consent={form.consent}
           errors={errors}
+          onRoleChange={(value) => update('requesterRole', value)}
           onContactChange={(value) => update('contact', value)}
           onConsentChange={(value) => update('consent', value)}
         />
@@ -141,7 +150,13 @@ export default function ClubRecruitmentForm({ club }: { club: TClubDetail }) {
           취소
         </Button>
         <Button type="submit" variant={recruitmentForm.canSubmit ? 'primary' : 'disabled'} className="flex-1">
-          {recruitmentForm.isSubmitting ? '보내는 중' : recruitmentForm.needsApproval ? '모집 등록 요청' : '저장하기'}
+          {recruitmentForm.isSubmitting
+            ? '보내는 중'
+            : resubmit
+              ? '다시 요청'
+              : recruitmentForm.needsApproval
+                ? '모집 등록 요청'
+                : '저장하기'}
         </Button>
       </div>
     </form>

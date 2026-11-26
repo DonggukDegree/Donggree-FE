@@ -4,10 +4,11 @@
  * 조기 마감·모집 전·사진 0~3장·바로 수정 가능 여부)를 한 화면에서 볼 수 있게 구성했다.
  * 날짜는 접속 시각 기준 상대값이라 언제 열어도 모집 상태가 섞여 보인다. 이름은 모두 가상이다.
  */
-import type { TClubBanner, TClubDetail, TClubRecruitment, TClubRequest } from '@/types/club/TClub';
+import type { TClubDetail, TClubRecruitment } from '@/types/club/TClub';
+import type { TAdminClubBanner } from '@/types/club/TClubAdmin';
 
 const DAY = 24 * 60 * 60 * 1000;
-const at = (days: number, hour = 18) => {
+export const at = (days: number, hour = 18) => {
   const date = new Date(Date.now() + days * DAY);
   date.setHours(hour, 0, 0, 0);
   return date.toISOString();
@@ -355,60 +356,35 @@ MOCK_CLUBS.push(
   noRecruitment(18, '하모니 기타', 'CENTRAL', ['PERFORMANCE'], [['#f12711', '#f5af19']]),
 );
 
-export const MOCK_CLUB_REQUESTS: TClubRequest[] = [
-  {
-    id: 3,
-    type: 'EDIT',
-    clubId: 2,
-    clubName: '코드나무',
-    status: 'PENDING',
-    requestedAt: at(-1, 14),
-    processedAt: null,
-    rejectReason: null,
-  },
-  {
-    id: 2,
-    type: 'REGISTER',
-    clubId: null,
-    clubName: '보드게임 공작소',
-    status: 'REJECTED',
-    requestedAt: at(-6, 11),
-    processedAt: at(-5, 10),
-    rejectReason: '활동 사실을 확인할 수 없었어요. 동아리 SNS나 활동 사진을 함께 보내주시면 다시 확인할게요.',
-  },
-  {
-    id: 1,
-    type: 'REGISTER',
-    clubId: 1,
-    clubName: '소리마루',
-    status: 'APPROVED',
-    requestedAt: at(-20, 16),
-    processedAt: at(-19, 10),
-    rejectReason: null,
-  },
-];
-
 // 목록 상단 기본 배너 2개: 신규 동아리 등록 이벤트, 이 자리 광고 모집(고객지원 채팅으로 문의).
-export const MOCK_CLUB_BANNERS: TClubBanner[] = [
+export const MOCK_CLUB_BANNERS: TAdminClubBanner[] = [
   {
     id: 1,
     imageUrl: null,
     mobileImageUrl: null,
-    eyebrow: 'EVENT · 포인트',
+    eyebrow: 'EVENT',
     title: '우리 동아리가 없나요?\n등록하면 500P',
     description: '처음 등록한 동아리가 승인되면 포인트를 드려요.',
     link: '/clubs/register',
     background: 'linear-gradient(120deg, #3a3fd9 0%, #5b6cff 55%, #8fa2ff 100%)',
+    active: true,
+    startsAt: null,
+    endsAt: null,
+    order: 1,
   },
   {
     id: 2,
     imageUrl: null,
     mobileImageUrl: null,
-    eyebrow: 'AD · 광고 모집',
+    eyebrow: 'AD',
     title: '이 자리에\n우리 동아리를 알려보세요',
     description: '모집 홍보 배너 광고를 받고 있어요. 고객지원으로 편하게 문의해 주세요.',
     // 고객지원 카카오 채널 채팅. 배너 외부 링크는 https만 열리므로 https 주소로 둔다.
     link: 'https://pf.kakao.com/_UxnFGX/chat',
     background: 'linear-gradient(120deg, #ff6a3d 0%, #ff952b 55%, #ffc46b 100%)',
+    active: true,
+    startsAt: null,
+    endsAt: null,
+    order: 2,
   },
 ];

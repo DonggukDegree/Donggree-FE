@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import type { TClubForm, TClubRecruitmentForm } from '@/types/club/TClubForm';
 import {
+  clubFormFromSave,
   createEmptyClubForm,
   createRecruitmentForm,
   isClubFormComplete,
   isRecruitmentFormComplete,
+  recruitmentFormFromSave,
   toClubSaveRequest,
   toRecruitmentSaveRequest,
   validateClubForm,
@@ -23,6 +25,7 @@ const filledForm = (patch: Partial<TClubForm> = {}): TClubForm => ({
   activityStartDate: '2026-03-01',
   activityEndDate: '2027-02-28',
   roomLocation: '학생회관 312호',
+  requesterRole: 'PRESIDENT',
   contact: 'club@dgu.ac.kr',
   consent: true,
   ...patch,
@@ -48,6 +51,13 @@ describe('isClubFormComplete', () => {
   it('동아리방은 위치를 쓰거나 없음을 체크해야 한다', () => {
     expect(isClubFormComplete(filledForm({ roomLocation: ' ' }), true)).toBe(false);
     expect(isClubFormComplete(filledForm({ roomLocation: '', noRoom: true }), true)).toBe(true);
+  });
+
+  it('승인이 필요하면 동아리와의 관계도 골라야 한다', () => {
+    expect(isClubFormComplete(filledForm({ requesterRole: null }), true)).toBe(false);
+    expect(validateClubForm(filledForm({ requesterRole: null }), true).requesterRole).toBeDefined();
+    expect(toClubSaveRequest(filledForm(), true).requesterRole).toBe('PRESIDENT');
+    expect(toClubSaveRequest(filledForm(), false).requesterRole).toBeNull();
   });
 
   it('승인이 필요할 때만 연락처와 동의를 요구한다', () => {
@@ -83,6 +93,7 @@ describe('validateClubForm·toClubSaveRequest', () => {
 describe('isRecruitmentFormComplete', () => {
   const base = (patch: Partial<TClubRecruitmentForm>): TClubRecruitmentForm => ({
     ...createRecruitmentForm(null, 24),
+    requesterRole: 'STAFF',
     contact: '010-1234-5678',
     consent: true,
     ...patch,
@@ -143,5 +154,38 @@ describe('동아리 관련 링크', () => {
     expect(
       validateClubForm(filledForm({ links: [{ key: 'a', label: '홈페이지', url: 'http://x.com' }] }), true).links,
     ).toBeDefined();
+  });
+});
+
+describe('보낸 요청으로 다시 채우기', () => {
+  it('동아리 요청은 보냈던 값·연락처·신분을 그대로 채우고 동의는 새로 받는다', () => {
+    const body = toClubSaveRequest(
+      filledForm({ noRoom: true, roomLocation: '', foundedUnknown: true, foundedDate: '' }),
+      true,
+    );
+    const form = clubFormFromSave(body);
+    expect(form.consent).toBe(false);
+    expect(form.noRoom).toBe(true);
+    expect(form.foundedUnknown).toBe(true);
+    expect(toClubSaveRequest({ ...form, consent: true }, true)).toEqual(body);
+  });
+
+  it('모집 요청도 보냈던 값으로 다시 채운다', () => {
+    const body = toRecruitmentSaveRequest(
+      {
+        ...createRecruitmentForm(null, 24),
+        alwaysOpen: true,
+        links: [{ key: 'a', label: '지원폼', url: 'https://forms.gle/x' }],
+        notice: '누구나 환영',
+        requesterRole: 'MEMBER',
+        contact: 'a@dgu.ac.kr',
+        consent: true,
+      },
+      true,
+    );
+    const form = recruitmentFormFromSave(body);
+    expect(form.requesterRole).toBe('MEMBER');
+    expect(form.consent).toBe(false);
+    expect(toRecruitmentSaveRequest({ ...form, consent: true }, true)).toEqual(body);
   });
 });

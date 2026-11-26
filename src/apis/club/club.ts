@@ -4,7 +4,17 @@
  * BE API가 생기면 함수 이름·반환 타입은 그대로 두고 본문만 axiosInstance 호출로 바꾼다.
  * 저장 요청은 메모리에만 반영되어 새로고침하면 처음 상태로 돌아간다.
  */
-import { MOCK_CLUB_BANNERS, MOCK_CLUB_REQUESTS, MOCK_CLUBS } from '@/apis/club/clubMock';
+import {
+  addRequest,
+  applyClubSave,
+  applyRecruitmentSave,
+  canCurrentMemberEdit,
+  CURRENT_MEMBER,
+  findClub,
+  store,
+  toClubSave,
+  toRecruitmentSave,
+} from '@/apis/club/clubMockStore';
 import { CLUB_LIST_PAGE_SIZE } from '@/constants/club';
 import type {
   TClubBanner,
@@ -13,20 +23,18 @@ import type {
   TClubPage,
   TClubRecruitmentSaveRequest,
   TClubRequest,
-  TClubRequestType,
+  TClubRequesterRole,
   TClubSaveRequest,
   TClubSaveResult,
   TClubSummary,
+  TMyClubRequestDetail,
 } from '@/types/club/TClub';
-import { filterClubs, getRecruitmentStatus, sortClubs } from '@/utils/club/club';
-
-const clubs: TClubDetail[] = structuredClone(MOCK_CLUBS);
-const requests: TClubRequest[] = structuredClone(MOCK_CLUB_REQUESTS);
-let nextId = 1000;
+import { filterClubs, sortClubs } from '@/utils/club/club';
+import { isBannerVisible } from '@/utils/club/clubAdmin';
 
 const delay = () => new Promise((resolve) => setTimeout(resolve, 250));
 
-const toSummary = (club: TClubDetail): TClubSummary => ({
+export const toSummary = (club: TClubDetail): TClubSummary => ({
   id: club.id,
   name: club.name,
   affiliation: club.affiliation,
@@ -42,29 +50,31 @@ const toSummary = (club: TClubDetail): TClubSummary => ({
   recruitment: club.recruitment,
 });
 
-const findClub = (clubId: number) => {
-  const club = clubs.find(({ id }) => id === clubId);
-  if (!club) throw new Error('동아리를 찾을 수 없어요.');
-  return club;
-};
+const requester = (body: { requesterContact: string | null; requesterRole: TClubRequesterRole | null }) => ({
+  ...CURRENT_MEMBER,
+  contact: body.requesterContact ?? '',
+  role: body.requesterRole ?? 'OUTSIDER',
+});
 
-const addRequest = (type: TClubRequestType, clubId: number | null, clubName: string) => {
-  requests.unshift({
-    id: ++nextId,
-    type,
-    clubId,
-    clubName,
-    status: 'PENDING',
-    requestedAt: new Date().toISOString(),
-    processedAt: null,
-    rejectReason: null,
-  });
-};
-
-// 목록 상단 광고 배너. 노출 순서대로 받는다.
+// 목록 상단 광고 배너. 켜져 있고 노출 기간 안인 배너만 순서대로 받는다.
 export const getClubBanners = async (): Promise<TClubBanner[]> => {
   await delay();
-  return structuredClone(MOCK_CLUB_BANNERS);
+  const now = new Date();
+  return structuredClone(
+    store.banners
+      .filter((banner) => isBannerVisible(banner, now))
+      .sort((a, b) => a.order - b.order)
+      .map(({ id, eyebrow, title, description, imageUrl, mobileImageUrl, background, link }) => ({
+        id,
+        eyebrow,
+        title,
+        description,
+        imageUrl,
+        mobileImageUrl,
+        background,
+        link,
+      })),
+  );
 };
 
 // 공개 목록(커서 기반, 12개씩). 필터·정렬·찜 범위를 서버가 적용한 뒤 cursor 다음부터 잘라 준다.
@@ -72,7 +82,7 @@ export const getClubBanners = async (): Promise<TClubBanner[]> => {
 export const getClubs = async (params: TClubListParams, cursor: string | null): Promise<TClubPage> => {
   await delay();
   const now = new Date();
-  const scoped = clubs
+  const scoped = store.clubs
     .filter((club) => params.favoriteIds === null || params.favoriteIds.includes(club.id))
     .map(toSummary);
   const list = sortClubs(filterClubs(scoped, params.filters, now), params.sort, now);
@@ -85,21 +95,35 @@ export const getClubs = async (params: TClubListParams, cursor: string | null): 
   };
 };
 
+// 상세. 바로 수정 가능 여부는 이 동아리의 직접 수정 권한(승인 이력, 관리자 회수 가능)으로 정한다.
 export const getClubDetail = async (clubId: number): Promise<TClubDetail> => {
   await delay();
-  return structuredClone(findClub(clubId));
+  return structuredClone({ ...findClub(clubId), canEditDirectly: canCurrentMemberEdit(clubId) });
 };
 
 // 내 요청 내역(최신순).
 export const getMyClubRequests = async (): Promise<TClubRequest[]> => {
   await delay();
-  return structuredClone(requests);
+  return structuredClone(
+    store.requests
+      .filter((request) => request.mine)
+      .map(({ id, type, clubId, clubName, status, requestedAt, processedAt, rejectReason }) => ({
+        id,
+        type,
+        clubId,
+        clubName,
+        status,
+        requestedAt,
+        processedAt,
+        rejectReason,
+      })),
+  );
 };
 
 // 신규 등록 요청. 관리자 승인 후 공개된다.
 export const postClub = async (body: TClubSaveRequest): Promise<TClubSaveResult> => {
   await delay();
-  addRequest('REGISTER', null, body.name);
+  addRequest({ type: 'REGISTER', before: null, after: body }, null, body.name, requester(body), true);
   return { applied: 'PENDING', clubId: null };
 };
 
@@ -113,26 +137,11 @@ export const putClub = async ({
 }): Promise<TClubSaveResult> => {
   await delay();
   const club = findClub(clubId);
-  if (!club.canEditDirectly) {
-    addRequest('EDIT', clubId, club.name);
+  if (!canCurrentMemberEdit(clubId)) {
+    addRequest({ type: 'EDIT', before: toClubSave(club), after: body }, clubId, club.name, requester(body), true);
     return { applied: 'PENDING', clubId };
   }
-  Object.assign(club, {
-    name: body.name,
-    affiliation: body.affiliation,
-    fields: body.fields,
-    description: body.description,
-    generation: body.generation,
-    activityStartDate: body.activityStartDate,
-    activityEndDate: body.activityEndDate,
-    roomLocation: body.roomLocation,
-    generationMemberCount: body.generationMemberCount,
-    totalMemberCount: body.totalMemberCount,
-    foundedDate: body.foundedDate,
-    officers: body.officers,
-    links: body.links,
-    updatedAt: new Date().toISOString(),
-  });
+  applyClubSave(club, body);
   return { applied: 'DIRECT', clubId };
 };
 
@@ -146,20 +155,75 @@ export const putClubRecruitment = async ({
 }): Promise<TClubSaveResult> => {
   await delay();
   const club = findClub(clubId);
-  if (!club.canEditDirectly) {
-    addRequest('RECRUITMENT', clubId, club.name);
+  if (!canCurrentMemberEdit(clubId)) {
+    addRequest(
+      { type: 'RECRUITMENT', before: club.recruitment ? toRecruitmentSave(club.recruitment) : null, after: body },
+      clubId,
+      club.name,
+      requester(body),
+      true,
+    );
     return { applied: 'PENDING', clubId };
   }
-  const current = club.recruitment && getRecruitmentStatus(club.recruitment, new Date()) !== 'CLOSED';
-  club.recruitment = {
-    id: current && club.recruitment ? club.recruitment.id : ++nextId,
-    generation: body.generation,
-    alwaysOpen: body.alwaysOpen,
-    startsAt: body.startsAt,
-    endsAt: body.endsAt,
-    closedEarly: body.closedEarly,
-    links: body.links,
-    notice: body.notice,
-  };
+  applyRecruitmentSave(club, body);
   return { applied: 'DIRECT', clubId };
+};
+
+const findMyRequest = (requestId: number) => {
+  const request = store.requests.find((item) => item.id === requestId && item.mine);
+  if (!request) throw new Error('요청을 찾을 수 없어요.');
+  return request;
+};
+
+// 내 요청 한 건(보냈던 입력값 포함). 반려·검토 중 요청을 고쳐서 다시 보낼 때 불러온다.
+export const getMyClubRequestDetail = async (requestId: number): Promise<TMyClubRequestDetail> => {
+  await delay();
+  const { id, type, clubId, clubName, status, requestedAt, processedAt, rejectReason, after } =
+    findMyRequest(requestId);
+  return structuredClone({
+    id,
+    type,
+    clubId,
+    clubName,
+    status,
+    requestedAt,
+    processedAt,
+    rejectReason,
+    after,
+  } as TMyClubRequestDetail);
+};
+
+// 고쳐서 다시 요청. 검토 중이던 요청은 취소되고, 새 요청이 맨 뒤(최신)로 들어간다. 반려된 요청은 그대로 남는다.
+export const resubmitMyClubRequest = async ({
+  requestId,
+  body,
+}: {
+  requestId: number;
+  body: TClubSaveRequest | TClubRecruitmentSaveRequest;
+}): Promise<TClubSaveResult> => {
+  await delay();
+  const previous = findMyRequest(requestId);
+  if (previous.status !== 'PENDING' && previous.status !== 'REJECTED')
+    throw new Error('검토 중이거나 반려된 요청만 다시 보낼 수 있어요.');
+  if (previous.status === 'PENDING') {
+    previous.status = 'CANCELED';
+    previous.processedAt = new Date().toISOString();
+  }
+  const { clubId } = previous;
+  if (previous.type === 'RECRUITMENT') {
+    const club = findClub(clubId as number);
+    const after = body as TClubRecruitmentSaveRequest;
+    addRequest(
+      { type: 'RECRUITMENT', before: club.recruitment ? toRecruitmentSave(club.recruitment) : null, after },
+      clubId,
+      club.name,
+      requester(after),
+      true,
+    );
+  } else {
+    const after = body as TClubSaveRequest;
+    const before = previous.type === 'EDIT' ? toClubSave(findClub(clubId as number)) : null;
+    addRequest({ type: previous.type, before, after }, clubId, after.name, requester(after), true);
+  }
+  return { applied: 'PENDING', clubId };
 };

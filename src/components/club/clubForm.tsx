@@ -12,15 +12,25 @@ import Button from '@/components/common/inputs/button';
 import Toggle from '@/components/common/inputs/toggle';
 import { CLUB_AFFILIATIONS, CLUB_FIELDS, CLUB_LIMITS, CLUB_POINTS } from '@/constants/club';
 import { INPUT_CLASS } from '@/constants/inputStyles';
-import useClubForm from '@/hooks/club/useClubForm';
-import type { TClubDetail } from '@/types/club/TClub';
+import useClubForm, { type TClubResubmit } from '@/hooks/club/useClubForm';
+import type { TClubDetail, TClubSaveRequest } from '@/types/club/TClub';
 import { dateTextClass } from '@/utils/club/clubForm';
 
 const inputClass = (error?: string) => `${INPUT_CLASS} ${error ? 'border-alert' : 'border-coolgray-30'}`;
 
-export default function ClubForm({ club }: { club: TClubDetail | null }) {
+// admin: 관리자 화면(/admin/clubs/register·edit)에서 바로 저장하는 모드. 안내 문구·버튼 이름만 다르고 입력 항목은 같다.
+// resubmit: 내 요청 내역에서 고쳐 다시 보내는 모드(보냈던 입력값으로 채우고 승인 요청으로 다시 보낸다).
+export default function ClubForm({
+  club,
+  admin = false,
+  resubmit,
+}: {
+  club: TClubDetail | null;
+  admin?: boolean;
+  resubmit?: TClubResubmit<TClubSaveRequest>;
+}) {
   const navigate = useNavigate();
-  const clubForm = useClubForm(club);
+  const clubForm = useClubForm(club, { admin, resubmit });
   const { form, errors, update } = clubForm;
   const pointHint = !club
     ? `처음 등록한 동아리가 승인되면 ${CLUB_POINTS.FIRST_REGISTRATION}P를 드려요.`
@@ -38,10 +48,13 @@ export default function ClubForm({ club }: { club: TClubDetail | null }) {
       }}
     >
       <p className="break-keep rounded-xl bg-primary-30 px-4 py-3 text-body-s text-primary-90">
-        {clubForm.needsApproval
-          ? '관리자가 실제 동아리인지 확인한 뒤 반영돼요. '
-          : '이 동아리 정보를 승인받은 적이 있어 저장하면 바로 반영돼요. '}
-        {pointHint}
+        {admin
+          ? club
+            ? '관리자 저장은 승인 없이 바로 반영돼요.'
+            : '임시 등록 동아리로 바로 공개돼요. 회원의 등록·수정 요청이 승인되면 정식 등록으로 바뀌고, 처음 승인받은 회원이 최초 등록 포인트를 받아요.'
+          : clubForm.needsApproval
+            ? `관리자가 실존하는 안전한 동아리인지 검토한 뒤 반영돼요. 상세히 정보를 입력할수록 빠르게 승인될 확률이 높아요. ${pointHint}`
+            : `이 동아리 정보를 승인받은 적이 있어 저장하면 바로 반영돼요. ${pointHint}`}
       </p>
 
       <FormSection title="동아리 이름" required error={errors.name}>
@@ -343,9 +356,11 @@ export default function ClubForm({ club }: { club: TClubDetail | null }) {
 
       {clubForm.needsApproval && (
         <RequesterConsentFields
+          role={form.requesterRole}
           contact={form.contact}
           consent={form.consent}
           errors={errors}
+          onRoleChange={(value) => update('requesterRole', value)}
           onContactChange={(value) => update('contact', value)}
           onConsentChange={(value) => update('consent', value)}
         />
@@ -358,11 +373,17 @@ export default function ClubForm({ club }: { club: TClubDetail | null }) {
         <Button type="submit" variant={clubForm.canSubmit ? 'primary' : 'disabled'} className="flex-1">
           {clubForm.isSubmitting
             ? '보내는 중'
-            : !clubForm.isEditing
-              ? '등록 요청'
-              : clubForm.needsApproval
-                ? '수정 요청'
-                : '저장하기'}
+            : admin
+              ? clubForm.isEditing
+                ? '저장하기'
+                : '임시 등록하기'
+              : resubmit
+                ? '다시 요청'
+                : !clubForm.isEditing
+                  ? '등록 요청'
+                  : clubForm.needsApproval
+                    ? '수정 요청'
+                    : '저장하기'}
         </Button>
       </div>
     </form>
