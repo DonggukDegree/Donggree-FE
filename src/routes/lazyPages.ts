@@ -15,6 +15,7 @@ export const DonggleMap = lazy(() => import('@/pages/map'));
 export const Clubs = lazy(() => import('@/pages/clubs/index'));
 export const ClubRegister = lazy(() => import('@/pages/clubs/register'));
 export const ClubEdit = lazy(() => import('@/pages/clubs/edit'));
+export const ClubRequestEdit = lazy(() => import('@/pages/clubs/requestEdit'));
 export const ClubRecruitment = lazy(() => import('@/pages/clubs/recruitment'));
 export const OnBoarding = lazy(() => import('@/pages/auth/onBoarding'));
 
@@ -33,3 +34,10 @@ export const AdminGraduationRequirements = lazy(() => import('@/pages/admin/grad
 export const AdminFaqs = lazy(() => import('@/pages/admin/faqs'));
 export const AdminReportPreview = lazy(() => import('@/pages/admin/reportPreview'));
 export const AdminReports = lazy(() => import('@/pages/admin/reports'));
+export const AdminClubs = lazy(() => import('@/pages/admin/clubs'));
+export const AdminClubRegister = lazy(() =>
+  import('@/pages/admin/clubForm').then((module) => ({ default: module.AdminClubRegister })),
+);
+export const AdminClubEdit = lazy(() =>
+  import('@/pages/admin/clubForm').then((module) => ({ default: module.AdminClubEdit })),
+);

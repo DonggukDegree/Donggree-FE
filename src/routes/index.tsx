@@ -19,6 +19,9 @@ import Home from '@/pages/home';
 import AdminRoute from '@/routes/adminRoute';
 import {
   AcademicRecords,
+  AdminClubEdit,
+  AdminClubRegister,
+  AdminClubs,
   AdminCourseClassifications,
   AdminFaqs,
   AdminGraduationRequirements,
@@ -27,6 +30,7 @@ import {
   ClubEdit,
   ClubRecruitment,
   ClubRegister,
+  ClubRequestEdit,
   Clubs,
   Curriculum,
   DonggleMap,
@@ -117,6 +121,7 @@ export const router = createBrowserRouter([
               { path: 'register', element: tracked(<ClubRegister />) },
               { path: 'edit', element: tracked(<ClubEdit />) },
               { path: 'recruitment', element: tracked(<ClubRecruitment />) },
+              { path: 'requests/edit', element: tracked(<ClubRequestEdit />) },
             ],
           },
           // 졸업 판정은 성적표가 있어야 의미가 있으므로 리포트 게이트를 한 번 더 통과시킨다.
@@ -163,6 +168,14 @@ export const router = createBrowserRouter([
                   {
                     path: 'reports',
                     element: tracked(<AdminReports />),
+                  },
+                  {
+                    path: 'clubs',
+                    children: [
+                      { index: true, element: tracked(<AdminClubs />) },
+                      { path: 'register', element: tracked(<AdminClubRegister />) },
+                      { path: 'edit', element: tracked(<AdminClubEdit />) },
+                    ],
                   },
                 ],
               },
