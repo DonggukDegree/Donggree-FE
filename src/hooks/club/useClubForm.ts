@@ -8,11 +8,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { postClub, putClub } from '@/apis/club/club';
+import { postClub, putClub, resubmitMyClubRequest } from '@/apis/club/club';
+import { createAdminClub, updateAdminClub } from '@/apis/club/clubAdmin';
 import { CLUB_LIMITS } from '@/constants/club';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useCoreMutation } from '@/hooks/customQuery';
-import type { TClubDetail, TClubField, TClubSaveRequest } from '@/types/club/TClub';
+import type { TClubDetail, TClubField, TClubSaveRequest, TClubSaveResult } from '@/types/club/TClub';
 import type {
   TClubForm,
   TClubFormErrors,
@@ -25,6 +26,7 @@ import {
   addLinkRow,
   changeLinkRow,
   clubFormFromDetail,
+  clubFormFromSave,
   createEmptyClubForm,
   createOfficerRow,
   createRowKey,
@@ -35,14 +37,27 @@ import {
   validateClubImageFile,
 } from '@/utils/club/clubForm';
 
-export default function useClubForm(club: TClubDetail | null) {
+// admin: 관리자 화면에서 쓰면 승인 없이 바로 저장한다(새 동아리는 임시 등록). 요청자 연락처·동의도 받지 않는다.
+// resubmit: 내 요청 내역에서 검토 중·반려 요청을 고쳐 다시 보낼 때. 보냈던 입력값으로 채우고 항상 승인 요청으로 보낸다.
+export type TClubResubmit<TBody> = { requestId: number; body: TBody };
+
+export default function useClubForm(
+  club: TClubDetail | null,
+  { admin = false, resubmit }: { admin?: boolean; resubmit?: TClubResubmit<TClubSaveRequest> } = {},
+) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState<TClubForm>(() => (club ? clubFormFromDetail(club) : createEmptyClubForm()));
+  const [form, setForm] = useState<TClubForm>(() =>
+    resubmit
+      ? clubFormFromSave(resubmit.body, club ?? undefined)
+      : club
+        ? clubFormFromDetail(club)
+        : createEmptyClubForm(),
+  );
   const [errors, setErrors] = useState<TClubFormErrors>({});
   const objectUrls = useRef<string[]>([]);
   const isEditing = club !== null;
-  const needsApproval = !club?.canEditDirectly;
+  const needsApproval = !admin && (Boolean(resubmit) || !club?.canEditDirectly);
 
   // 미리보기 URL은 화면을 떠날 때 해제한다.
   useEffect(() => () => objectUrls.current.forEach((url) => URL.revokeObjectURL(url)), []);
@@ -113,10 +128,27 @@ export default function useClubForm(club: TClubDetail | null) {
       return { ...prev, images, representativeImageKey };
     });
 
-  const saveClub = (body: TClubSaveRequest) => (club ? putClub({ clubId: club.id, body }) : postClub(body));
+  const saveClub = async (body: TClubSaveRequest): Promise<TClubSaveResult> => {
+    if (admin) {
+      const { clubId } = club ? await updateAdminClub({ clubId: club.id, body }) : await createAdminClub(body);
+      return { applied: 'DIRECT', clubId };
+    }
+    if (resubmit) return resubmitMyClubRequest({ requestId: resubmit.requestId, body });
+    return club ? putClub({ clubId: club.id, body }) : postClub(body);
+  };
   const mutation = useCoreMutation(saveClub, {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CLUBS_ROOT });
+      if (admin) {
+        toast.success(isEditing ? '동아리 정보를 저장했어요.' : '임시 등록했어요. 동아리 목록에 바로 보여요.');
+        navigate('/admin/clubs?tab=clubs');
+        return;
+      }
+      if (resubmit) {
+        toast.success('다시 요청을 보냈어요. 관리자 확인 후 반영돼요.');
+        navigate('/clubs');
+        return;
+      }
       toast.success(
         result.applied === 'DIRECT'
           ? '동아리 정보를 바로 반영했어요.'
@@ -135,11 +167,13 @@ export default function useClubForm(club: TClubDetail | null) {
       toast.error('입력하지 않았거나 잘못된 항목을 확인해주세요.');
       return;
     }
-    trackEvent(isEditing ? 'club_edit_submit' : 'club_register_submit');
+    if (resubmit) trackEvent('club_request_resubmit');
+    else if (!admin) trackEvent(isEditing ? 'club_edit_submit' : 'club_register_submit');
     mutation.mutate(toClubSaveRequest(form, needsApproval));
   };
 
   return {
+    admin,
     form,
     errors,
     isEditing,

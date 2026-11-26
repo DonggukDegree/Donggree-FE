@@ -4,8 +4,10 @@
  */
 import type { ReactNode } from 'react';
 
-import { CLUB_LIMITS } from '@/constants/club';
-import { INPUT_CLASS } from '@/constants/inputStyles';
+import SelectChevron from '@/components/common/inputs/selectChevron';
+import { CLUB_LIMITS, CLUB_REQUESTER_ROLES } from '@/constants/club';
+import { INPUT_CLASS, SELECT_RESET_CLASS } from '@/constants/inputStyles';
+import type { TClubRequesterRole } from '@/types/club/TClub';
 import type { TClubLinkRow } from '@/types/club/TClubForm';
 
 export function FormSection({
@@ -75,34 +77,63 @@ export function ChoiceChips<T extends string>({
 }
 
 // 승인이 필요한 요청에만 보인다. 연락처는 관리자 확인용이며 동아리 화면에 공개하지 않는다.
+// 승인이 필요한 요청의 요청자 정보: 동아리와의 관계(드롭다운)와 확인 연락처, 개인정보 수집 동의.
+// 관계는 어떤 신분으로 등록·수정하려는지 관리자가 검토·추적할 때 쓰며 공개하지 않는다.
 export function RequesterConsentFields({
+  role,
   contact,
   consent,
   errors,
+  onRoleChange,
   onContactChange,
   onConsentChange,
 }: {
+  role: TClubRequesterRole | null;
   contact: string;
   consent: boolean;
-  errors: { contact?: string; consent?: string };
+  errors: { requesterRole?: string; contact?: string; consent?: string };
+  onRoleChange: (value: TClubRequesterRole) => void;
   onContactChange: (value: string) => void;
   onConsentChange: (value: boolean) => void;
 }) {
   return (
     <div className="flex flex-col gap-5 rounded-xl border border-coolgray-20 bg-coolgray-10/40 p-4 lg:p-5">
       <FormSection
-        title="요청자 연락처"
+        title="요청자 정보"
         required
-        description="동그리는 안전한 동아리만 소개하기 위해 필요한 경우 검증 절차가 발생할 수 있어요. 확인할 때 연락드릴 연락처를 적어주세요. 동아리 화면에는 공개하지 않아요."
-        error={errors.contact}
+        description="동그리는 안전한 동아리만 소개하기 위해 필요한 경우 검증 절차가 발생할 수 있어요. 동아리와의 관계를 고르고, 확인할 때 연락드릴 연락처를 적어주세요. 동아리 화면에는 공개하지 않아요."
+        error={errors.requesterRole ?? errors.contact}
       >
-        <input
-          value={contact}
-          maxLength={CLUB_LIMITS.CONTACT_MAX}
-          placeholder="example@dgu.ac.kr 또는 010-0000-0000"
-          onChange={(event) => onContactChange(event.target.value)}
-          className={`${INPUT_CLASS} ${errors.contact ? 'border-alert' : 'border-coolgray-30'}`}
-        />
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-[160px_1fr]">
+          <div className="relative">
+            <select
+              aria-label="동아리와의 관계"
+              value={role ?? ''}
+              onChange={(event) => onRoleChange(event.target.value as TClubRequesterRole)}
+              className={`${INPUT_CLASS} ${SELECT_RESET_CLASS} w-full cursor-pointer ${
+                errors.requesterRole ? 'border-alert' : 'border-coolgray-30'
+              } ${role ? 'text-coolgray-90' : 'text-coolgray-60'}`}
+            >
+              <option value="" disabled>
+                동아리와의 관계
+              </option>
+              {CLUB_REQUESTER_ROLES.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <SelectChevron />
+          </div>
+          <input
+            aria-label="확인 연락처"
+            value={contact}
+            maxLength={CLUB_LIMITS.CONTACT_MAX}
+            placeholder="example@dgu.ac.kr 또는 010-0000-0000"
+            onChange={(event) => onContactChange(event.target.value)}
+            className={`${INPUT_CLASS} ${errors.contact ? 'border-alert' : 'border-coolgray-30'}`}
+          />
+        </div>
       </FormSection>
       <div className="flex flex-col gap-2">
         <label className="flex cursor-pointer items-start gap-2 text-body-s text-coolgray-90">
@@ -117,8 +148,8 @@ export function RequesterConsentFields({
           </span>
         </label>
         <ul className="ml-6 list-disc break-keep text-body-xs text-coolgray-60">
-          <li>수집 항목: 이메일 또는 전화번호</li>
-          <li>이용 목적: 동아리 등록·수정 요청의 사실 확인 연락</li>
+          <li>수집 항목: 동아리와의 관계, 이메일 또는 전화번호</li>
+          <li>이용 목적: 동아리 등록·수정 요청의 사실 확인 연락과 요청자 신분 확인</li>
           <li>보유 기간: 요청일로부터 1년 (파기 요청 시 즉시 파기)</li>
           <li>동의하지 않으면 등록이 불가해요.</li>
         </ul>

@@ -1,9 +1,11 @@
 /**
  * [동아리] 내 요청 내역 모달
- * 동아리 페이지 오른쪽 위 버튼으로 연다. 승인이 필요한 요청(신규 등록·정보 수정·모집 등록)의 상태와 반려 사유를 보여준다.
- * 승인 없이 바로 반영된 변경은 요청이 아니라 여기에 나오지 않는다.
+ * 동아리 페이지의 버튼으로 연다. 승인이 필요한 요청(신규 등록·정보 수정·모집 등록)의 상태와 반려 사유를 보여준다.
+ * 검토 중·반려된 요청은 '수정해서 다시 요청'으로 보냈던 내용을 이어서 고칠 수 있다. 검토 중 요청을 다시 보내면
+ * 기존 요청은 취소되고 새 요청으로 검토 순서가 뒤로 밀린다. 승인 없이 바로 반영된 변경은 요청이 아니라 여기에 나오지 않는다.
  */
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import Loading from '@/components/common/feedback/loading';
 import { CLUB_REQUEST_STATUS_LABELS, CLUB_REQUEST_TYPE_LABELS } from '@/constants/club';
@@ -19,6 +21,7 @@ const STATUS_STYLE: Record<TClubRequestStatus, string> = {
 };
 
 export default function ClubRequestsModal({ onClose }: { onClose: () => void }) {
+  const navigate = useNavigate();
   const { data: requests, isLoading, isError } = useMyClubRequests(true);
 
   useEffect(() => {
@@ -84,6 +87,18 @@ export default function ClubRequestsModal({ onClose }: { onClose: () => void }) 
                     <p className="break-keep rounded-lg bg-coolgray-10 p-3 text-body-s text-coolgray-90">
                       반려 사유: {request.rejectReason}
                     </p>
+                  )}
+                  {request.status === 'CANCELED' && (
+                    <p className="text-body-xs text-coolgray-60">수정해서 다시 요청해 취소된 요청이에요.</p>
+                  )}
+                  {(request.status === 'PENDING' || request.status === 'REJECTED') && (
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/clubs/requests/edit?request=${request.id}`)}
+                      className="w-fit cursor-pointer rounded-full border border-coolgray-30 px-3 py-1.5 text-button-s text-coolgray-90 hover:border-primary-60 hover:text-primary-60"
+                    >
+                      수정해서 다시 요청
+                    </button>
                   )}
                 </li>
               ))}

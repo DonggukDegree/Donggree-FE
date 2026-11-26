@@ -19,6 +19,7 @@ export const PAGE_NAMES: Record<string, string> = {
   '/clubs/register': '신규 동아리 등록',
   '/clubs/edit': '동아리 정보 수정',
   '/clubs/recruitment': '동아리 모집 등록',
+  '/clubs/requests/edit': '동아리 요청 다시 보내기',
   '/404': '페이지를 찾을 수 없음',
   '/admin': '관리자',
   '/admin/course-classifications': '관리자 과목 관리',
@@ -26,6 +27,9 @@ export const PAGE_NAMES: Record<string, string> = {
   '/admin/faqs': '관리자 FAQ 관리',
   '/admin/report-preview': '관리자 PDF 리포트 테스트',
   '/admin/reports': '관리자 신고 관리',
+  '/admin/clubs': '관리자 동아리 관리',
+  '/admin/clubs/register': '관리자 동아리 임시 등록',
+  '/admin/clubs/edit': '관리자 동아리 정보 수정',
 };
 export const EVENT_NAMES = {
   mystery_viewed: '정각원의 비밀 진입',
@@ -89,6 +93,7 @@ export const EVENT_NAMES = {
   club_register_submit: '동아리 등록 요청',
   club_edit_submit: '동아리 정보 수정 저장',
   club_recruitment_submit: '동아리 모집 저장',
+  club_request_resubmit: '동아리 요청 다시 보내기',
 } as const;
 export type TAnalyticsEvent = keyof typeof EVENT_NAMES;
 export type TTranscriptNoticeParams = {
