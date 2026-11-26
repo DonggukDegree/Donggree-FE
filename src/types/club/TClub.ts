@@ -128,7 +128,11 @@ export type TClubPage = {
 };
 
 export type TClubRequestType = 'REGISTER' | 'EDIT' | 'RECRUITMENT';
-export type TClubRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+// CANCELED: 검토 중에 수정해서 다시 요청하면 기존 요청은 취소되고 새 요청이 맨 뒤에 들어간다.
+export type TClubRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELED';
+
+// 요청자가 이 동아리와 어떤 관계인지(승인 검토·추적용, 관리자만 본다).
+export type TClubRequesterRole = 'PRESIDENT' | 'STAFF' | 'MEMBER' | 'OUTSIDER';
 
 // 내 요청 내역. 승인 없이 바로 반영된 변경은 요청이 아니므로 여기에 없다.
 export type TClubRequest = {
@@ -159,6 +163,7 @@ export type TClubSaveRequest = {
   links: TClubLink[];
   imageCount: number;
   requesterContact: string | null;
+  requesterRole: TClubRequesterRole | null;
 };
 
 export type TClubRecruitmentSaveRequest = {
@@ -171,6 +176,7 @@ export type TClubRecruitmentSaveRequest = {
   links: TClubLink[];
   notice: string | null;
   requesterContact: string | null;
+  requesterRole: TClubRequesterRole | null;
 };
 
 // 저장 결과. 승인 대기면 요청 내역에 추가되고, 바로 반영이면 상세가 바뀐다.
@@ -191,3 +197,10 @@ export type TClubBanner = {
   // 누르면 갈 곳. 서비스 안 경로(/clubs?…)는 같은 창에서, 외부 주소(https만, 예: 고객지원 채팅)는 새 창으로 연다.
   link: string;
 };
+
+// 내 요청 한 건(수정해서 다시 요청할 때 불러온다). 보냈던 입력값(after)에 연락처·신분이 함께 들어 있다.
+export type TMyClubRequestDetail = TClubRequest &
+  (
+    | { type: 'REGISTER' | 'EDIT'; after: TClubSaveRequest }
+    | { type: 'RECRUITMENT'; after: TClubRecruitmentSaveRequest }
+  );

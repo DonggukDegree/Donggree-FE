@@ -15,6 +15,7 @@ const STATUS_STYLE: Record<TClubRequestStatus, string> = {
   PENDING: 'bg-primary-30 text-primary-90',
   APPROVED: 'bg-chip-green-bg text-chip-green',
   REJECTED: 'bg-chip-red-bg text-chip-red',
+  CANCELED: 'bg-coolgray-10 text-coolgray-60',
 };
 
 export default function ClubRequestsModal({ onClose }: { onClose: () => void }) {

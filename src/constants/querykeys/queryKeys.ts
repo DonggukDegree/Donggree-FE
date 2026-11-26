@@ -1,4 +1,4 @@
-import type { TClubListParams } from '@/types/club/TClub';
+import type { TClubListParams, TClubRequestStatus } from '@/types/club/TClub';
 
 export const QUERY_KEYS = {
   MYSTERY_ROOT: ['mystery'] as const,
@@ -23,7 +23,12 @@ export const QUERY_KEYS = {
   GET_CLUBS: (params: TClubListParams) => ['clubs', 'list', params] as const,
   GET_CLUB_DETAIL: (clubId: number) => ['clubs', 'detail', clubId] as const,
   GET_MY_CLUB_REQUESTS: ['clubs', 'my-requests'] as const,
+  GET_MY_CLUB_REQUEST: (requestId: number) => ['clubs', 'my-requests', requestId] as const,
   GET_CLUB_BANNERS: ['clubs', 'banners'] as const,
+  // 관리자 동아리 관리. CLUBS_ROOT 아래에 두어 승인·저장 후 공개 화면과 함께 무효화한다.
+  ADMIN_CLUB_REQUESTS: (status: TClubRequestStatus | null) => ['clubs', 'admin', 'requests', status] as const,
+  ADMIN_CLUBS: (keyword: string) => ['clubs', 'admin', 'clubs', keyword] as const,
+  ADMIN_CLUB_BANNERS: ['clubs', 'admin', 'banners'] as const,
   FAQS_ROOT: ['faqs'] as const,
   GET_FAQS: (tag: string | null) => ['faqs', { tag }] as const,
   ADMIN_ROOT: ['admin'] as const,

@@ -2,7 +2,7 @@
  * [동아리] 등록·수정·모집 폼 모델
  * 입력 중에는 숫자·날짜도 문자열로 들고 있다가 저장할 때 요청 타입으로 바꾼다.
  */
-import type { TClubAffiliation, TClubField } from '@/types/club/TClub';
+import type { TClubAffiliation, TClubField, TClubRequesterRole } from '@/types/club/TClub';
 
 export type TClubOfficerRow = { key: string; role: string; department: string; name: string };
 
@@ -30,6 +30,7 @@ export type TClubForm = {
   links: TClubLinkRow[];
   images: TClubImageDraft[];
   representativeImageKey: string | null;
+  requesterRole: TClubRequesterRole | null;
   contact: string;
   consent: boolean;
 };
@@ -47,6 +48,7 @@ export type TClubFormErrorKey =
   | 'officers'
   | 'links'
   | 'images'
+  | 'requesterRole'
   | 'contact'
   | 'consent';
 
@@ -62,10 +64,11 @@ export type TClubRecruitmentForm = {
   closedEarly: boolean;
   links: TClubLinkRow[];
   notice: string;
+  requesterRole: TClubRequesterRole | null;
   contact: string;
   consent: boolean;
 };
 
-export type TClubRecruitmentFormErrorKey = 'generation' | 'period' | 'links' | 'contact' | 'consent';
+export type TClubRecruitmentFormErrorKey = 'generation' | 'period' | 'links' | 'requesterRole' | 'contact' | 'consent';
 
 export type TClubRecruitmentFormErrors = Partial<Record<TClubRecruitmentFormErrorKey, string>>;

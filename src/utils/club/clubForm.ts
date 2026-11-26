@@ -75,6 +75,7 @@ export const createEmptyClubForm = (): TClubForm => ({
   links: [],
   images: [],
   representativeImageKey: null,
+  requesterRole: null,
   contact: '',
   consent: false,
 });
@@ -107,7 +108,49 @@ export const clubFormFromDetail = (club: TClubDetail): TClubForm => {
     links: toLinkRows(club.links),
     images,
     representativeImageKey: images.find((image) => image.existingId === club.representativeImageId)?.key ?? null,
+    requesterRole: null,
     contact: '',
+    consent: false,
+  };
+};
+
+// 보냈던 요청(입력값)으로 폼을 다시 채운다. 반려·검토 중 요청을 고쳐서 다시 보낼 때 쓴다.
+// 연락처·신분은 그대로 채우고 수집 동의는 새로 받는다. 사진은 업로드 API 전이라 images로 넘긴 기존 사진만 채운다.
+export const clubFormFromSave = (
+  body: TClubSaveRequest,
+  existing: { images: TClubDetail['images']; representativeImageId: number | null } = {
+    images: [],
+    representativeImageId: null,
+  },
+): TClubForm => {
+  const images = existing.images.map((image) => ({
+    key: createRowKey('image'),
+    url: image.url,
+    file: null,
+    existingId: image.id,
+  }));
+  return {
+    name: body.name,
+    affiliation: body.affiliation,
+    fields: [...body.fields],
+    description: body.description,
+    foundedDate: body.foundedDate ?? '',
+    foundedUnknown: body.foundedDate === null,
+    hasGeneration: body.generation !== null,
+    generation: body.generation?.toString() ?? '',
+    activityStartDate: body.activityStartDate ?? '',
+    activityEndDate: body.activityEndDate ?? '',
+    roomLocation: body.roomLocation ?? '',
+    noRoom: body.roomLocation === null,
+    generationMemberCount: body.generationMemberCount?.toString() ?? '',
+    totalMemberCount: body.totalMemberCount?.toString() ?? '',
+    officers: body.officers.map((officer) => ({ key: createRowKey('officer'), ...officer })),
+    links: toLinkRows(body.links),
+    images,
+    representativeImageKey:
+      images.find((image) => image.existingId === existing.representativeImageId)?.key ?? images[0]?.key ?? null,
+    requesterRole: body.requesterRole,
+    contact: body.requesterContact ?? '',
     consent: false,
   };
 };
@@ -140,6 +183,7 @@ export const validateClubForm = (form: TClubForm, needsApproval: boolean): TClub
   const linkError = getLinkError(form.links);
   if (linkError) errors.links = linkError;
   if (needsApproval) {
+    if (!form.requesterRole) errors.requesterRole = '동아리와의 관계를 골라주세요.';
     if (!isValidContact(form.contact)) errors.contact = '확인 연락을 받을 이메일이나 전화번호를 입력해주세요.';
     if (!form.consent) errors.consent = '개인정보 수집·이용에 동의해주세요.';
   }
@@ -158,7 +202,7 @@ export const isClubFormComplete = (form: TClubForm, needsApproval: boolean) =>
     (form.foundedUnknown || form.foundedDate) &&
     (!form.hasGeneration || (form.generation.trim() && form.activityStartDate && form.activityEndDate)) &&
     (form.noRoom || form.roomLocation.trim()) &&
-    (!needsApproval || (form.contact.trim() && form.consent)),
+    (!needsApproval || (form.requesterRole && form.contact.trim() && form.consent)),
   );
 
 export const toClubSaveRequest = (form: TClubForm, needsApproval: boolean): TClubSaveRequest => ({
@@ -179,6 +223,7 @@ export const toClubSaveRequest = (form: TClubForm, needsApproval: boolean): TClu
   links: toLinks(form.links),
   imageCount: form.images.length,
   requesterContact: needsApproval ? form.contact.trim() : null,
+  requesterRole: needsApproval ? form.requesterRole : null,
 });
 
 // 사진 파일 검사. 형식·용량·장수 초과 사유를 돌려주고, 문제가 없으면 null.
@@ -213,13 +258,29 @@ export const createRecruitmentForm = (
   closedEarly: recruitment?.closedEarly ?? false,
   links: toLinkRows(recruitment?.links ?? []),
   notice: recruitment?.notice ?? '',
+  requesterRole: null,
   contact: '',
+  consent: false,
+});
+
+// 보냈던 모집 요청(입력값)으로 폼을 다시 채운다. 연락처·신분은 그대로, 수집 동의는 새로 받는다.
+export const recruitmentFormFromSave = (body: TClubRecruitmentSaveRequest): TClubRecruitmentForm => ({
+  generation: body.generation?.toString() ?? '',
+  alwaysOpen: body.alwaysOpen,
+  startsAt: toDateTimeLocal(body.startsAt),
+  endsAt: toDateTimeLocal(body.endsAt),
+  closedEarly: body.closedEarly,
+  links: toLinkRows(body.links),
+  notice: body.notice ?? '',
+  requesterRole: body.requesterRole,
+  contact: body.requesterContact ?? '',
   consent: false,
 });
 
 export const isRecruitmentFormComplete = (form: TClubRecruitmentForm, needsApproval: boolean) =>
   Boolean(
-    (form.alwaysOpen || (form.startsAt && form.endsAt)) && (!needsApproval || (form.contact.trim() && form.consent)),
+    (form.alwaysOpen || (form.startsAt && form.endsAt)) &&
+    (!needsApproval || (form.requesterRole && form.contact.trim() && form.consent)),
   );
 
 export const validateRecruitmentForm = (
@@ -236,6 +297,7 @@ export const validateRecruitmentForm = (
   const linkError = getLinkError(form.links);
   if (linkError) errors.links = linkError;
   if (needsApproval) {
+    if (!form.requesterRole) errors.requesterRole = '동아리와의 관계를 골라주세요.';
     if (!isValidContact(form.contact)) errors.contact = '확인 연락을 받을 이메일이나 전화번호를 입력해주세요.';
     if (!form.consent) errors.consent = '개인정보 수집·이용에 동의해주세요.';
   }
@@ -254,4 +316,5 @@ export const toRecruitmentSaveRequest = (
   links: toLinks(form.links),
   notice: optionalText(form.notice),
   requesterContact: needsApproval ? form.contact.trim() : null,
+  requesterRole: needsApproval ? form.requesterRole : null,
 });

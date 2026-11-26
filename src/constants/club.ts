@@ -6,10 +6,13 @@ import type {
   TClubAffiliation,
   TClubField,
   TClubRecruitmentStatus,
+  TClubRegistration,
+  TClubRequesterRole,
   TClubRequestStatus,
   TClubRequestType,
   TClubSort,
 } from '@/types/club/TClub';
+import type { TAdminBannerStatus } from '@/types/club/TClubAdmin';
 
 export const CLUB_AFFILIATIONS: { value: TClubAffiliation; label: string }[] = [
   { value: 'CENTRAL', label: '교내 중앙동아리' },
@@ -62,7 +65,19 @@ export const CLUB_REQUEST_STATUS_LABELS: Record<TClubRequestStatus, string> = {
   PENDING: '검토 중',
   APPROVED: '승인',
   REJECTED: '반려',
+  CANCELED: '취소',
 };
+
+export const CLUB_REQUESTER_ROLES: { value: TClubRequesterRole; label: string }[] = [
+  { value: 'PRESIDENT', label: '회장/부회장' },
+  { value: 'STAFF', label: '운영진' },
+  { value: 'MEMBER', label: '일반 부원' },
+  { value: 'OUTSIDER', label: '외부인' },
+];
+
+export const CLUB_REQUESTER_ROLE_LABELS = Object.fromEntries(
+  CLUB_REQUESTER_ROLES.map(({ value, label }) => [value, label]),
+) as Record<TClubRequesterRole, string>;
 
 export const CLUB_AFFILIATION_LABELS = Object.fromEntries(
   CLUB_AFFILIATIONS.map(({ value, label }) => [value, label]),
@@ -133,3 +148,31 @@ export const CLUB_POINTS = {
   RECRUITMENT: 100,
   GENERATION_UPDATE: 100,
 } as const;
+
+// ── 관리자 ──
+export const CLUB_REGISTRATION_LABELS: Record<TClubRegistration, string> = {
+  PROVISIONAL: '임시 등록',
+  OFFICIAL: '정식 등록',
+};
+
+export const CLUB_BANNER_LIMITS = {
+  EYEBROW_MAX: 12,
+  TITLE_MAX: 30,
+  DESCRIPTION_MAX: 60,
+};
+
+// 글자 배너 배경. 목록의 기본 배너와 같은 결의 그라데이션 몇 가지.
+export const CLUB_BANNER_BACKGROUNDS: { value: string; label: string }[] = [
+  { value: 'linear-gradient(120deg, #ff6a3d 0%, #ff952b 55%, #ffc46b 100%)', label: '주황' },
+  { value: 'linear-gradient(120deg, #3a3fd9 0%, #5b6cff 55%, #8fa2ff 100%)', label: '파랑' },
+  { value: 'linear-gradient(120deg, #0f9b6c 0%, #2ebf8a 55%, #8be0b8 100%)', label: '초록' },
+  { value: 'linear-gradient(120deg, #6a3fd9 0%, #8f6bff 55%, #c3b0ff 100%)', label: '보라' },
+  { value: 'linear-gradient(120deg, #1f2430 0%, #3a4150 55%, #697077 100%)', label: '검정' },
+];
+
+export const CLUB_BANNER_STATUS_LABELS: Record<TAdminBannerStatus, string> = {
+  LIVE: '노출 중',
+  SCHEDULED: '노출 예정',
+  ENDED: '노출 종료',
+  OFF: '꺼짐',
+};
