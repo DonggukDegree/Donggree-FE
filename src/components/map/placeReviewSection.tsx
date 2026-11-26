@@ -1,17 +1,17 @@
 /**
  * [동글맵 > 리뷰] 장소 정보의 리뷰 영역
- * 내 리뷰를 맨 위에 따로 두고(수정·삭제), 다른 회원 리뷰는 최신순으로 처음 5개, "리뷰 더보기"마다 10개씩 더 보여준다
- * (서버는 10개씩 커서 조회, 받아 둔 리뷰가 모자랄 때만 다음 페이지를 요청). 신고 가능.
+ * 내 리뷰를 맨 위에 따로 두고(수정·삭제), 다른 회원 리뷰는 최신순으로 처음 5개, 목록 끝에 가까워지면 10개씩 자동으로 더 보여준다
+ * (서버는 10개씩 커서 조회, 받아 둔 리뷰가 모자랄 때만 다음 페이지를 요청하고 받는 동안 깜빡이는 뼈대). 신고 가능.
  * 작성자 닉네임이 없으면 "탈퇴한 회원", 프로필 사진이 없으면 기본 아바타를 쓴다.
  * 숨긴 리뷰는 목록에서 자리를 지키고 닉네임·날짜와 "신고되어 숨겨진 리뷰입니다."만 보여준다(별점·본문·신고 버튼 없음).
  * 작성·수정·신고는 인증 학생만 하며, 미인증 회원도 버튼은 보고 누르면 인증 안내를 받는다.
  */
 import { useState } from 'react';
 
-import ChevronDown from '@/assets/icons/chevron-down.svg?react';
 import Pencil from '@/assets/icons/pencil.svg?react';
 import Siren from '@/assets/icons/siren.svg?react';
 import UserThumb from '@/assets/profile/userThumb.svg?react';
+import Skeleton, { LoadMoreStatus } from '@/components/common/feedback/skeleton';
 import Button from '@/components/common/inputs/button';
 import PlaceReviewFormDialog from '@/components/map/placeReviewFormDialog';
 import ReviewReportDialog from '@/components/map/reviewReportDialog';
@@ -25,6 +25,7 @@ import {
 import { POINT_HINTS } from '@/constants/point';
 import { usePlaceReviewDelete } from '@/hooks/place/usePlaceReviewMutations';
 import usePlaceReviews from '@/hooks/place/usePlaceReviews';
+import useLoadMoreTrigger from '@/hooks/useLoadMoreTrigger';
 import useUserInfo from '@/hooks/user/useUserInfo';
 import { useModalStore } from '@/stores/modalStore';
 import type { TPlaceDetail, TPlaceReview } from '@/types/place/TPlace';
@@ -60,6 +61,13 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
     setVisibleCount(next);
     if (next > others.length && hasNextPage) void fetchNextPage();
   };
+  // 목록 끝 표식이 보이면 다음 리뷰를 자동으로 펼친다.
+  const loadMoreRef = useLoadMoreTrigger({
+    canLoadMore: canShowMore,
+    isLoading: isPending || isFetchingNextPage,
+    onLoadMore: showMore,
+    itemCount: shownReviews.length,
+  });
 
   // 작성·수정·신고는 인증 학생만. 서버도 요청마다 다시 검증한다.
   const openIfVerified = (next: NonNullable<TDialog>) => {
@@ -140,7 +148,7 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
       )}
 
       {isPending ? (
-        <p className="py-4 text-center text-body-s text-coolgray-60">리뷰를 불러오는 중이에요</p>
+        <ReviewSkeletonList count={3} />
       ) : isError ? (
         <p className="py-4 text-center text-body-s text-coolgray-60">리뷰를 불러오지 못했어요.</p>
       ) : others.length === 0 && !myReview ? (
@@ -169,17 +177,9 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
         </ul>
       )}
 
-      {canShowMore && !isPending && (
-        <button
-          type="button"
-          disabled={isFetchingNextPage}
-          onClick={showMore}
-          className="flex w-full cursor-pointer items-center justify-center gap-1 rounded-lg border border-coolgray-30 py-3 text-button-s text-coolgray-60 hover:border-primary-60 hover:text-primary-60 disabled:cursor-default"
-        >
-          <ChevronDown aria-hidden="true" className="h-4 w-4" />
-          {isFetchingNextPage ? '불러오는 중' : '리뷰 더보기'}
-        </button>
-      )}
+      {isFetchingNextPage && <ReviewSkeletonList count={2} />}
+      <div ref={loadMoreRef} aria-hidden />
+      <LoadMoreStatus isLoading={isPending || isFetchingNextPage} />
 
       {(dialog?.type === 'write' || dialog?.type === 'edit') && (
         <PlaceReviewFormDialog
@@ -191,6 +191,24 @@ export default function PlaceReviewSection({ place }: { place: TPlaceDetail }) {
       {dialog?.type === 'report' && <ReviewReportDialog place={place} review={dialog.review} onClose={closeDialog} />}
       {dialog?.type === 'delete' && <DeleteReviewDialog place={place} review={dialog.review} onClose={closeDialog} />}
     </section>
+  );
+}
+
+// 리뷰를 불러오는 동안 리뷰 한 줄 모양으로 깜빡이는 뼈대
+function ReviewSkeletonList({ count }: { count: number }) {
+  return (
+    <ul className="flex flex-col divide-y divide-coolgray-10">
+      {Array.from({ length: count }, (_, index) => (
+        <li key={index} className="flex gap-3 py-3">
+          <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+          <div className="flex flex-1 flex-col gap-2">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-2/3" />
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 

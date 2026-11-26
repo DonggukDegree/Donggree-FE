@@ -7,6 +7,7 @@
  */
 import {
   type InfiniteData,
+  keepPreviousData,
   type MutationFunction,
   type QueryFunction,
   type QueryKey,
@@ -63,6 +64,8 @@ export function useCoreInfiniteQuery<TQueryFnData, TPageParam>(
     getNextPageParam: (lastPage: TQueryFnData) => TPageParam | null | undefined;
     enabled?: boolean;
     staleTime?: number;
+    // 검색 조건이 바뀌어 새 목록을 받는 동안 이전 목록을 그대로 보여 준다(화면 깜빡임 방지).
+    keepPreviousPages?: boolean;
   },
 ): UseInfiniteQueryResult<InfiniteData<TQueryFnData, TPageParam>, TResponseError> {
   return useInfiniteQuery<TQueryFnData, TResponseError, InfiniteData<TQueryFnData, TPageParam>, QueryKey, TPageParam>({
@@ -72,5 +75,6 @@ export function useCoreInfiniteQuery<TQueryFnData, TPageParam>(
     getNextPageParam: (lastPage) => options.getNextPageParam(lastPage) ?? undefined,
     enabled: options.enabled,
     staleTime: options.staleTime,
+    placeholderData: options.keepPreviousPages ? keepPreviousData : undefined,
   });
 }

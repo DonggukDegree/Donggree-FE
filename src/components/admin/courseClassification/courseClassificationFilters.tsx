@@ -5,7 +5,7 @@
  * '필터 적용'을 눌렀을 때만 useCourseClassificationEditor가 목록을 다시 조회한다.
  */
 import AdminFilterBar, { FilterField } from '@/components/admin/common/adminFilterBar';
-import MultiSelectDropdown from '@/components/admin/common/multiSelectDropdown';
+import MultiSelectDropdown from '@/components/common/inputs/multiSelectDropdown';
 import TextField from '@/components/common/inputs/textField';
 import type { TAdminAreaType } from '@/types/admin/courseClassification/TGetAdminAreaTypes';
 import { COURSE_LABEL, COURSE_TYPES, type TCourseType } from '@/types/course';

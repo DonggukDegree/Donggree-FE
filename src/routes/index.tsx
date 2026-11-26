@@ -24,6 +24,10 @@ import {
   AdminGraduationRequirements,
   AdminReportPreview,
   AdminReports,
+  ClubEdit,
+  ClubRecruitment,
+  ClubRegister,
+  Clubs,
   Curriculum,
   DonggleMap,
   Faq,
@@ -104,6 +108,16 @@ export const router = createBrowserRouter([
           {
             path: 'map',
             element: tracked(<DonggleMap />),
+          },
+          // 동아리는 로그인 회원이 열람한다. 공개 열람 범위(비로그인 허용)는 미정이라 동글맵과 같은 위치에 둔다.
+          {
+            path: 'clubs',
+            children: [
+              { index: true, element: tracked(<Clubs />) },
+              { path: 'register', element: tracked(<ClubRegister />) },
+              { path: 'edit', element: tracked(<ClubEdit />) },
+              { path: 'recruitment', element: tracked(<ClubRecruitment />) },
+            ],
           },
           // 졸업 판정은 성적표가 있어야 의미가 있으므로 리포트 게이트를 한 번 더 통과시킨다.
           {

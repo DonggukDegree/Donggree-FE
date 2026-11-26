@@ -1,15 +1,17 @@
 /**
  * [마이페이지 > 포인트 내역] 페이지 (/my-page/points)
- * 위에 현재 총 포인트, 아래에 적립 내역(최신순, 20개씩 더보기)을 보여 준다.
+ * 위에 현재 총 포인트, 아래에 적립 내역(최신순, 20개씩)을 보여 준다. 목록 끝에 가까워지면 다음 20개를 자동으로 이어 받고,
+ * 받는 동안 깜빡이는 줄 뼈대를 보여 준다.
  * 제목 옆 ? 툴팁에 어떤 활동에 얼마를 주는지 요약한다.
  */
 import Loading from '@/components/common/feedback/loading';
-import Button from '@/components/common/inputs/button';
+import Skeleton, { LoadMoreStatus } from '@/components/common/feedback/skeleton';
 import PointHistoryList from '@/components/point/pointHistoryList';
 import PointRuleTooltip from '@/components/point/pointRuleTooltip';
 import usePointHistories from '@/hooks/point/usePointHistories';
 import usePointSummary from '@/hooks/point/usePointSummary';
 import useInView from '@/hooks/useInView';
+import useLoadMoreTrigger from '@/hooks/useLoadMoreTrigger';
 import NotFound from '@/pages/exception/notFound';
 import { formatPoints } from '@/utils/point/point';
 
@@ -18,6 +20,12 @@ export default function Points() {
   const [ref, isInView] = useInView(0);
   const summary = usePointSummary();
   const { histories, hasNextPage, fetchNextPage, isFetchingNextPage, ...historyQuery } = usePointHistories();
+  const loadMoreRef = useLoadMoreTrigger({
+    canLoadMore: Boolean(hasNextPage),
+    isLoading: historyQuery.isPending || isFetchingNextPage,
+    onLoadMore: () => void fetchNextPage(),
+    itemCount: histories.length,
+  });
 
   if (summary.isPending || historyQuery.isPending) return <Loading />;
   if (summary.isError) return <NotFound error={summary.error} source="points" />;
@@ -44,11 +52,21 @@ export default function Points() {
       <section aria-label="적립 내역" className="flex flex-col items-center gap-4">
         <h2 className="self-start text-button-m text-coolgray-90">적립 내역</h2>
         <PointHistoryList histories={histories} />
-        {hasNextPage && (
-          <Button variant="outlined" className="w-40" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-            {isFetchingNextPage ? '불러오는 중' : '더보기'}
-          </Button>
+        {isFetchingNextPage && (
+          <ul className="flex w-full flex-col divide-y divide-coolgray-10">
+            {Array.from({ length: 3 }, (_, index) => (
+              <li key={index} className="flex items-center justify-between gap-4 py-4">
+                <div className="flex flex-col gap-2">
+                  <Skeleton className="h-5 w-40" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+                <Skeleton className="h-5 w-14" />
+              </li>
+            ))}
+          </ul>
         )}
+        <div ref={loadMoreRef} aria-hidden />
+        <LoadMoreStatus isLoading={isFetchingNextPage} />
       </section>
     </div>
   );

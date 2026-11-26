@@ -15,6 +15,10 @@ export const PAGE_NAMES: Record<string, string> = {
   '/curriculum': '커리큘럼',
   '/map': '동글맵',
   '/mystery': '정각원의 비밀',
+  '/clubs': '동아리 쇼핑',
+  '/clubs/register': '신규 동아리 등록',
+  '/clubs/edit': '동아리 정보 수정',
+  '/clubs/recruitment': '동아리 모집 등록',
   '/404': '페이지를 찾을 수 없음',
   '/admin': '관리자',
   '/admin/course-classifications': '관리자 과목 관리',
@@ -74,6 +78,17 @@ export const EVENT_NAMES = {
   map_onboarding_shown: '동글맵 튜토리얼 표시',
   map_onboarding_complete: '동글맵 튜토리얼 시작하기 선택',
   student_verification_select: '학생 인증 안내에서 인증 방법 선택',
+  club_select: '동아리 상세 열기',
+  club_banner_click: '동아리 배너 클릭',
+  club_favorite_toggle: '동아리 찜 누르기',
+  club_favorites_view: '찜한 동아리 모아보기',
+  club_filter_select: '동아리 필터 선택',
+  club_sort_select: '동아리 정렬 변경',
+  club_apply_link_click: '동아리 관련 링크 클릭',
+  club_requests_open: '동아리 내 요청 내역 열기',
+  club_register_submit: '동아리 등록 요청',
+  club_edit_submit: '동아리 정보 수정 저장',
+  club_recruitment_submit: '동아리 모집 저장',
 } as const;
 export type TAnalyticsEvent = keyof typeof EVENT_NAMES;
 export type TTranscriptNoticeParams = {
