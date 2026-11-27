@@ -134,7 +134,12 @@ export const CLUB_LIMITS = {
   OFFICERS_MAX: 5,
   OFFICER_TEXT_MAX: 20,
   IMAGES_MAX: 3,
+  // 서버가 받는 한 장 상한. 고른 사진은 크롭·축소해 올리므로 원본은 더 커도 된다.
   IMAGE_BYTES_MAX: 5 * 1024 * 1024,
+  IMAGE_SOURCE_BYTES_MAX: 20 * 1024 * 1024,
+  // 목록 카드·상세 화면과 같은 가로 4:3으로 자르고, 긴 변 최대 1440px로 줄여 올린다.
+  IMAGE_ASPECT: 4 / 3,
+  IMAGE_OUTPUT_WIDTH_MAX: 1440,
   // 브라우저에서 바로 미리보기 되는 형식만 받는다(HEIC 등은 제외).
   IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
   NOTICE_MAX: 1000,
