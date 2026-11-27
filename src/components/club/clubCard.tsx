@@ -11,6 +11,7 @@ import ClubFavoriteButton from '@/components/club/clubFavoriteButton';
 import Skeleton from '@/components/common/feedback/skeleton';
 import useAutoRotate from '@/hooks/club/useAutoRotate';
 import type { TClubSummary } from '@/types/club/TClub';
+import { toAssetUrl } from '@/utils/club/clubImage';
 
 interface IClubCardProps {
   club: TClubSummary;
@@ -33,7 +34,7 @@ function CardPhotos({ urls }: { urls: string[] }) {
       {urls.map((url, order) => (
         <img
           key={url}
-          src={url}
+          src={toAssetUrl(url)}
           alt=""
           loading="lazy"
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${

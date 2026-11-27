@@ -2,11 +2,12 @@
  * [관리자 > 동아리 관리 > 배너]
  * 왼쪽은 노출 순서대로 배너 목록(No = 노출 순서, 순서 바꾸기·노출 상태), 오른쪽은 고른 배너의 입력 폼과 실제 모양 미리보기.
  * 글자 배너(라벨·제목·설명·배경색)와 이미지 배너(PC·모바일 이미지, 글자는 이미지 안에)를 고를 수 있다.
- * 사진 저장소가 정해지기 전이라 이미지는 이 브라우저의 미리보기 주소로만 저장된다(새로고침하면 사라짐).
+ * 이미지는 고르면 바로 서버에 올리고 받은 경로를 저장한다.
  */
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { uploadAdminClubImage } from '@/apis/club/clubAdmin';
 import ClubBannerCarousel from '@/components/club/clubBannerCarousel';
 import { ChoiceChips } from '@/components/club/clubFormParts';
 import Button from '@/components/common/inputs/button';
@@ -17,6 +18,7 @@ import { useDeleteClubBanner, useMoveClubBanner, useSaveClubBanner } from '@/hoo
 import { useAdminClubBanners } from '@/hooks/admin/queries/useAdminClubs';
 import { useModalStore } from '@/stores/modalStore';
 import type { TAdminBannerStatus, TAdminClubBanner, TClubBannerForm } from '@/types/club/TClubAdmin';
+import type { TResponseError } from '@/types/common';
 import {
   createBannerForm,
   formatBannerPeriod,
@@ -24,6 +26,7 @@ import {
   toBannerSave,
   validateBannerForm,
 } from '@/utils/club/clubAdmin';
+import { toAssetUrl } from '@/utils/club/clubImage';
 
 const STATUS_BADGE: Record<TAdminBannerStatus, string> = {
   LIVE: 'bg-chip-green-bg text-chip-green',
@@ -101,7 +104,7 @@ export default function ClubBannerPanel() {
                     className="h-10 w-16 shrink-0 rounded-md bg-cover bg-center"
                     style={
                       banner.imageUrl
-                        ? { backgroundImage: `url("${banner.imageUrl}")` }
+                        ? { backgroundImage: `url("${toAssetUrl(banner.imageUrl)}")` }
                         : { background: banner.background ?? undefined }
                     }
                   />
@@ -170,6 +173,7 @@ const imageError = (file: File) => {
   return null;
 };
 
+// 고르면 바로 배너 사진(BANNER, 자동 정리 대상 아님)으로 올리고, 받은 서버 경로를 값으로 둔다.
 function ImagePicker({
   label,
   hint,
@@ -183,15 +187,34 @@ function ImagePicker({
   error?: string;
   onChange: (url: string) => void;
 }) {
+  const [isUploading, setIsUploading] = useState(false);
+
+  const upload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const uploaded = await uploadAdminClubImage({ file, purpose: 'BANNER' });
+      onChange(uploaded.url);
+    } catch (uploadError) {
+      toast.error((uploadError as TResponseError).response?.data?.message ?? '이미지를 올리지 못했어요.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <Field label={label} hint={hint} error={error}>
       <div className="flex items-center gap-3">
-        <label className="cursor-pointer rounded-full border border-coolgray-30 px-4 py-2 text-button-s text-coolgray-90 hover:border-primary-60 hover:text-primary-60">
-          {value ? '이미지 바꾸기' : '이미지 올리기'}
+        <label
+          className={`rounded-full border border-coolgray-30 px-4 py-2 text-button-s text-coolgray-90 ${
+            isUploading ? 'cursor-default opacity-60' : 'cursor-pointer hover:border-primary-60 hover:text-primary-60'
+          }`}
+        >
+          {isUploading ? '올리는 중' : value ? '이미지 바꾸기' : '이미지 올리기'}
           <input
             type="file"
             accept={CLUB_LIMITS.IMAGE_TYPES.join(',')}
             className="sr-only"
+            disabled={isUploading}
             onChange={(event) => {
               const file = event.target.files?.[0];
               event.target.value = '';
@@ -201,7 +224,7 @@ function ImagePicker({
                 toast.error(reason);
                 return;
               }
-              onChange(URL.createObjectURL(file));
+              void upload(file);
             }}
           />
         </label>

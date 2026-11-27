@@ -6,7 +6,8 @@ import type { TClubAffiliation, TClubField, TClubRequesterRole } from '@/types/c
 
 export type TClubOfficerRow = { key: string; role: string; department: string; name: string };
 
-// 새로 고른 사진은 file과 미리보기 URL, 이미 저장된 사진은 existingId로 구분한다.
+// 사진 한 장. 고르면 바로 올리며, 올리는 중에는 existingId가 null이고 올리기가 끝나면 받은 사진 ID가 들어간다.
+// url은 미리보기(blob:) 또는 서버 사진 경로(/api/clubs/images/...)다.
 export type TClubImageDraft = { key: string; url: string; file: File | null; existingId: number | null };
 
 export type TClubForm = {

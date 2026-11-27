@@ -83,8 +83,8 @@ export default function ClubRequestPanel() {
                       {request.clubName}
                     </span>
                     <span className="text-body-xs text-coolgray-60">
-                      {formatAdminDateTime(request.requestedAt)} · {request.requester.name} ·{' '}
-                      {CLUB_REQUESTER_ROLE_LABELS[request.requester.role]}
+                      {formatAdminDateTime(request.requestedAt)} · {request.requester.name ?? '탈퇴한 회원'} ·{' '}
+                      {request.requester.role ? CLUB_REQUESTER_ROLE_LABELS[request.requester.role] : '관계 정보 없음'}
                     </span>
                   </span>
                 </button>
@@ -110,7 +110,8 @@ const approveEffects = (request: TAdminClubRequest) => {
   if (request.type === 'REGISTER')
     effects.unshift(`정식 동아리로 공개되고 최초 등록 ${CLUB_POINTS.FIRST_REGISTRATION}P 적립 대상이에요.`);
   if (request.type === 'RECRUITMENT') effects.push(`새 모집이면 ${CLUB_POINTS.RECRUITMENT}P 적립 대상이에요.`);
-  effects.push(`${request.requester.name}님에게 이 동아리 직접 수정 권한이 생겨요.`);
+  if (request.requester.memberId !== null)
+    effects.push(`${request.requester.name ?? '요청자'}님에게 이 동아리 직접 수정 권한이 생겨요.`);
   return effects;
 };
 
@@ -164,12 +165,17 @@ function RequestDetail({ request }: { request: TAdminClubRequest }) {
         <dl className="grid grid-cols-[112px_1fr] gap-x-3 gap-y-1 text-body-s">
           <dt className="text-coolgray-60">요청자</dt>
           <dd className="text-coolgray-90">
-            {request.requester.name} <span className="text-coolgray-60">(ID #{request.requester.memberId})</span>
+            {request.requester.name ?? '탈퇴한 회원'}{' '}
+            {request.requester.memberId !== null && (
+              <span className="text-coolgray-60">(ID #{request.requester.memberId})</span>
+            )}
           </dd>
           <dt className="text-coolgray-60">동아리와의 관계</dt>
-          <dd className="text-coolgray-90">{CLUB_REQUESTER_ROLE_LABELS[request.requester.role]}</dd>
+          <dd className="text-coolgray-90">
+            {request.requester.role ? CLUB_REQUESTER_ROLE_LABELS[request.requester.role] : '보유 기간 경과로 삭제됨'}
+          </dd>
           <dt className="text-coolgray-60">확인 연락처</dt>
-          <dd className="text-coolgray-90">{request.requester.contact || '-'}</dd>
+          <dd className="text-coolgray-90">{request.requester.contact ?? '보유 기간 경과로 삭제됨'}</dd>
           <dt className="text-coolgray-60">요청 시각</dt>
           <dd className="text-coolgray-90">{formatAdminDateTime(request.requestedAt)}</dd>
           {request.processedAt && (

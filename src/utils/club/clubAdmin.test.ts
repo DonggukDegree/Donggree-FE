@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { TClubSaveRequest } from '@/types/club/TClub';
+import type { TClubSaveValue } from '@/types/club/TClub';
 import type { TClubBannerForm } from '@/types/club/TClubAdmin';
 import {
   createBannerForm,
@@ -12,7 +12,7 @@ import {
   validateBannerForm,
 } from '@/utils/club/clubAdmin';
 
-const body: TClubSaveRequest = {
+const body: TClubSaveValue = {
   name: '소리마루',
   affiliation: 'CENTRAL',
   fields: ['PERFORMANCE'],
@@ -26,7 +26,11 @@ const body: TClubSaveRequest = {
   foundedDate: null,
   officers: [],
   links: [],
-  imageCount: 2,
+  images: [
+    { id: 1, url: '/api/clubs/images/a.webp' },
+    { id: 2, url: '/api/clubs/images/b.webp' },
+  ],
+  representativeImageId: 1,
   requesterContact: null,
   requesterRole: null,
 };

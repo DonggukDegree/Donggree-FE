@@ -1,119 +1,76 @@
 /**
  * [관리자 > 동아리 관리] API
- * 공개 API와 같은 모의 저장소(clubMockStore)를 바꾸므로, 승인·임시 등록·배너 저장이 공개 화면에도 바로 보인다.
- * BE API가 생기면 함수 이름·반환 타입은 그대로 두고 본문만 axiosInstance 호출로 바꾼다.
+ * 요청 승인·반려, 동아리 임시 등록·정보 수정·직접 수정 권한 회수, 목록 상단 배너 관리, 관리자 사진 올리기.
  */
-import { toSummary } from '@/apis/club/club';
-import {
-  addEditor,
-  applyClubSave,
-  applyRecruitmentSave,
-  createClub,
-  findClub,
-  getEditors,
-  issueId,
-  store,
-} from '@/apis/club/clubMockStore';
-import type { TClubRecruitmentSaveRequest, TClubRequestStatus, TClubSaveRequest } from '@/types/club/TClub';
+import axiosInstance from '@/apis/axiosInstance';
+import type { TClubRequestStatus, TClubSaveRequest, TClubUploadedImage } from '@/types/club/TClub';
 import type { TAdminClub, TAdminClubBanner, TAdminClubBannerSave, TAdminClubRequest } from '@/types/club/TClubAdmin';
+import type { TCommonResponse } from '@/types/common';
 
-const delay = () => new Promise((resolve) => setTimeout(resolve, 250));
-
-const findRequest = (requestId: number) => {
-  const request = store.requests.find(({ id }) => id === requestId);
-  if (!request) throw new Error('요청을 찾을 수 없어요.');
-  if (request.status !== 'PENDING') throw new Error('이미 처리된 요청이에요.');
-  return request;
-};
-
-// 요청 목록. 검토 중은 먼저 들어온 순(대기 순서, 다시 보낸 요청은 맨 뒤), 나머지는 최신순. status가 null이면 전체(최신순).
+// 요청 목록. 검토 중은 먼저 들어온 순(대기 순서, 다시 보낸 요청은 맨 뒤), 그 밖과 전체(null)는 최신순.
 export const getAdminClubRequests = async (status: TClubRequestStatus | null): Promise<TAdminClubRequest[]> => {
-  await delay();
-  const direction = status === 'PENDING' ? 1 : -1;
-  return structuredClone(
-    store.requests
-      .filter((request) => status === null || request.status === status)
-      .sort((a, b) => direction * (new Date(a.requestedAt).getTime() - new Date(b.requestedAt).getTime()))
-      .map(({ mine: _mine, ...request }) => request),
-  );
+  const { data } = await axiosInstance.get<TCommonResponse<TAdminClubRequest[]>>('/api/admin/clubs/requests', {
+    params: { status: status ?? undefined },
+  });
+  return data.result;
 };
 
-// 승인: 신규 등록은 정식 동아리로 공개, 수정·모집은 바로 반영(임시 등록 동아리는 정식으로 전환).
-// 요청자에게는 이 동아리의 직접 수정 권한이 생긴다.
+// 승인: 요청 값을 반영하고(임시 등록 동아리는 정식 전환) 요청자에게 직접 수정 권한을 준다. 처리된 요청은 409(CLUB409_4).
 export const approveAdminClubRequest = async (requestId: number): Promise<void> => {
-  await delay();
-  const request = findRequest(requestId);
-  const member = { memberId: request.requester.memberId, name: request.requester.name };
-  if (request.type === 'REGISTER') {
-    const club = createClub(request.after as TClubSaveRequest, 'OFFICIAL');
-    request.clubId = club.id;
-    addEditor(club.id, member);
-  } else {
-    const club = findClub(request.clubId as number);
-    if (request.type === 'EDIT') applyClubSave(club, request.after as TClubSaveRequest);
-    else applyRecruitmentSave(club, request.after as TClubRecruitmentSaveRequest);
-    if (club.registration === 'PROVISIONAL') {
-      club.registration = 'OFFICIAL';
-      club.firstRegistrationRewardAvailable = false;
-    }
-    addEditor(club.id, member);
-  }
-  request.status = 'APPROVED';
-  request.processedAt = new Date().toISOString();
+  await axiosInstance.post(`/api/admin/clubs/requests/${requestId}/approve`);
 };
 
-export const rejectAdminClubRequest = async ({
-  requestId,
-  reason,
-}: {
-  requestId: number;
-  reason: string;
-}): Promise<void> => {
-  await delay();
-  const request = findRequest(requestId);
-  request.status = 'REJECTED';
-  request.rejectReason = reason;
-  request.processedAt = new Date().toISOString();
+// 반려 사유는 1~200자(CLUB400_6)이며 요청자의 내 요청 내역에 보인다.
+export const rejectAdminClubRequest = async ({ requestId, reason }: { requestId: number; reason: string }) => {
+  await axiosInstance.post(`/api/admin/clubs/requests/${requestId}/reject`, { reason });
 };
 
-// 동아리 목록(먼저 등록된 순 = ID 오름차순). keyword는 이름에 포함된 동아리만.
+// 동아리 목록(먼저 등록된 순). keyword는 이름 부분 일치.
 export const getAdminClubs = async (keyword: string): Promise<TAdminClub[]> => {
-  await delay();
-  const query = keyword.trim();
-  return structuredClone(
-    store.clubs
-      .filter((club) => !query || club.name.includes(query))
-      .sort((a, b) => a.id - b.id)
-      .map((club) => ({ ...toSummary(club), editors: getEditors(club.id), updatedAt: club.updatedAt })),
-  );
+  const { data } = await axiosInstance.get<TCommonResponse<TAdminClub[]>>('/api/admin/clubs', {
+    params: { keyword: keyword.trim() || undefined },
+  });
+  return data.result;
 };
 
 export const revokeAdminClubEditor = async ({ clubId, memberId }: { clubId: number; memberId: number }) => {
-  await delay();
-  store.editors.set(
-    clubId,
-    getEditors(clubId).filter((editor) => editor.memberId !== memberId),
-  );
+  await axiosInstance.delete(`/api/admin/clubs/${clubId}/editors/${memberId}`);
 };
 
-// 관리자 임시 등록. 회원 요청이 승인되면 정식 등록으로 바뀌고 처음 승인받은 회원이 최초 등록 포인트를 받는다.
+// 관리자 임시 등록. 회원 요청이 처음 승인되면 정식 등록으로 바뀌고 그 회원이 최초 등록 포인트를 받는다.
 export const createAdminClub = async (body: TClubSaveRequest): Promise<{ clubId: number }> => {
-  await delay();
-  return { clubId: createClub(body, 'PROVISIONAL').id };
+  const { data } = await axiosInstance.post<TCommonResponse<number>>('/api/admin/clubs', body);
+  return { clubId: data.result };
 };
 
 export const updateAdminClub = async ({ clubId, body }: { clubId: number; body: TClubSaveRequest }) => {
-  await delay();
-  applyClubSave(findClub(clubId), body);
+  await axiosInstance.put(`/api/admin/clubs/${clubId}`, body);
   return { clubId };
 };
 
-// 배너(노출 순서대로)
-export const getAdminClubBanners = async (): Promise<TAdminClubBanner[]> => {
-  await delay();
-  return structuredClone([...store.banners].sort((a, b) => a.order - b.order));
+// 관리자 사진 올리기. 배너 이미지는 BANNER(정리하지 않음), 동아리 사진은 CLUB.
+export const uploadAdminClubImage = async ({
+  file,
+  purpose,
+}: {
+  file: File;
+  purpose: 'CLUB' | 'BANNER';
+}): Promise<TClubUploadedImage> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const { data } = await axiosInstance.post<TCommonResponse<TClubUploadedImage>>('/api/admin/clubs/images', formData, {
+    params: { purpose },
+  });
+  return data.result;
 };
 
+// 배너(노출 순서대로, 꺼짐·기간 밖 포함)
+export const getAdminClubBanners = async (): Promise<TAdminClubBanner[]> => {
+  const { data } = await axiosInstance.get<TCommonResponse<TAdminClubBanner[]>>('/api/admin/clubs/banners');
+  return data.result;
+};
+
+// 새 배너는 맨 뒤 순서로 들어간다. 링크·이미지는 동그리 경로 또는 https만(CLUB400_7).
 export const saveAdminClubBanner = async ({
   bannerId,
   body,
@@ -121,29 +78,15 @@ export const saveAdminClubBanner = async ({
   bannerId: number | null;
   body: TAdminClubBannerSave;
 }): Promise<void> => {
-  await delay();
-  if (bannerId === null) {
-    const order = Math.max(0, ...store.banners.map((banner) => banner.order)) + 1;
-    store.banners.push({ ...body, id: issueId(), order });
-    return;
-  }
-  const banner = store.banners.find(({ id }) => id === bannerId);
-  if (!banner) throw new Error('배너를 찾을 수 없어요.');
-  Object.assign(banner, body);
+  if (bannerId === null) await axiosInstance.post('/api/admin/clubs/banners', body);
+  else await axiosInstance.put(`/api/admin/clubs/banners/${bannerId}`, body);
 };
 
 export const deleteAdminClubBanner = async (bannerId: number): Promise<void> => {
-  await delay();
-  store.banners = store.banners.filter(({ id }) => id !== bannerId);
+  await axiosInstance.delete(`/api/admin/clubs/banners/${bannerId}`);
 };
 
-// 노출 순서를 한 칸 앞(-1)·뒤(+1)로.
+// 노출 순서를 한 칸 앞(-1)·뒤(+1)로. 맨 앞·뒤면 그대로 둔다.
 export const moveAdminClubBanner = async ({ bannerId, offset }: { bannerId: number; offset: -1 | 1 }) => {
-  await delay();
-  const ordered = [...store.banners].sort((a, b) => a.order - b.order);
-  const index = ordered.findIndex(({ id }) => id === bannerId);
-  const target = ordered[index + offset];
-  const current = ordered[index];
-  if (!current || !target) return;
-  [current.order, target.order] = [target.order, current.order];
+  await axiosInstance.post(`/api/admin/clubs/banners/${bannerId}/move`, { offset });
 };

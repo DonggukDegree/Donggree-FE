@@ -113,7 +113,7 @@ function ClubManageDetail({ club }: { club: TAdminClub }) {
   const confirmRevoke = (editor: TAdminClubEditor) =>
     openConfirm({
       title: '동아리 관리',
-      action: `${editor.name}님의 ${club.name} 직접 수정 권한을 회수할까요?`,
+      action: `${editor.name ?? `ID #${editor.memberId}`}님의 ${club.name} 직접 수정 권한을 회수할까요?`,
       description: '회수하면 이 회원의 정보 수정·모집 등록이 다시 관리자 승인 요청으로 들어와요.',
       confirmText: '권한 회수',
       confirmVariant: 'alert',
@@ -160,7 +160,8 @@ function ClubManageDetail({ club }: { club: TAdminClub }) {
               <li key={editor.memberId} className="flex items-center justify-between gap-3 py-2.5">
                 <span className="flex flex-col">
                   <span className="text-body-m text-coolgray-90">
-                    {editor.name} <span className="text-body-xs text-coolgray-60">(ID #{editor.memberId})</span>
+                    {editor.name ?? '이름 없음'}{' '}
+                    <span className="text-body-xs text-coolgray-60">(ID #{editor.memberId})</span>
                   </span>
                   <span className="text-body-xs text-coolgray-60">
                     권한 부여 {formatAdminDateTime(editor.grantedAt)}

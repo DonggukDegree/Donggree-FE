@@ -1,26 +1,27 @@
 /**
  * [관리자 > 동아리 관리] 화면·API 타입
- * 요청 승인·반려, 동아리 임시 등록·직접 수정 권한, 목록 상단 배너를 다룬다. 현재는 모의 데이터가 이 모양을 따른다.
+ * 요청 승인·반려, 동아리 임시 등록·직접 수정 권한, 목록 상단 배너를 다룬다. BE 관리자 API(/api/admin/clubs) 계약을 따른다.
  */
 import type {
   TClubBanner,
   TClubRecruitmentSaveRequest,
   TClubRequest,
   TClubRequesterRole,
-  TClubSaveRequest,
+  TClubSaveValue,
   TClubSummary,
 } from '@/types/club/TClub';
 
 // 요청자(실명·회원 ID). 연락처·신분은 관리자 확인·추적용이며 공개 화면에는 내려가지 않는다.
+// 탈퇴하면 회원 ID·이름이, 요청 1년 뒤나 탈퇴 시 연락처·신분이 null이다.
 export type TAdminClubRequester = {
-  memberId: number;
-  name: string;
-  contact: string;
-  role: TClubRequesterRole;
+  memberId: number | null;
+  name: string | null;
+  contact: string | null;
+  role: TClubRequesterRole | null;
 };
 
 // 등록·수정 요청은 동아리 정보, 모집 요청은 모집 정보를 바꾸기 전(before)·요청(after)으로 담는다. 신규 등록은 before가 없다.
-type TClubInfoChange = { type: 'REGISTER' | 'EDIT'; before: TClubSaveRequest | null; after: TClubSaveRequest };
+type TClubInfoChange = { type: 'REGISTER' | 'EDIT'; before: TClubSaveValue | null; after: TClubSaveValue };
 type TRecruitmentChange = {
   type: 'RECRUITMENT';
   before: TClubRecruitmentSaveRequest | null;
@@ -33,7 +34,7 @@ export type TAdminClubRequest = Omit<TClubRequest, 'type'> &
 // 승인 없이 바로 수정할 수 있는 회원(이 동아리의 요청이 한 번이라도 승인된 회원). 관리자가 회수할 수 있다.
 export type TAdminClubEditor = {
   memberId: number;
-  name: string;
+  name: string | null;
   grantedAt: string;
 };
 
