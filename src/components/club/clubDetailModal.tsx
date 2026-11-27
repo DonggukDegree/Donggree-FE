@@ -25,6 +25,7 @@ import {
   getRecruitmentTone,
   type TRecruitmentTone,
 } from '@/utils/club/club';
+import { toAssetUrl } from '@/utils/club/clubImage';
 import { formatDateTime } from '@/utils/date';
 
 interface IClubDetailModalProps {
@@ -60,7 +61,7 @@ function ImageGallery({ club }: { club: TClubDetail }) {
         {ordered.map((image, order) => (
           <img
             key={image.id}
-            src={image.url}
+            src={toAssetUrl(image.url)}
             alt={`${club.name} 사진 ${order + 1}`}
             aria-hidden={order !== index}
             className="h-full w-full shrink-0 object-contain"

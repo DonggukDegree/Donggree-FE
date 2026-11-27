@@ -11,6 +11,7 @@ import type {
   TClubRecruitment,
   TClubRecruitmentSaveRequest,
   TClubSaveRequest,
+  TClubSaveValue,
 } from '@/types/club/TClub';
 import type {
   TClubForm,
@@ -115,15 +116,9 @@ export const clubFormFromDetail = (club: TClubDetail): TClubForm => {
 };
 
 // 보냈던 요청(입력값)으로 폼을 다시 채운다. 반려·검토 중 요청을 고쳐서 다시 보낼 때 쓴다.
-// 연락처·신분은 그대로 채우고 수집 동의는 새로 받는다. 사진은 업로드 API 전이라 images로 넘긴 기존 사진만 채운다.
-export const clubFormFromSave = (
-  body: TClubSaveRequest,
-  existing: { images: TClubDetail['images']; representativeImageId: number | null } = {
-    images: [],
-    representativeImageId: null,
-  },
-): TClubForm => {
-  const images = existing.images.map((image) => ({
+// 연락처·신분은 그대로 채우고 수집 동의는 새로 받는다. 사진은 보냈던 사진(정리돼 없어진 사진 제외)을 그대로 채운다.
+export const clubFormFromSave = (body: TClubSaveValue): TClubForm => {
+  const images = body.images.map((image) => ({
     key: createRowKey('image'),
     url: image.url,
     file: null,
@@ -148,7 +143,7 @@ export const clubFormFromSave = (
     links: toLinkRows(body.links),
     images,
     representativeImageKey:
-      images.find((image) => image.existingId === existing.representativeImageId)?.key ?? images[0]?.key ?? null,
+      images.find((image) => image.existingId === body.representativeImageId)?.key ?? images[0]?.key ?? null,
     requesterRole: body.requesterRole,
     contact: body.requesterContact ?? '',
     consent: false,
@@ -221,7 +216,9 @@ export const toClubSaveRequest = (form: TClubForm, needsApproval: boolean): TClu
     .filter(isFilledOfficer)
     .map(({ role, department, name }) => ({ role: role.trim(), department: department.trim(), name: name.trim() })),
   links: toLinks(form.links),
-  imageCount: form.images.length,
+  // 올리기가 끝난 사진만 보낸다(올리는 중에는 제출 버튼이 꺼져 있다).
+  imageIds: form.images.flatMap((image) => (image.existingId === null ? [] : [image.existingId])),
+  representativeImageId: form.images.find((image) => image.key === form.representativeImageKey)?.existingId ?? null,
   requesterContact: needsApproval ? form.contact.trim() : null,
   requesterRole: needsApproval ? form.requesterRole : null,
 });

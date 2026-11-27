@@ -7,7 +7,7 @@ import {
   CLUB_BANNER_LIMITS,
   CLUB_FIELD_LABELS,
 } from '@/constants/club';
-import type { TClubLink, TClubRecruitmentSaveRequest, TClubSaveRequest } from '@/types/club/TClub';
+import type { TClubLink, TClubRecruitmentSaveRequest, TClubSaveValue } from '@/types/club/TClub';
 import type {
   TAdminBannerStatus,
   TAdminClubBanner,
@@ -30,7 +30,7 @@ const text = (value: string | number | null | undefined) =>
 const linksText = (links: TClubLink[]) =>
   links.length === 0 ? EMPTY : links.map((link) => `${link.label} ${link.url}`).join('\n');
 
-const clubRows = (body: TClubSaveRequest): [string, string][] => [
+const clubRows = (body: TClubSaveValue): [string, string][] => [
   ['동아리 이름', body.name],
   ['소속 분류', CLUB_AFFILIATION_LABELS[body.affiliation]],
   ['활동 분야', body.fields.map((field) => CLUB_FIELD_LABELS[field]).join(', ')],
@@ -54,7 +54,7 @@ const clubRows = (body: TClubSaveRequest): [string, string][] => [
           .join('\n'),
   ],
   ['관련 링크', linksText(body.links)],
-  ['사진', `${body.imageCount}장`],
+  ['사진', `${body.images.length}장`],
 ];
 
 const recruitmentRows = (body: TClubRecruitmentSaveRequest): [string, string][] => [
@@ -70,10 +70,10 @@ const recruitmentRows = (body: TClubRecruitmentSaveRequest): [string, string][] 
 
 // 바꾸기 전·요청 값을 같은 항목끼리 나란히 놓는다. 신규 등록·첫 모집은 전 값이 없어 모든 항목을 바뀐 것으로 본다.
 export const describeRequestChanges = (request: Pick<TAdminClubRequest, 'type' | 'before' | 'after'>): TChangeRow[] => {
-  const toRows = (body: TClubSaveRequest | TClubRecruitmentSaveRequest) =>
+  const toRows = (body: TClubSaveValue | TClubRecruitmentSaveRequest) =>
     request.type === 'RECRUITMENT'
       ? recruitmentRows(body as TClubRecruitmentSaveRequest)
-      : clubRows(body as TClubSaveRequest);
+      : clubRows(body as TClubSaveValue);
   const after = toRows(request.after);
   const before = request.before ? toRows(request.before) : null;
   return after.map(([label, value], index) => {

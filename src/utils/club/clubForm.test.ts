@@ -163,11 +163,37 @@ describe('보낸 요청으로 다시 채우기', () => {
       filledForm({ noRoom: true, roomLocation: '', foundedUnknown: true, foundedDate: '' }),
       true,
     );
-    const form = clubFormFromSave(body);
+    const form = clubFormFromSave({
+      ...body,
+      images: [
+        { id: 7, url: '/api/clubs/images/a.webp' },
+        { id: 8, url: '/api/clubs/images/b.webp' },
+      ],
+      representativeImageId: 8,
+    });
     expect(form.consent).toBe(false);
     expect(form.noRoom).toBe(true);
     expect(form.foundedUnknown).toBe(true);
-    expect(toClubSaveRequest({ ...form, consent: true }, true)).toEqual(body);
+    expect(toClubSaveRequest({ ...form, consent: true }, true)).toEqual({
+      ...body,
+      imageIds: [7, 8],
+      representativeImageId: 8,
+    });
+  });
+
+  it('올리는 중인 사진은 보내지 않고 대표 사진은 사진 ID로 바꾼다', () => {
+    const body = toClubSaveRequest(
+      filledForm({
+        images: [
+          { key: 'a', url: 'blob:a', file: null, existingId: 11 },
+          { key: 'b', url: 'blob:b', file: null, existingId: null },
+        ],
+        representativeImageKey: 'a',
+      }),
+      true,
+    );
+    expect(body.imageIds).toEqual([11]);
+    expect(body.representativeImageId).toBe(11);
   });
 
   it('모집 요청도 보냈던 값으로 다시 채운다', () => {

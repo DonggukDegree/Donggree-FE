@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { putClubRecruitment, resubmitMyClubRequest } from '@/apis/club/club';
+import { putClubRecruitment, resubmitMyRecruitmentRequest } from '@/apis/club/club';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import type { TClubResubmit } from '@/hooks/club/useClubForm';
 import { useCoreMutation } from '@/hooks/customQuery';
@@ -58,7 +58,7 @@ export default function useClubRecruitmentForm(
   const mutation = useCoreMutation(
     (body: TClubRecruitmentSaveRequest) =>
       resubmit
-        ? resubmitMyClubRequest({ requestId: resubmit.requestId, body })
+        ? resubmitMyRecruitmentRequest({ requestId: resubmit.requestId, body })
         : putClubRecruitment({ clubId: club.id, body }),
     {
       onSuccess: (result) => {

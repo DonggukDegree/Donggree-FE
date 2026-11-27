@@ -8,6 +8,7 @@ import { useRef, useState } from 'react';
 
 import useAutoRotate from '@/hooks/club/useAutoRotate';
 import type { TClubBanner } from '@/types/club/TClub';
+import { toAssetUrl } from '@/utils/club/clubImage';
 
 const BANNER_INTERVAL_MS = 4000;
 const SWIPE_THRESHOLD = 40;
@@ -68,8 +69,10 @@ export default function ClubBannerCarousel({ banners, onSelect }: IClubBannerCar
             >
               {banner.imageUrl ? (
                 <picture className="absolute inset-0">
-                  {banner.mobileImageUrl && <source media="(max-width: 639px)" srcSet={banner.mobileImageUrl} />}
-                  <img src={banner.imageUrl} alt={banner.title} className="h-full w-full object-cover" />
+                  {banner.mobileImageUrl && (
+                    <source media="(max-width: 639px)" srcSet={toAssetUrl(banner.mobileImageUrl)} />
+                  )}
+                  <img src={toAssetUrl(banner.imageUrl)} alt={banner.title} className="h-full w-full object-cover" />
                 </picture>
               ) : (
                 <>

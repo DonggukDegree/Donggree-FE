@@ -1,19 +1,19 @@
 /**
  * [동아리] 등록·정보 수정 폼 상태
- * 새 동아리는 항상 승인 요청이고, 기존 동아리는 승인 이력이 있는 회원이면 바로 반영한다.
- * 사진은 업로드 API 확정 전이라 브라우저 미리보기까지만 다룬다.
+ * 새 동아리는 항상 승인 요청이고, 기존 동아리는 직접 수정 권한이 있는 회원이면 바로 반영한다.
+ * 사진은 고르는 즉시 올려 사진 ID를 받고, 올리는 동안은 제출 버튼을 끈다. 올리기에 실패한 사진은 빼고 알린다.
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { postClub, putClub, resubmitMyClubRequest } from '@/apis/club/club';
-import { createAdminClub, updateAdminClub } from '@/apis/club/clubAdmin';
+import { postClub, putClub, resubmitMyClubRequest, uploadClubImage } from '@/apis/club/club';
+import { createAdminClub, updateAdminClub, uploadAdminClubImage } from '@/apis/club/clubAdmin';
 import { CLUB_LIMITS } from '@/constants/club';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useCoreMutation } from '@/hooks/customQuery';
-import type { TClubDetail, TClubField, TClubSaveRequest, TClubSaveResult } from '@/types/club/TClub';
+import type { TClubDetail, TClubField, TClubSaveRequest, TClubSaveResult, TClubSaveValue } from '@/types/club/TClub';
 import type {
   TClubForm,
   TClubFormErrors,
@@ -21,6 +21,7 @@ import type {
   TClubLinkRow,
   TClubOfficerRow,
 } from '@/types/club/TClubForm';
+import type { TResponseError } from '@/types/common';
 import { trackEvent } from '@/utils/analytics/analytics';
 import {
   addLinkRow,
@@ -43,16 +44,12 @@ export type TClubResubmit<TBody> = { requestId: number; body: TBody };
 
 export default function useClubForm(
   club: TClubDetail | null,
-  { admin = false, resubmit }: { admin?: boolean; resubmit?: TClubResubmit<TClubSaveRequest> } = {},
+  { admin = false, resubmit }: { admin?: boolean; resubmit?: TClubResubmit<TClubSaveValue> } = {},
 ) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [form, setForm] = useState<TClubForm>(() =>
-    resubmit
-      ? clubFormFromSave(resubmit.body, club ?? undefined)
-      : club
-        ? clubFormFromDetail(club)
-        : createEmptyClubForm(),
+    resubmit ? clubFormFromSave(resubmit.body) : club ? clubFormFromDetail(club) : createEmptyClubForm(),
   );
   const [errors, setErrors] = useState<TClubFormErrors>({});
   const objectUrls = useRef<string[]>([]);
@@ -98,6 +95,32 @@ export default function useClubForm(
     setForm((prev) => ({ ...prev, links: changeLinkRow(prev.links, key, patch) }));
   const removeLink = (key: string) => setForm((prev) => ({ ...prev, links: removeLinkRow(prev.links, key) }));
 
+  // 대표 사진을 지우면 남은 첫 장으로 바꾸고, 사진이 없으면 기본 이미지로 보여준다.
+  const removeImage = (key: string) =>
+    setForm((prev) => {
+      const images = prev.images.filter((image) => image.key !== key);
+      const representativeImageKey =
+        prev.representativeImageKey === key ? (images[0]?.key ?? null) : prev.representativeImageKey;
+      return { ...prev, images, representativeImageKey };
+    });
+
+  // 관리자는 관리자 업로드(학생 인증 불필요)를 쓴다. 올리는 사이 사진을 지웠으면 결과를 버린다.
+  const uploadDraft = async (draft: TClubImageDraft) => {
+    if (!draft.file) return;
+    try {
+      const uploaded = admin
+        ? await uploadAdminClubImage({ file: draft.file, purpose: 'CLUB' })
+        : await uploadClubImage(draft.file);
+      setForm((prev) => ({
+        ...prev,
+        images: prev.images.map((image) => (image.key === draft.key ? { ...image, existingId: uploaded.id } : image)),
+      }));
+    } catch (error) {
+      removeImage(draft.key);
+      toast.error((error as TResponseError).response?.data?.message ?? '사진을 올리지 못했어요. 다시 골라주세요.');
+    }
+  };
+
   const addImages = (files: File[]) => {
     const added: TClubImageDraft[] = [];
     for (const file of files) {
@@ -117,16 +140,8 @@ export default function useClubForm(
       return { ...prev, images, representativeImageKey: prev.representativeImageKey ?? images[0]?.key ?? null };
     });
     setErrors((prev) => ({ ...prev, images: undefined }));
+    added.forEach((draft) => void uploadDraft(draft));
   };
-
-  // 대표 사진을 지우면 남은 첫 장으로 바꾸고, 사진이 없으면 기본 이미지로 보여준다.
-  const removeImage = (key: string) =>
-    setForm((prev) => {
-      const images = prev.images.filter((image) => image.key !== key);
-      const representativeImageKey =
-        prev.representativeImageKey === key ? (images[0]?.key ?? null) : prev.representativeImageKey;
-      return { ...prev, images, representativeImageKey };
-    });
 
   const saveClub = async (body: TClubSaveRequest): Promise<TClubSaveResult> => {
     if (admin) {
@@ -160,6 +175,8 @@ export default function useClubForm(
     },
   });
 
+  const isUploading = form.images.some((image) => image.existingId === null);
+
   const submit = () => {
     const nextErrors = validateClubForm(form, needsApproval);
     setErrors(nextErrors);
@@ -179,8 +196,9 @@ export default function useClubForm(
     isEditing,
     needsApproval,
     isSubmitting: mutation.isPending,
-    // 필수 칸을 다 채워야 제출 버튼이 켜진다.
-    canSubmit: isClubFormComplete(form, needsApproval) && !mutation.isPending,
+    isUploading,
+    // 필수 칸을 다 채우고 사진 올리기가 끝나야 제출 버튼이 켜진다.
+    canSubmit: isClubFormComplete(form, needsApproval) && !isUploading && !mutation.isPending,
     update,
     toggleField,
     addOfficer,

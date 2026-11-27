@@ -53,7 +53,6 @@ export default function ClubRequestEdit() {
                 {detail.rejectReason && <p className="text-alert">반려 사유: {detail.rejectReason}</p>}
               </>
             )}
-            {detail.type === 'REGISTER' && <p className="text-coolgray-60">사진은 다시 올려주세요.</p>}
           </div>
           {detail.type === 'RECRUITMENT' ? (
             club.data && (

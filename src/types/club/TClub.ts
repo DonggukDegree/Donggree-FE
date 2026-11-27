@@ -1,6 +1,6 @@
 /**
  * [동아리] 화면·API 타입
- * 현재는 UI 확인용 모의 데이터가 이 모양을 따른다. BE API가 생기면 실제 응답 계약에 맞춰 다시 대조한다.
+ * BE 동아리 API(/api/clubs) 요청·응답 계약을 따른다. 일시는 한국 시간(시간대 없는 ISO), 사진 주소는 API 서버 기준 경로다.
  */
 
 // 소속 분류(동아리당 1개).
@@ -113,7 +113,7 @@ export type TClubFilters = {
   recruitmentStatuses: TClubRecruitmentStatus[];
 };
 
-// 목록 조회 조건. 필터·정렬은 서버가 적용하고, 찜 모아보기는 찜한 동아리 ID로 좁힌다(찜 API 전까지).
+// 목록 조회 조건. 필터·정렬은 서버가 적용하고, 찜 모아보기는 찜한 동아리 ID(ids)로 좁힌다.
 export type TClubListParams = {
   filters: TClubFilters;
   sort: TClubSort;
@@ -146,7 +146,7 @@ export type TClubRequest = {
   rejectReason: string | null;
 };
 
-// 등록·수정 요청 본문. 사진은 업로드 API 확정 전이라 화면에서만 다룬다.
+// 등록·수정 요청 본문. 사진은 먼저 올려 받은 사진 ID를 순서대로 보낸다(최대 3장, 대표 사진을 비우면 첫 장).
 export type TClubSaveRequest = {
   name: string;
   affiliation: TClubAffiliation;
@@ -161,7 +161,8 @@ export type TClubSaveRequest = {
   foundedDate: string | null;
   officers: TClubOfficer[];
   links: TClubLink[];
-  imageCount: number;
+  imageIds: number[];
+  representativeImageId: number | null;
   requesterContact: string | null;
   requesterRole: TClubRequesterRole | null;
 };
@@ -182,7 +183,7 @@ export type TClubRecruitmentSaveRequest = {
 // 저장 결과. 승인 대기면 요청 내역에 추가되고, 바로 반영이면 상세가 바뀐다.
 export type TClubSaveResult = { applied: 'DIRECT' | 'PENDING'; clubId: number | null };
 
-// 목록 상단 광고 배너. 지금은 모의 데이터이고 관리자 등록·노출 기간은 API 단계에서 정한다.
+// 목록 상단 광고 배너. 켜져 있고 노출 기간 안인 배너만 노출 순서대로 받는다.
 // 이미지가 있으면 이미지 배너(글자는 이미지에 포함, title은 대체 텍스트), 없으면 색 배경 + 글자 배너로 그린다.
 export type TClubBanner = {
   id: number;
@@ -198,9 +199,13 @@ export type TClubBanner = {
   link: string;
 };
 
+// 요청에 담긴 동아리 정보 값. 저장 본문과 같되 사진은 ID 대신 주소와 함께 준다(정리돼 없어진 사진은 빠진다).
+export type TClubSaveValue = Omit<TClubSaveRequest, 'imageIds'> & { images: TClubImage[] };
+
 // 내 요청 한 건(수정해서 다시 요청할 때 불러온다). 보냈던 입력값(after)에 연락처·신분이 함께 들어 있다.
+// 보유 기간(1년)이 지나면 연락처·신분은 null이다.
 export type TMyClubRequestDetail = TClubRequest &
-  (
-    | { type: 'REGISTER' | 'EDIT'; after: TClubSaveRequest }
-    | { type: 'RECRUITMENT'; after: TClubRecruitmentSaveRequest }
-  );
+  ({ type: 'REGISTER' | 'EDIT'; after: TClubSaveValue } | { type: 'RECRUITMENT'; after: TClubRecruitmentSaveRequest });
+
+// 사진 업로드 결과. url은 API 서버 기준 경로(/api/clubs/images/...)라 그릴 때 toAssetUrl로 바꾼다.
+export type TClubUploadedImage = TClubImage;

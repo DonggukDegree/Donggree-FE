@@ -25,6 +25,7 @@ export const QUERY_KEYS = {
   GET_MY_CLUB_REQUESTS: ['clubs', 'my-requests'] as const,
   GET_MY_CLUB_REQUEST: (requestId: number) => ['clubs', 'my-requests', requestId] as const,
   GET_CLUB_BANNERS: ['clubs', 'banners'] as const,
+  GET_CLUB_FAVORITES: ['clubs', 'favorites'] as const,
   // 관리자 동아리 관리. CLUBS_ROOT 아래에 두어 승인·저장 후 공개 화면과 함께 무효화한다.
   ADMIN_CLUB_REQUESTS: (status: TClubRequestStatus | null) => ['clubs', 'admin', 'requests', status] as const,
   ADMIN_CLUBS: (keyword: string) => ['clubs', 'admin', 'clubs', keyword] as const,

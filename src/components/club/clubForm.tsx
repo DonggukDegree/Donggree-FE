@@ -13,8 +13,9 @@ import Toggle from '@/components/common/inputs/toggle';
 import { CLUB_AFFILIATIONS, CLUB_FIELDS, CLUB_LIMITS, CLUB_POINTS } from '@/constants/club';
 import { INPUT_CLASS } from '@/constants/inputStyles';
 import useClubForm, { type TClubResubmit } from '@/hooks/club/useClubForm';
-import type { TClubDetail, TClubSaveRequest } from '@/types/club/TClub';
+import type { TClubDetail, TClubSaveValue } from '@/types/club/TClub';
 import { dateTextClass } from '@/utils/club/clubForm';
+import { toAssetUrl } from '@/utils/club/clubImage';
 
 const inputClass = (error?: string) => `${INPUT_CLASS} ${error ? 'border-alert' : 'border-coolgray-30'}`;
 
@@ -27,7 +28,7 @@ export default function ClubForm({
 }: {
   club: TClubDetail | null;
   admin?: boolean;
-  resubmit?: TClubResubmit<TClubSaveRequest>;
+  resubmit?: TClubResubmit<TClubSaveValue>;
 }) {
   const navigate = useNavigate();
   const clubForm = useClubForm(club, { admin, resubmit });
@@ -193,7 +194,12 @@ export default function ClubForm({
                   isRepresentative ? 'border-primary-60' : 'border-transparent'
                 }`}
               >
-                <img src={image.url} alt="" className="h-full w-full object-cover" />
+                <img src={toAssetUrl(image.url)} alt="" className="h-full w-full object-cover" />
+                {image.existingId === null && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-coolgray-90/40 text-body-s font-semibold text-white">
+                    올리는 중
+                  </span>
+                )}
                 <button
                   type="button"
                   aria-label="사진 삭제"
