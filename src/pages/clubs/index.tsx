@@ -4,7 +4,7 @@
  * 필터 바로 위 오른쪽에 내 요청 내역·신규 동아리 등록, 필터(소속 분류·활동 분야·모집 상태)와 정렬(이름·마감 임박·인원 많은·오래된 순),
  * 그 아래 4:3 카드 갤러리(모바일 2열·태블릿 3열·PC 4열). 목록은 커서 기반으로 12개씩 받고, 목록 끝에 가까워지면 자동으로 이어 받는다(불러오는 동안 카드 뼈대). 카드를 누르면 ?club=ID로 상세 모달이 열려 뒤로가기로 닫힌다.
  * 오른쪽 아래 떠 있는 버튼: 맨 위로 가기, 그 아래 찜한 동아리만 모아보기(다시 누르면 전체).
- * 현재는 UI 확인용 모의 데이터를 보여준다(apis/club/club.ts).
+ * 목록·배너·찜은 BE 동아리 API(apis/club/club.ts)에서 받는다.
  */
 import { useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -23,10 +23,10 @@ import ScrollToTopButton, {
 } from '@/components/common/inputs/scrollToTopButton';
 import FloatingActionStack from '@/components/common/overlays/floatingActionStack';
 import { CLUB_LIST_PAGE_SIZE } from '@/constants/club';
+import { useFavoriteClubIds } from '@/hooks/club/useClubFavorites';
 import { useClubBanners, useClubs } from '@/hooks/club/useClubQueries';
 import useInView from '@/hooks/useInView';
 import useLoadMoreTrigger from '@/hooks/useLoadMoreTrigger';
-import { useClubFavoriteStore } from '@/stores/clubFavoriteStore';
 import type { TClubBanner, TClubFilters, TClubSort } from '@/types/club/TClub';
 import { trackEvent } from '@/utils/analytics/analytics';
 import { countActiveFilters, EMPTY_CLUB_FILTERS, parseClubIdParam } from '@/utils/club/club';
@@ -45,7 +45,7 @@ export default function Clubs() {
   const [isRequestsOpen, setIsRequestsOpen] = useState(false);
   // 모집 상태·D-day 계산 기준 시각. 화면에 들어온 시점으로 고정한다.
   const [now] = useState(() => new Date());
-  const favoriteIds = useClubFavoriteStore((state) => state.ids);
+  const favoriteIds = useFavoriteClubIds();
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   // 조건(필터·정렬·찜 범위)이 바뀌면 처음 12개부터 다시 받는다.
   const { clubs, totalCount, isPending, isError, hasNextPage, fetchNextPage, isFetchingNextPage } = useClubs({
