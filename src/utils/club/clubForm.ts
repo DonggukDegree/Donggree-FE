@@ -223,12 +223,12 @@ export const toClubSaveRequest = (form: TClubForm, needsApproval: boolean): TClu
   requesterRole: needsApproval ? form.requesterRole : null,
 });
 
-// 사진 파일 검사. 형식·용량·장수 초과 사유를 돌려주고, 문제가 없으면 null.
+// 고른 사진 파일 검사(크롭 전 원본). 형식·용량·장수 초과 사유를 돌려주고, 문제가 없으면 null.
 export const validateClubImageFile = (file: File, currentCount: number): string | null => {
   if (currentCount >= CLUB_LIMITS.IMAGES_MAX) return `사진은 최대 ${CLUB_LIMITS.IMAGES_MAX}장까지 올릴 수 있어요.`;
   if (!(CLUB_LIMITS.IMAGE_TYPES as readonly string[]).includes(file.type))
     return 'JPG, PNG, WEBP 사진만 올릴 수 있어요.';
-  if (file.size > CLUB_LIMITS.IMAGE_BYTES_MAX) return '사진은 한 장에 5MB 이하만 올릴 수 있어요.';
+  if (file.size > CLUB_LIMITS.IMAGE_SOURCE_BYTES_MAX) return '사진은 한 장에 20MB 이하만 고를 수 있어요.';
   return null;
 };
 
