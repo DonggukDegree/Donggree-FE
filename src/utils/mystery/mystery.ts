@@ -27,7 +27,8 @@ export const mysteryShareText = (game: TMysteryToday, url: string): string | nul
   return [
     `🏮 정각원의 비밀 - ${game.gameDate.replaceAll('-', '.')}`,
     game.status === 'WON' ? `✅ ${game.attempts.length}번 의심으로 성공` : '❌ 실패',
-    `🔥 ${game.statistics.currentStreak}일 연속 도전`,
+    // 비회원은 스트릭이 없으므로 연속 도전 줄을 뺀다.
+    ...(game.statistics ? [`🔥 ${game.statistics.currentStreak}일 연속 도전`] : []),
     ...rows,
     `🔗 게임하러 가기 ${url}`,
   ].join('\n');

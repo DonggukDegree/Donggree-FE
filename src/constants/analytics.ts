@@ -28,6 +28,7 @@ export const EVENT_NAMES = {
   mystery_guess_submitted: '추리 제출',
   mystery_clue_revealed: '추리 단서 공개',
   mystery_completed: '오늘의 추리 종료',
+  mystery_login_click: '추리 게임 로그인 유도 클릭',
   mystery_shared: '추리 결과 텍스트 복사',
   mystery_link_copied: '추리 게임 링크 복사',
   page_view: '화면 조회',

@@ -59,6 +59,11 @@ export const router = createBrowserRouter([
         index: true,
         element: tracked(<Home />),
       },
+      // 정각원의 비밀은 비회원도 같은 오늘의 사건을 푼다. 스트릭·통계·포인트는 로그인 회원만 서버에 쌓인다.
+      {
+        path: 'mystery',
+        element: tracked(<Mystery />),
+      },
       {
         path: 'faq',
         element: tracked(<Faq />),
@@ -95,10 +100,6 @@ export const router = createBrowserRouter([
           {
             path: 'curriculum',
             element: tracked(<Curriculum />),
-          },
-          {
-            path: 'mystery',
-            element: tracked(<Mystery />),
           },
           // 동글맵은 로그인 회원 누구나 열람한다. 장소 등록 등 쓰기 권한은 화면·서버에서 따로 확인한다.
           {

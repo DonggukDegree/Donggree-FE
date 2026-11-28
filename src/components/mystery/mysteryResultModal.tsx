@@ -1,8 +1,12 @@
-/** [정각원의 비밀] 재접속해도 같은 결과를 보여주는 전역 결과 모달. */
+/**
+ * [정각원의 비밀] 재접속해도 같은 결과를 보여주는 전역 결과 모달.
+ * 비회원은 스트릭·성공률·평균 시도와 등급 대신 "로그인하고 스트릭 쌓기" 버튼을 보여준다.
+ */
 import '@/pages/mystery/mystery.css';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import LotusBadge from '@/components/mystery/lotusBadge';
@@ -19,13 +23,15 @@ import { acknowledgePointReward } from '@/utils/point/pointReward';
 export default function MysteryResultModal() {
   const date = useModalStore((s) => s.mysteryDate);
   const close = useModalStore((s) => s.closeMysteryResult);
-  const { data, memberId } = useMysteryToday();
+  const { data, memberId, isGuest } = useMysteryToday();
+  const navigate = useNavigate();
   const client = useQueryClient();
   const panel = useRef<HTMLDivElement>(null);
   const game = data?.gameDate === date ? data : null;
   const rewardDate = game?.status === 'WON' ? game.gameDate : null;
   useEffect(() => {
-    if (!rewardDate) return;
+    // 비회원은 적립이 없으므로 확인하지 않는다.
+    if (!rewardDate || memberId === null) return;
     // 날짜별 서버 확인으로 재접속·모달 재열기·StrictMode에서도 적립 안내를 한 번만 표시한다.
     void acknowledgePointReward({ reason: 'MYSTERY_SOLVED', targetId: Number(rewardDate.replaceAll('-', '')) }).then(
       (amount) => {
@@ -70,6 +76,11 @@ export default function MysteryResultModal() {
   const won = game.status === 'WON';
   const finished = won || game.status === 'LOST';
   const stats = game.statistics;
+  const login = () => {
+    trackEvent('mystery_login_click');
+    close();
+    navigate('/login');
+  };
   const copy = async (kind: 'link' | 'result') => {
     if (kind === 'result' && !finished) return;
     const url = new URL('/mystery', window.location.origin).href;
@@ -115,38 +126,55 @@ export default function MysteryResultModal() {
               {won ? '연등을 되찾았어요!' : '연등을 잃어버렸어요...'}
             </p>
           )}
-          <LotusBadge tier={stats.tier} />
-          <p className="mystery-tier text-body-m mystery-result-muted">{MYSTERY_TIER_LABELS[stats.tier]}</p>
-          <p className="mystery-streak text-heading-5">
-            <span className="mystery-gold-text">{stats.currentStreak}</span>일 연속 도전!
-          </p>
-          <div className="mystery-result-stats">
-            <div>
-              <strong className="text-heading-4">
-                <span className="mystery-gold-text">{Math.round(stats.successRate)}</span>
-                <small className="text-body-xs mystery-result-muted">%</small>
-              </strong>
-              <span className="text-body-xs mystery-result-muted">성공률</span>
+          <LotusBadge tier={stats?.tier ?? 'BRONZE'} />
+          {isGuest || !stats ? (
+            <div className="mystery-guest-login">
+              <p className="text-body-s mystery-result-muted">
+                로그인하면 매일 도전한 기록이 스트릭으로 쌓이고,
+                <br />
+                정답을 맞힌 날마다 10P가 적립돼요.
+              </p>
+              <button type="button" className="mystery-submit-button mystery-guest-login-button" onClick={login}>
+                <span aria-hidden="true">✧</span>
+                로그인하고 스트릭 쌓기
+                <span aria-hidden="true">✧</span>
+              </button>
             </div>
-            <div>
-              <strong className="text-heading-4">
-                <span className="mystery-gold-text">
-                  {stats.completedGames === 0 || stats.averageAttempts === null
-                    ? '0'
-                    : stats.averageAttempts.toFixed(1)}
-                </span>
-                <small className="text-body-xs mystery-result-muted">회</small>
-              </strong>
-              <span className="text-body-xs mystery-result-muted">평균 시도</span>
-            </div>
-            <div>
-              <strong className="text-heading-4">
-                <span className="mystery-gold-text">{stats.currentStreak}</span>
-                <small className="text-body-xs mystery-result-muted">일</small>
-              </strong>
-              <span className="text-body-xs mystery-result-muted">현재 스트릭</span>
-            </div>
-          </div>
+          ) : (
+            <>
+              <p className="mystery-tier text-body-m mystery-result-muted">{MYSTERY_TIER_LABELS[stats.tier]}</p>
+              <p className="mystery-streak text-heading-5">
+                <span className="mystery-gold-text">{stats.currentStreak}</span>일 연속 도전!
+              </p>
+              <div className="mystery-result-stats">
+                <div>
+                  <strong className="text-heading-4">
+                    <span className="mystery-gold-text">{Math.round(stats.successRate)}</span>
+                    <small className="text-body-xs mystery-result-muted">%</small>
+                  </strong>
+                  <span className="text-body-xs mystery-result-muted">성공률</span>
+                </div>
+                <div>
+                  <strong className="text-heading-4">
+                    <span className="mystery-gold-text">
+                      {stats.completedGames === 0 || stats.averageAttempts === null
+                        ? '0'
+                        : stats.averageAttempts.toFixed(1)}
+                    </span>
+                    <small className="text-body-xs mystery-result-muted">회</small>
+                  </strong>
+                  <span className="text-body-xs mystery-result-muted">평균 시도</span>
+                </div>
+                <div>
+                  <strong className="text-heading-4">
+                    <span className="mystery-gold-text">{stats.currentStreak}</span>
+                    <small className="text-body-xs mystery-result-muted">일</small>
+                  </strong>
+                  <span className="text-body-xs mystery-result-muted">현재 스트릭</span>
+                </div>
+              </div>
+            </>
+          )}
           {finished && game.answer && (
             <div className="mystery-submit-button mystery-answer">
               <span aria-hidden="true">✧</span>

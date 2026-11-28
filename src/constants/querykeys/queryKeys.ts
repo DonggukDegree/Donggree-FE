@@ -1,4 +1,6 @@
 export const QUERY_KEYS = {
+  // 비회원 오늘의 사건. 진행은 브라우저의 암호화 토큰으로만 이어진다.
+  MYSTERY_GUEST_TODAY: ['mystery', 'today', 'guest'] as const,
   MYSTERY_ROOT: ['mystery'] as const,
   MYSTERY_TODAY: (memberId: number | null) => ['mystery', 'today', memberId] as const,
   GET_USER_INFO: ['users', 'me'] as const,

@@ -1,9 +1,9 @@
-/** [정각원의 비밀] 서버 진행·날짜 교체·제출 멱등성·결과 모달 제어. */
+/** [정각원의 비밀] 서버 진행·날짜 교체·제출 멱등성·결과 모달 제어. 비회원은 진행 토큰으로 같은 사건을 이어서 푼다. */
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { submitMysteryGuess } from '@/apis/mystery/mystery';
+import { submitMysteryGuess, submitMysteryGuestGuess } from '@/apis/mystery/mystery';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useCoreMutation } from '@/hooks/customQuery';
 import useMysteryToday from '@/hooks/mystery/useMysteryToday';
@@ -15,6 +15,7 @@ import { trackErrorShown } from '@/utils/analytics/analyticsError';
 import { getMemberIdFromAccessToken } from '@/utils/auth/authRole';
 import { getErrorStatus } from '@/utils/error';
 import { sameMysteryGuess } from '@/utils/mystery/mystery';
+import { readGuestProgress, saveGuestProgress } from '@/utils/mystery/mysteryGuestProgress';
 
 const emptyGuess: TMysteryGuess = { departmentId: '', buildingId: '', methodId: '' };
 export default function useMysteryGame() {
@@ -29,7 +30,20 @@ export default function useMysteryGame() {
   const openResult = useModalStore((s) => s.openMysteryResult);
   const finished = data?.status === 'WON' || data?.status === 'LOST';
   const duplicate = data?.attempts.some((a) => sameMysteryGuess(a.guess, guess)) ?? false;
-  const mutation = useCoreMutation(submitMysteryGuess, {
+  // 비회원은 서버가 진행을 저장하지 않으므로 직전 진행 토큰을 함께 보내고 새 토큰을 보관한다.
+  const submitGuess = async (submission: TMysterySubmission) => {
+    if (!query.isGuest) return submitMysteryGuess(submission);
+    const guest = await submitMysteryGuestGuess({
+      gameDate: submission.gameDate,
+      departmentId: submission.departmentId,
+      buildingId: submission.buildingId,
+      methodId: submission.methodId,
+      progressToken: readGuestProgress(),
+    });
+    saveGuestProgress(guest.progressToken);
+    return guest.today;
+  };
+  const mutation = useCoreMutation(submitGuess, {
     retry: false,
     onMutate: async () => {
       await client.cancelQueries({ queryKey: QUERY_KEYS.MYSTERY_ROOT });

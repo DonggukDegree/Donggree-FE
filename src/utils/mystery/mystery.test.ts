@@ -79,6 +79,12 @@ describe('게임 공유', () => {
     expect(text?.split('\n').filter((line) => line.startsWith('🗞️'))).toHaveLength(10);
     expect(text).not.toContain('성공');
   });
+  it('비회원 결과는 스트릭 줄 없이 공유한다', () => {
+    const text = mysteryShareText({ ...game, statistics: undefined }, 'test');
+    expect(text).not.toContain('연속 도전');
+    expect(text).toContain('🔗 게임하러 가기 test');
+  });
+
   it('장소만 맞은 시도도 신문 이모지의 가운데 칸에만 표시한다', () => {
     const attempts = [{ ...game.attempts[0]!, guess: { departmentId: 'D1', buildingId: 'B2', methodId: 'M2' } }];
     expect(mysteryShareText({ ...game, status: 'LOST', attempts }, 'test')).toContain('🗞️📰🗞️');

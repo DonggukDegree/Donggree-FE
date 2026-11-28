@@ -1327,3 +1327,17 @@ button.mystery-submit-button:hover:not(:disabled) {
     scroll-behavior: auto !important;
   }
 }
+
+/* 비회원 결과 창: 통계 대신 로그인 유도 */
+.mystery-guest-login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.mystery-guest-login-button {
+  width: min(320px, 100%);
+  white-space: nowrap;
+}
