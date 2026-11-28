@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
  * [라우팅] 라우터 정의
  * 게이트는 3단으로 겹쳐 둔다.
  *  ProtectedRoute(인증 → 온보딩 강제) → ReportGate(성적표 필요) → AdminRoute(관리자 권한)
- * 홈·자주 묻는 질문·로그인·콜백·404만 인증 없이 접근할 수 있다.
+ * 홈·자주 묻는 질문·미니 게임 선택·울타리치기·로그인·콜백·404는 인증 없이 접근할 수 있다.
  *
  * 코드 분할: 첫 화면(홈·로그인·콜백·404)만 즉시 로드하고 나머지는 lazy로 나눈다.
  * 특히 관리자 3종은 일반 사용자가 평생 열지 않는 화면이라 초기 번들에 들어갈 이유가 없다.
@@ -27,6 +27,8 @@ import {
   Curriculum,
   DonggleMap,
   Faq,
+  Fence,
+  Games,
   Graduation,
   MyPage,
   Mystery,
@@ -62,6 +64,15 @@ export const router = createBrowserRouter([
       {
         path: 'faq',
         element: tracked(<Faq />),
+      },
+      // 미니 게임 선택 화면과 울타리치기는 비회원도 플레이한다. 기록·적립은 로그인 회원만 서버에 쌓인다.
+      {
+        path: 'games',
+        element: tracked(<Games />),
+      },
+      {
+        path: 'slitherlink',
+        element: tracked(<Fence />),
       },
       // 그 외 라우트는 ProtectedRoute(인증 → 온보딩 게이트)를 통과해야 한다.
       {

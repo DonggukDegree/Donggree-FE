@@ -16,9 +16,14 @@ import { KAKAO_CHAT_URL } from '@/constants/links';
 const NAV_ITEMS = [
   { name: '졸업 판정', path: '/graduation' },
   { name: '동글맵', path: '/map' },
-  { name: '정각원의 비밀', path: '/mystery' },
+  { name: '미니 게임', path: '/games' },
   { name: '자주 묻는 질문', path: '/faq' },
 ] as const;
+
+// 미니 게임 메뉴는 선택 화면과 각 게임 화면에서 모두 선택된 것으로 보여준다.
+const GAME_PATHS = ['/games', '/mystery', '/slitherlink'];
+const isActiveNav = (pathname: string, path: string) =>
+  path === '/games' ? GAME_PATHS.includes(pathname) : pathname === path;
 
 const ADMIN_NAV_ITEMS = [
   { name: '과목 관리', path: '/admin/course-classifications' },
@@ -70,7 +75,7 @@ export default function Header() {
                   key={item.name}
                   to={item.path}
                   className={`${navBaseClass} ${
-                    pathname === item.path ? 'bg-primary-30 text-primary-90' : 'text-coolgray-90'
+                    isActiveNav(pathname, item.path) ? 'bg-primary-30 text-primary-90' : 'text-coolgray-90'
                   }`}
                 >
                   {item.name}
@@ -97,7 +102,7 @@ export default function Header() {
                 key={item.name}
                 to={item.path}
                 className={`${navBaseClass} ${
-                  pathname === item.path ? 'bg-primary-30 text-primary-90' : 'text-coolgray-90'
+                  isActiveNav(pathname, item.path) ? 'bg-primary-30 text-primary-90' : 'text-coolgray-90'
                 }`}
               >
                 {item.name}

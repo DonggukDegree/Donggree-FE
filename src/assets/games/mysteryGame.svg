@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+  <defs>
+    <radialGradient id="mg-glow" cx="50%" cy="55%" r="50%">
+      <stop offset="0" stop-color="#FFE7A3" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#FFE7A3" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="mg-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFC2D1"/>
+      <stop offset="1" stop-color="#EE7396"/>
+    </linearGradient>
+    <linearGradient id="mg-back" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFD9E2"/>
+      <stop offset="1" stop-color="#F7A1B8"/>
+    </linearGradient>
+    <linearGradient id="mg-gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F8D978"/>
+      <stop offset="1" stop-color="#C38E2B"/>
+    </linearGradient>
+    <linearGradient id="mg-cape" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9B7BE0"/>
+      <stop offset="1" stop-color="#5A3DA6"/>
+    </linearGradient>
+  </defs>
+  <circle cx="48" cy="54" r="40" fill="url(#mg-glow)"/>
+  <path d="M48 5v15" stroke="#C38E2B" stroke-width="2" stroke-linecap="round"/>
+  <rect x="40" y="19" width="16" height="6" rx="3" fill="url(#mg-gold)"/>
+  <path d="M48 25C33 27 23 39 23 52c9-2 17-9 25-19 8 10 16 17 25 19 0-13-10-25-25-27Z" fill="url(#mg-back)"/>
+  <path d="M27 51c0-12 9.4-22 21-22s21 10 21 22-9.4 20-21 20-21-8-21-20Z" fill="url(#mg-body)"/>
+  <path d="M48 70c-6.5-4.5-10.5-12-10.5-20S41.5 36 48 31.5c6.5 4.5 10.5 10.5 10.5 18.5S54.5 65.5 48 70Z" fill="#FFD3DE"/>
+  <path d="M29.5 52.5c4.5-2 10.5-1 14.5 3-1 7.5-5 12.5-10.5 14.5-4-4.5-5.5-11-4-17.5Z" fill="#F3879F"/>
+  <path d="M66.5 52.5c-4.5-2-10.5-1-14.5 3 1 7.5 5 12.5 10.5 14.5 4-4.5 5.5-11 4-17.5Z" fill="#F3879F"/>
+  <path d="M48 41.5c2 2.6 3 5.4 3 8.2 0 3-1.2 5.8-3 8-1.8-2.2-3-5-3-8 0-2.8 1-5.6 3-8.2Z" fill="#FFF3C4" opacity="0.9"/>
+  <rect x="37" y="68.5" width="22" height="5" rx="2.5" fill="url(#mg-gold)"/>
+  <path d="M48 73.5v7" stroke="url(#mg-cape)" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M44 79.5h8l1.6 4.5h-11.2Z" fill="url(#mg-cape)"/>
+  <path d="M44.2 84v6.5M48 84v7.5M51.8 84v6.5" stroke="url(#mg-cape)" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M78.5 17l1.8 4.2 4.2 1.8-4.2 1.8-1.8 4.2-1.8-4.2-4.2-1.8 4.2-1.8Z" fill="url(#mg-gold)"/>
+  <path d="M15.5 33l1.1 2.6 2.6 1.1-2.6 1.1-1.1 2.6-1.1-2.6-2.6-1.1 2.6-1.1Z" fill="url(#mg-gold)"/>
+  <circle cx="78" cy="62" r="1.9" fill="#E7C15F"/>
+  <circle cx="19" cy="70" r="1.4" fill="#B79CEB"/>
+</svg>
