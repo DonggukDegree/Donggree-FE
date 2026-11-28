@@ -1,7 +1,8 @@
 /**
  * [동아리] 등록·정보 수정 폼 상태
  * 새 동아리는 항상 승인 요청이고, 기존 동아리는 직접 수정 권한이 있는 회원이면 바로 반영한다.
- * 사진은 고르는 즉시 올려 사진 ID를 받고, 올리는 동안은 제출 버튼을 끈다. 올리기에 실패한 사진은 빼고 알린다.
+ * 고른 사진은 한 장씩 가로 4:3 크롭 화면을 거쳐, 자른 사진을 바로 올려 사진 ID를 받는다.
+ * 크롭·올리기가 끝나기 전에는 제출 버튼을 끈다. 올리기에 실패한 사진은 빼고 알린다.
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
@@ -17,6 +18,7 @@ import type { TClubDetail, TClubField, TClubSaveRequest, TClubSaveResult, TClubS
 import type {
   TClubForm,
   TClubFormErrors,
+  TClubImageCropTarget,
   TClubImageDraft,
   TClubLinkRow,
   TClubOfficerRow,
@@ -52,6 +54,8 @@ export default function useClubForm(
     resubmit ? clubFormFromSave(resubmit.body) : club ? clubFormFromDetail(club) : createEmptyClubForm(),
   );
   const [errors, setErrors] = useState<TClubFormErrors>({});
+  // 크롭 화면을 기다리는 고른 사진(맨 앞이 지금 크롭 중인 사진).
+  const [cropQueue, setCropQueue] = useState<TClubImageCropTarget[]>([]);
   const objectUrls = useRef<string[]>([]);
   const isEditing = club !== null;
   const needsApproval = !admin && (Boolean(resubmit) || !club?.canEditDirectly);
@@ -121,27 +125,43 @@ export default function useClubForm(
     }
   };
 
+  // 고른 사진은 검사 후 크롭 대기열에 넣는다. 크롭 화면은 대기열 맨 앞 사진을 보여준다.
   const addImages = (files: File[]) => {
-    const added: TClubImageDraft[] = [];
+    const queued: TClubImageCropTarget[] = [];
     for (const file of files) {
-      const reason = validateClubImageFile(file, form.images.length + added.length);
+      const reason = validateClubImageFile(file, form.images.length + cropQueue.length + queued.length);
       if (reason) {
         toast.error(reason);
         break;
       }
       const url = URL.createObjectURL(file);
       objectUrls.current.push(url);
-      added.push({ key: createRowKey('image'), url, file, existingId: null });
+      queued.push({ key: createRowKey('crop'), file, url });
     }
-    if (added.length === 0) return;
+    if (queued.length > 0) setCropQueue((prev) => [...prev, ...queued]);
+  };
+
+  // 자른 사진을 사진 목록에 넣고 바로 올린다.
+  const confirmCrop = (file: File) => {
+    setCropQueue((prev) => prev.slice(1));
+    if (file.size > CLUB_LIMITS.IMAGE_BYTES_MAX) {
+      toast.error('자른 사진이 5MB를 넘어요. 다른 사진을 골라주세요.');
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    objectUrls.current.push(url);
+    const draft: TClubImageDraft = { key: createRowKey('image'), url, file, existingId: null };
     setForm((prev) => {
-      const images = [...prev.images, ...added];
+      const images = [...prev.images, draft];
       // 사진이 처음 생기면 첫 장을 대표 사진으로 둔다.
       return { ...prev, images, representativeImageKey: prev.representativeImageKey ?? images[0]?.key ?? null };
     });
     setErrors((prev) => ({ ...prev, images: undefined }));
-    added.forEach((draft) => void uploadDraft(draft));
+    void uploadDraft(draft);
   };
+
+  // 크롭을 취소한 사진은 올리지 않고 다음 사진으로 넘어간다.
+  const cancelCrop = () => setCropQueue((prev) => prev.slice(1));
 
   const saveClub = async (body: TClubSaveRequest): Promise<TClubSaveResult> => {
     if (admin) {
@@ -175,7 +195,7 @@ export default function useClubForm(
     },
   });
 
-  const isUploading = form.images.some((image) => image.existingId === null);
+  const isUploading = cropQueue.length > 0 || form.images.some((image) => image.existingId === null);
 
   const submit = () => {
     const nextErrors = validateClubForm(form, needsApproval);
@@ -197,7 +217,7 @@ export default function useClubForm(
     needsApproval,
     isSubmitting: mutation.isPending,
     isUploading,
-    // 필수 칸을 다 채우고 사진 올리기가 끝나야 제출 버튼이 켜진다.
+    // 필수 칸을 다 채우고 사진 크롭·올리기가 끝나야 제출 버튼이 켜진다.
     canSubmit: isClubFormComplete(form, needsApproval) && !isUploading && !mutation.isPending,
     update,
     toggleField,
@@ -208,6 +228,10 @@ export default function useClubForm(
     changeLink,
     removeLink,
     addImages,
+    cropTarget: cropQueue[0] ?? null,
+    cropRemaining: cropQueue.length,
+    confirmCrop,
+    cancelCrop,
     removeImage,
     submit,
   };

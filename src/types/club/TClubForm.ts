@@ -9,6 +9,8 @@ export type TClubOfficerRow = { key: string; role: string; department: string; n
 // 사진 한 장. 고르면 바로 올리며, 올리는 중에는 existingId가 null이고 올리기가 끝나면 받은 사진 ID가 들어간다.
 // url은 미리보기(blob:) 또는 서버 사진 경로(/api/clubs/images/...)다.
 export type TClubImageDraft = { key: string; url: string; file: File | null; existingId: number | null };
+// 크롭 화면을 기다리는 고른 사진(원본 미리보기 주소 포함).
+export type TClubImageCropTarget = { key: string; file: File; url: string };
 
 export type TClubForm = {
   name: string;
