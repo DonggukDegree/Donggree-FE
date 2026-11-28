@@ -1,5 +1,5 @@
 /**
- * [동아리] 모집 상태 계산·목록 필터·정렬·입력 검증 순수 함수
+ * [동아리] 모집 상태 계산·목록 필터·정렬·입력 검증·쓰기 권한 순수 함수
  * 필터·정렬은 서버(BE ClubCatalog)가 적용하고, 여기 함수는 같은 기준으로 화면 표시(모집 배지·상태 문구)에 쓴다.
  */
 import type {
@@ -9,6 +9,7 @@ import type {
   TClubSort,
   TClubSummary,
 } from '@/types/club/TClub';
+import type { TUserInfo } from '@/types/user/TGetUserInfo';
 
 // 시작 포함·마감 제외. 조기 마감은 기간보다 우선하고, 상시모집은 기간 없이 열려 있다.
 export const getRecruitmentStatus = (recruitment: TClubRecruitment | null, now: Date): TClubRecruitmentStatus => {
@@ -137,3 +138,7 @@ export const parseClubIdParam = (value: string | null): number | null => {
   const id = Number(value);
   return Number.isSafeInteger(id) && id > 0 ? id : null;
 };
+
+// PDF 본인인증 또는 학교 이메일 인증 회원만 동아리 등록·수정·모집·다시 요청을 쓸 수 있다(BE 학생 인증 기준과 같음).
+export const canWriteClub = (user: Pick<TUserInfo, 'identityVerified' | 'schoolEmailVerified'> | undefined) =>
+  Boolean(user?.identityVerified || user?.schoolEmailVerified);

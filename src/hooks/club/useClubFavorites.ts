@@ -1,7 +1,7 @@
 /**
  * [동아리] 찜
  * 서버에 저장한 찜한 동아리 ID를 카드·상세 하트와 찜 모아보기가 함께 쓴다.
- * 하트는 누르자마자 바뀌고(낙관적 갱신), 실패하면 되돌린 뒤 공용 오류 토스트를 띄운다.
+ * 하트는 누르자마자 바뀌고(낙관적 갱신), 실패하면 되돌린 뒤 오류 토스트를 띄우고 GA 오류(club)로 남긴다.
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { deleteClubFavorite, getFavoriteClubIds, putClubFavorite } from '@/apis/club/club';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import { useCoreMutation, useCoreQuery } from '@/hooks/customQuery';
+import { trackErrorShown } from '@/utils/analytics/analyticsError';
 
 export function useFavoriteClubIds() {
   const { data } = useCoreQuery(QUERY_KEYS.GET_CLUB_FAVORITES, getFavoriteClubIds);
@@ -33,6 +34,7 @@ export function useToggleClubFavorite() {
       onError: (error, _variables, context) => {
         const previous = (context as { previous?: number[] } | undefined)?.previous;
         if (previous) queryClient.setQueryData(key, previous);
+        trackErrorShown('club', error);
         toast.error(error.response?.data?.message ?? '찜을 저장하지 못했어요. 다시 시도해주세요.');
       },
       onSettled: () => void queryClient.invalidateQueries({ queryKey: key }),

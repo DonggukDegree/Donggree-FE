@@ -85,15 +85,19 @@ export const EVENT_NAMES = {
   club_select: '동아리 상세 열기',
   club_banner_click: '동아리 배너 클릭',
   club_favorite_toggle: '동아리 찜 누르기',
-  club_favorites_view: '찜한 동아리 모아보기',
+  club_favorites_view: '찜한 동아리 모아보기 전환',
   club_filter_select: '동아리 필터 선택',
   club_sort_select: '동아리 정렬 변경',
   club_apply_link_click: '동아리 관련 링크 클릭',
   club_requests_open: '동아리 내 요청 내역 열기',
-  club_register_submit: '동아리 등록 요청',
-  club_edit_submit: '동아리 정보 수정 저장',
-  club_recruitment_submit: '동아리 모집 저장',
-  club_request_resubmit: '동아리 요청 다시 보내기',
+  club_register_start: '동아리 등록 시작',
+  club_register_complete: '동아리 등록 요청 완료',
+  club_edit_start: '동아리 정보 수정 시작',
+  club_edit_complete: '동아리 정보 수정 완료',
+  club_recruitment_start: '동아리 모집 등록 시작',
+  club_recruitment_complete: '동아리 모집 등록 완료',
+  club_request_resubmit_start: '동아리 요청 다시 보내기 시작',
+  club_request_resubmit_complete: '동아리 요청 다시 보내기 완료',
 } as const;
 export type TAnalyticsEvent = keyof typeof EVENT_NAMES;
 export type TTranscriptNoticeParams = {
@@ -115,9 +119,26 @@ export const ERROR_SOURCES = [
   'points',
   'donggle_map',
   'mystery',
+  'club',
   'mutation',
   'not_found',
   'server',
   'render',
 ] as const;
 export type TErrorSource = (typeof ERROR_SOURCES)[number];
+// BE 응답 봉투의 오류 코드(접두어 + HTTP 상태 + 순번). 새 BE 오류 접두어가 생기면 여기에 함께 추가한다.
+export const BACKEND_ERROR_CODE_PATTERN =
+  /^(?:AUTH|CLUB|COMMON|CURRICULUM|EMAIL|GRADUATION|MYSTERY|PLACE|SUPPORT|TRANSCRIPT|USER|VALID)\d{3}_\d{1,2}$/;
+// FE가 직접 붙이는 오류 코드(응답 없음·화면 오류 등).
+export const FRONTEND_ERROR_CODES = [
+  'NETWORK_ERROR',
+  'UNKNOWN_ERROR',
+  'INVALID_PDF',
+  'LOGIN_FAILED',
+  'MISSING_TOKEN',
+  'MEMBER_SUSPENDED',
+  'USER_CHECK_FAILED',
+  'RENDER_ERROR',
+  'NOT_FOUND',
+  'VALIDATION_ERROR',
+] as const;

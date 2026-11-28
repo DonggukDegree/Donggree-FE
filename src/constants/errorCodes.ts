@@ -18,4 +18,5 @@ export const ERROR_CODE = {
   PLACE_REVIEW_DUPLICATE: 'PLACE409_4', // 이미 리뷰를 쓴 장소
   PLACE_REVIEW_REPORT_DUPLICATE: 'PLACE409_5', // 같은 리뷰에 처리 대기 신고가 이미 있음
   PLACE_REVIEW_HIDDEN: 'PLACE409_6', // 숨겨진 리뷰는 수정 불가
+  CLUB_VERIFICATION_REQUIRED: 'CLUB403_1', // 동아리 등록·수정·모집·사진 올리기에 학생 인증 필요
 } as const;

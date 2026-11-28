@@ -2,6 +2,7 @@
  * [동아리] 모집 등록·수정 폼 상태
  * 기간 모집은 시작·마감 일시(분 단위), 상시모집은 기간 없이 수동 마감만 한다.
  * 승인 이력이 있는 회원이면 바로 반영, 아니면 관리자 승인 요청으로 보낸다.
+ * 학생 인증 필요(CLUB403_1)로 막히면 학생 인증 안내를 띄우고, GA 완료 이벤트는 저장에 성공했을 때만 보낸다.
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -11,6 +12,7 @@ import { toast } from 'sonner';
 import { putClubRecruitment, resubmitMyRecruitmentRequest } from '@/apis/club/club';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
 import type { TClubResubmit } from '@/hooks/club/useClubForm';
+import useClubWriteError from '@/hooks/club/useClubWriteError';
 import { useCoreMutation } from '@/hooks/customQuery';
 import type { TClubDetail, TClubRecruitmentSaveRequest } from '@/types/club/TClub';
 import type { TClubLinkRow, TClubRecruitmentForm, TClubRecruitmentFormErrors } from '@/types/club/TClubForm';
@@ -34,6 +36,7 @@ export default function useClubRecruitmentForm(
 ) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const handleWriteError = useClubWriteError();
   // 마감된 모집은 새 모집을 등록하는 것으로 보고 빈 폼에서 시작한다. 진행 중·예정 모집은 수정한다.
   const [existing] = useState(() =>
     club.recruitment && getRecruitmentStatus(club.recruitment, new Date()) !== 'CLOSED' ? club.recruitment : null,
@@ -63,6 +66,13 @@ export default function useClubRecruitmentForm(
     {
       onSuccess: (result) => {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CLUBS_ROOT });
+        if (resubmit)
+          trackEvent('club_request_resubmit_complete', { club_request_type: 'RECRUITMENT', club_id: club.id });
+        else
+          trackEvent('club_recruitment_complete', {
+            club_id: club.id,
+            club_applied: result.applied === 'DIRECT' ? 'direct' : 'pending',
+          });
         toast.success(
           result.applied === 'DIRECT'
             ? '모집 정보를 바로 반영했어요.'
@@ -72,6 +82,7 @@ export default function useClubRecruitmentForm(
         );
         navigate(resubmit ? '/clubs' : `/clubs?club=${club.id}`);
       },
+      onError: (error) => handleWriteError(error, '요청을 보내지 못했어요. 잠시 후 다시 시도해주세요.'),
     },
   );
 
@@ -82,7 +93,6 @@ export default function useClubRecruitmentForm(
       toast.error('입력하지 않았거나 잘못된 항목을 확인해주세요.');
       return;
     }
-    trackEvent(resubmit ? 'club_request_resubmit' : 'club_recruitment_submit');
     mutation.mutate(toRecruitmentSaveRequest(form, needsApproval));
   };
 

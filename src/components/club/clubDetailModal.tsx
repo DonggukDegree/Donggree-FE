@@ -4,6 +4,7 @@
  * 사진 아래 모집 상태 배지와 오른쪽 원형 버튼(수정 펜·모집 등록 +), 이름·소속·분야, 그 아래 '동아리 정보'·'모집 정보' 탭.
  * 동아리 정보는 기본 정보 목록(동아리 관련 링크 포함) → 소개 → 운영진, 모집 정보는 상태 안내 박스 → 모집 기수·기간·관련 링크 → 모집 안내.
  * 승인 이력이 있는 회원은 바로 반영, 그 외 회원은 관리자 승인 요청이라 버튼 이름(정보 수정/수정 요청)이 달라진다.
+ * 미인증 회원이 수정·모집 버튼을 누르면 학생 인증 안내를 띄운다.
  */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -16,8 +17,10 @@ import ClubFavoriteButton from '@/components/club/clubFavoriteButton';
 import Loading from '@/components/common/feedback/loading';
 import { CLUB_POINTS } from '@/constants/club';
 import { useClubDetail } from '@/hooks/club/useClubQueries';
+import useClubWriteGuard from '@/hooks/club/useClubWriteGuard';
 import type { TClubDetail, TClubLink } from '@/types/club/TClub';
 import { trackEvent } from '@/utils/analytics/analytics';
+import { trackErrorShown } from '@/utils/analytics/analyticsError';
 import {
   formatClubDate,
   getRecruitmentStatus,
@@ -111,7 +114,7 @@ function InfoRow({ label, children }: { label: string; children: React.ReactNode
 }
 
 // 관련 링크 칩(입력한 이름 ↗). 동아리 정보 탭은 링크가 없으면 줄째 숨기고, 모집 정보 탭은 '미확인'으로 보여준다.
-function LinkChips({ links }: { links: TClubLink[] }) {
+function LinkChips({ links, clubId, area }: { links: TClubLink[]; clubId: number; area: 'info' | 'recruitment' }) {
   if (links.length === 0) return <span className="text-coolgray-60">미확인</span>;
   return (
     <span className="flex flex-wrap gap-1.5">
@@ -121,7 +124,7 @@ function LinkChips({ links }: { links: TClubLink[] }) {
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => trackEvent('club_apply_link_click')}
+          onClick={() => trackEvent('club_apply_link_click', { club_id: clubId, club_link_area: area })}
           className="inline-flex items-center gap-1 rounded-full border border-coolgray-30 px-3 py-1 text-body-s text-coolgray-90 hover:border-primary-60 hover:text-primary-60"
         >
           {link.label} ↗
@@ -193,7 +196,7 @@ function ClubInfoTab({ club }: { club: TClubDetail }) {
         </InfoRow>
         {club.links.length > 0 && (
           <InfoRow label="관련 링크">
-            <LinkChips links={club.links} />
+            <LinkChips links={club.links} clubId={club.id} area="info" />
           </InfoRow>
         )}
       </dl>
@@ -264,7 +267,7 @@ function RecruitmentTab({ club, now }: { club: TClubDetail; now: Date }) {
           {recruitment.closedEarly && <span className="text-coolgray-60"> (조기 마감)</span>}
         </InfoRow>
         <InfoRow label="관련 링크">
-          <LinkChips links={recruitment.links} />
+          <LinkChips links={recruitment.links} clubId={club.id} area="recruitment" />
         </InfoRow>
       </dl>
       {recruitment.notice && (
@@ -307,10 +310,23 @@ function TooltipIconButton({
 // 페이지를 옮기면 모달은 목록 화면과 함께 내려가므로 따로 닫지 않는다.
 function DetailBody({ club, now }: { club: TClubDetail; now: Date }) {
   const navigate = useNavigate();
+  const guardWrite = useClubWriteGuard();
   const [tab, setTab] = useState<TDetailTab>('INFO');
   const hasOpenRecruitment = club.recruitment !== null && getRecruitmentStatus(club.recruitment, now) !== 'CLOSED';
   const editLabel = club.canEditDirectly ? '정보 수정' : '수정 요청';
   const recruitmentLabel = hasOpenRecruitment ? '모집 수정' : '모집 등록';
+  // 버튼은 누구에게나 보이고, 미인증 회원이 누르면 학생 인증 안내를 띄운다.
+  const applied = club.canEditDirectly ? 'direct' : 'pending';
+  const startEdit = () =>
+    guardWrite(() => {
+      trackEvent('club_edit_start', { club_id: club.id, club_applied: applied });
+      navigate(`/clubs/edit?club=${club.id}`);
+    });
+  const startRecruitment = () =>
+    guardWrite(() => {
+      trackEvent('club_recruitment_start', { club_id: club.id, club_applied: applied });
+      navigate(`/clubs/recruitment?club=${club.id}`);
+    });
 
   return (
     <>
@@ -320,13 +336,10 @@ function DetailBody({ club, now }: { club: TClubDetail; now: Date }) {
           <div className="flex items-center justify-between gap-2">
             <RecruitmentBadge recruitment={club.recruitment} now={now} size="lg" />
             <div className="flex gap-2">
-              <TooltipIconButton label={editLabel} onClick={() => navigate(`/clubs/edit?club=${club.id}`)}>
+              <TooltipIconButton label={editLabel} onClick={startEdit}>
                 <Pencil className="h-4 w-4 lg:h-5 lg:w-5" />
               </TooltipIconButton>
-              <TooltipIconButton
-                label={recruitmentLabel}
-                onClick={() => navigate(`/clubs/recruitment?club=${club.id}`)}
-              >
+              <TooltipIconButton label={recruitmentLabel} onClick={startRecruitment}>
                 <Plus className="h-4 w-4 lg:h-5 lg:w-5" />
               </TooltipIconButton>
             </div>
@@ -353,7 +366,10 @@ function DetailBody({ club, now }: { club: TClubDetail; now: Date }) {
 }
 
 export default function ClubDetailModal({ clubId, now, onClose }: IClubDetailModalProps) {
-  const { data: club, isLoading, isError } = useClubDetail(clubId);
+  const { data: club, isLoading, isError, error } = useClubDetail(clubId);
+  useEffect(() => {
+    if (isError) trackErrorShown('club', error, true);
+  }, [isError, error]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

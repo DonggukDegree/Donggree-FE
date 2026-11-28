@@ -24,7 +24,7 @@ export default function ClubFavoriteButton({ clubId, className = '' }: { clubId:
       aria-pressed={isFavorite}
       onClick={(event) => {
         event.stopPropagation();
-        trackEvent('club_favorite_toggle');
+        trackEvent('club_favorite_toggle', { club_id: clubId, club_favorite_on: !isFavorite });
         toggle(clubId, !isFavorite);
         setPopCount((prev) => prev + 1);
       }}
