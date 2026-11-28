@@ -7,8 +7,8 @@ import { useEffect } from 'react';
 
 import AdminConfirmModal from '@/components/admin/common/adminConfirmModal';
 import Modal from '@/components/common/overlays/modal';
+import StudentVerificationModal from '@/components/common/overlays/studentVerificationModal';
 import MapOnboardingModal from '@/components/map/mapOnboardingModal';
-import StudentVerificationModal from '@/components/map/studentVerificationModal';
 import MysteryHelpModal from '@/components/mystery/mysteryHelpModal';
 import MysteryResultModal from '@/components/mystery/mysteryResultModal';
 import OnBoardingModal from '@/components/onboarding/onBoardingModal';

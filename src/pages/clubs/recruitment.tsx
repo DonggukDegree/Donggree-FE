@@ -15,7 +15,7 @@ export default function ClubRecruitment() {
 
   if (clubId === null) return <NotFound />;
   if (isPending) return <Loading />;
-  if (isError) return <NotFound error={error} />;
+  if (isError) return <NotFound error={error} source="club" />;
 
   return (
     <ClubFormPageLayout title="신입 부원 모집" subtitle={club.name}>

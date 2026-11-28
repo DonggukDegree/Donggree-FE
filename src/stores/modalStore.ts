@@ -3,7 +3,7 @@
  * 화면 어디서든 모달을 열 수 있도록 '무엇을 열지'만 담아 둔다.
  * 실제 렌더는 레이아웃의 ModalProvider가 type을 보고 결정한다.
  *  - alert: 안내 / onboarding: 온보딩 / confirm: 관리자 저장 확인 / survey: 만족도 조사
- *  - studentVerification: 동글맵 쓰기 전 학생 인증 안내(학교 이메일·성적표 두 경로)
+ *  - studentVerification: 동글맵·동아리 쓰기 전 학생 인증 안내(학교 이메일·성적표 두 경로, 화면별 문구·돌아갈 곳)
  *  - mapOnboarding: 동글맵 첫 방문 튜토리얼
  */
 import type { ComponentType, ReactNode, SVGProps } from 'react';
@@ -11,6 +11,9 @@ import { create } from 'zustand';
 
 import type { TErrorSource, TTranscriptNoticeParams } from '@/constants/analytics';
 import { createAttemptId } from '@/utils/analytics/analytics';
+
+// 학생 인증 안내를 띄운 화면. 안내 문구와 인증 후 돌아갈 곳을 고른다.
+export type TVerificationContext = 'place' | 'club';
 
 type TModalType =
   | 'alert'
@@ -50,6 +53,7 @@ interface IConfirmContent {
 interface IModalState {
   type: TModalType | null;
   mysteryDate: string | null;
+  verificationContext: TVerificationContext;
   alertContent: IAlertContent | null;
   confirmContent: IConfirmContent | null;
 }
@@ -59,7 +63,7 @@ interface IModalActions {
   openOnboarding: () => void;
   openConfirm: (content: IConfirmContent) => void;
   openSurvey: () => void;
-  openStudentVerification: () => void;
+  openStudentVerification: (context?: TVerificationContext) => void;
   openMapOnboarding: () => void;
   closeModal: () => void;
   openMysteryHelp: () => void;
@@ -70,6 +74,7 @@ interface IModalActions {
 const initialState: IModalState = {
   type: null,
   mysteryDate: null,
+  verificationContext: 'place',
   alertContent: null,
   confirmContent: null,
 };
@@ -82,7 +87,8 @@ export const useModalStore = create<IModalState & IModalActions>((set) => ({
   openConfirm: (content) => set({ type: 'confirm', alertContent: null, confirmContent: content }),
   // 자동 설문은 이미 열린 필수 안내·확인 모달을 덮어쓰지 않는다.
   openSurvey: () => set((state) => (state.type === null ? { ...initialState, type: 'survey' } : state)),
-  openStudentVerification: () => set({ ...initialState, type: 'studentVerification' }),
+  openStudentVerification: (context = 'place') =>
+    set({ ...initialState, type: 'studentVerification', verificationContext: context }),
   // 튜토리얼은 이미 열린 다른 모달을 덮어쓰지 않는다.
   openMapOnboarding: () => set((state) => (state.type === null ? { ...initialState, type: 'mapOnboarding' } : state)),
   openMysteryResult: (date) => set({ ...initialState, type: 'mysteryResult', mysteryDate: date }),

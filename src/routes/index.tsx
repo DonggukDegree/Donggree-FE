@@ -17,6 +17,7 @@ import Login from '@/pages/auth/login';
 import NotFound from '@/pages/exception/notFound';
 import Home from '@/pages/home';
 import AdminRoute from '@/routes/adminRoute';
+import ClubWriteGate from '@/routes/clubWriteGate';
 import {
   AcademicRecords,
   AdminClubEdit,
@@ -114,14 +115,20 @@ export const router = createBrowserRouter([
             element: tracked(<DonggleMap />),
           },
           // 동아리는 로그인 회원이 열람한다. 공개 열람 범위(비로그인 허용)는 미정이라 동글맵과 같은 위치에 둔다.
+          // 등록·수정·모집·다시 요청 화면은 학생 인증 게이트를 한 번 더 통과시킨다.
           {
             path: 'clubs',
             children: [
               { index: true, element: tracked(<Clubs />) },
-              { path: 'register', element: tracked(<ClubRegister />) },
-              { path: 'edit', element: tracked(<ClubEdit />) },
-              { path: 'recruitment', element: tracked(<ClubRecruitment />) },
-              { path: 'requests/edit', element: tracked(<ClubRequestEdit />) },
+              {
+                element: <ClubWriteGate />,
+                children: [
+                  { path: 'register', element: tracked(<ClubRegister />) },
+                  { path: 'edit', element: tracked(<ClubEdit />) },
+                  { path: 'recruitment', element: tracked(<ClubRecruitment />) },
+                  { path: 'requests/edit', element: tracked(<ClubRequestEdit />) },
+                ],
+              },
             ],
           },
           // 졸업 판정은 성적표가 있어야 의미가 있으므로 리포트 게이트를 한 번 더 통과시킨다.

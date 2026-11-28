@@ -26,9 +26,17 @@ export default function SchoolEmailVerification() {
 }
 
 /** 인증 직후와 재조회 후에 같은 완료 화면을 표시한다. 동글맵 인증 안내에서 왔으면 동글맵으로 돌려보낸다. */
+// 학생 인증 안내 모달이 넘겨준 돌아갈 곳. 목록에 없는 주소는 무시하고 프로필로 보낸다.
+const RETURN_LABELS: Partial<Record<string, string>> = {
+  '/map': '동글맵으로 돌아가기',
+  '/clubs': '동아리 쇼핑으로 돌아가기',
+};
+
 function VerificationComplete() {
   const navigate = useNavigate();
-  const fromMap = (useLocation().state as { returnTo?: string } | null)?.returnTo === '/map';
+  // 학생 인증 안내 모달에서 들어왔으면 그 화면으로 돌려보낸다.
+  const returnTo = (useLocation().state as { returnTo?: string } | null)?.returnTo;
+  const backLabel = returnTo ? RETURN_LABELS[returnTo] : undefined;
   return (
     <>
       <Check aria-hidden="true" className="h-10 w-10 shrink-0 lg:h-20 lg:w-20" />
@@ -39,8 +47,11 @@ function VerificationComplete() {
           {'이제 동그리의 다양한 서비스를 사용할 수 있어요.\n사용하다가 미흡한 점이 있으면 고객지원에 문의해주세요.'}
         </p>
       </div>
-      <Button className="w-40 max-w-full" onClick={() => navigate(fromMap ? '/map' : '/my-page/profile')}>
-        {fromMap ? '동글맵으로 돌아가기' : '닫기'}
+      <Button
+        className="w-40 max-w-full"
+        onClick={() => navigate(backLabel && returnTo ? returnTo : '/my-page/profile')}
+      >
+        {backLabel ?? '닫기'}
       </Button>
     </>
   );

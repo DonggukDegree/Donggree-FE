@@ -3,6 +3,7 @@
  * 새 동아리는 항상 승인 요청이고, 기존 동아리는 직접 수정 권한이 있는 회원이면 바로 반영한다.
  * 고른 사진은 한 장씩 가로 4:3 크롭 화면을 거쳐, 자른 사진을 바로 올려 사진 ID를 받는다.
  * 크롭·올리기가 끝나기 전에는 제출 버튼을 끈다. 올리기에 실패한 사진은 빼고 알린다.
+ * 학생 인증 필요(CLUB403_1)로 막히면 학생 인증 안내를 띄우고, GA 완료 이벤트는 저장에 성공했을 때만 보낸다.
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
@@ -13,6 +14,7 @@ import { postClub, putClub, resubmitMyClubRequest, uploadClubImage } from '@/api
 import { createAdminClub, updateAdminClub, uploadAdminClubImage } from '@/apis/club/clubAdmin';
 import { CLUB_LIMITS } from '@/constants/club';
 import { QUERY_KEYS } from '@/constants/querykeys/queryKeys';
+import useClubWriteError from '@/hooks/club/useClubWriteError';
 import { useCoreMutation } from '@/hooks/customQuery';
 import type { TClubDetail, TClubField, TClubSaveRequest, TClubSaveResult, TClubSaveValue } from '@/types/club/TClub';
 import type {
@@ -23,7 +25,6 @@ import type {
   TClubLinkRow,
   TClubOfficerRow,
 } from '@/types/club/TClubForm';
-import type { TResponseError } from '@/types/common';
 import { trackEvent } from '@/utils/analytics/analytics';
 import {
   addLinkRow,
@@ -57,6 +58,7 @@ export default function useClubForm(
   // 크롭 화면을 기다리는 고른 사진(맨 앞이 지금 크롭 중인 사진).
   const [cropQueue, setCropQueue] = useState<TClubImageCropTarget[]>([]);
   const objectUrls = useRef<string[]>([]);
+  const handleWriteError = useClubWriteError();
   const isEditing = club !== null;
   const needsApproval = !admin && (Boolean(resubmit) || !club?.canEditDirectly);
 
@@ -121,7 +123,7 @@ export default function useClubForm(
       }));
     } catch (error) {
       removeImage(draft.key);
-      toast.error((error as TResponseError).response?.data?.message ?? '사진을 올리지 못했어요. 다시 골라주세요.');
+      handleWriteError(error, '사진을 올리지 못했어요. 다시 골라주세요.');
     }
   };
 
@@ -180,10 +182,20 @@ export default function useClubForm(
         return;
       }
       if (resubmit) {
+        trackEvent('club_request_resubmit_complete', {
+          club_request_type: isEditing ? 'EDIT' : 'REGISTER',
+          ...(club && { club_id: club.id }),
+        });
         toast.success('다시 요청을 보냈어요. 관리자 확인 후 반영돼요.');
         navigate('/clubs');
         return;
       }
+      if (club) {
+        trackEvent('club_edit_complete', {
+          club_id: club.id,
+          club_applied: result.applied === 'DIRECT' ? 'direct' : 'pending',
+        });
+      } else trackEvent('club_register_complete');
       toast.success(
         result.applied === 'DIRECT'
           ? '동아리 정보를 바로 반영했어요.'
@@ -193,6 +205,7 @@ export default function useClubForm(
       );
       navigate(club ? `/clubs?club=${club.id}` : '/clubs');
     },
+    onError: (error) => handleWriteError(error, '요청을 보내지 못했어요. 잠시 후 다시 시도해주세요.'),
   });
 
   const isUploading = cropQueue.length > 0 || form.images.some((image) => image.existingId === null);
@@ -204,8 +217,6 @@ export default function useClubForm(
       toast.error('입력하지 않았거나 잘못된 항목을 확인해주세요.');
       return;
     }
-    if (resubmit) trackEvent('club_request_resubmit');
-    else if (!admin) trackEvent(isEditing ? 'club_edit_submit' : 'club_register_submit');
     mutation.mutate(toClubSaveRequest(form, needsApproval));
   };
 

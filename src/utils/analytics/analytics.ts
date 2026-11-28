@@ -1,5 +1,13 @@
 /** [공통 > 분석] 환경·권한·URL·개인정보를 검사하는 유일한 GA 발송 경로 */
-import { ERROR_SOURCES, EVENT_NAMES, PAGE_NAMES, type TAnalyticsEvent } from '@/constants/analytics';
+import {
+  BACKEND_ERROR_CODE_PATTERN,
+  ERROR_SOURCES,
+  EVENT_NAMES,
+  FRONTEND_ERROR_CODES,
+  PAGE_NAMES,
+  type TAnalyticsEvent,
+} from '@/constants/analytics';
+import { CLUB_AFFILIATIONS, CLUB_FIELDS, CLUB_RECRUITMENT_STATUSES, CLUB_SORTS } from '@/constants/club';
 import {
   PLACE_CATEGORIES,
   PLACE_REPORT_REASONS,
@@ -206,9 +214,7 @@ const sanitizeParams = (params: Record<string, unknown>) => {
     if (
       key === 'code' &&
       typeof value === 'string' &&
-      /^(?:COMMON|USER|TRANSCRIPT|GRADUATION|EMAIL|PLACE|MYSTERY)\d{3}_\d{1,2}$|^(?:NETWORK_ERROR|UNKNOWN_ERROR|INVALID_PDF|LOGIN_FAILED|MISSING_TOKEN|MEMBER_SUSPENDED|USER_CHECK_FAILED|RENDER_ERROR|NOT_FOUND|VALIDATION_ERROR)$/.test(
-        value,
-      )
+      (BACKEND_ERROR_CODE_PATTERN.test(value) || (FRONTEND_ERROR_CODES as readonly string[]).includes(value))
     )
       result[key] = value;
     if (
@@ -221,6 +227,30 @@ const sanitizeParams = (params: Record<string, unknown>) => {
       result[key] = value;
     if (key === 'duplicate_type' && ['exact', 'similar'].includes(String(value))) result[key] = value;
     if (key === 'verification_method' && ['school_email', 'transcript'].includes(String(value))) result[key] = value;
+    if (key === 'verification_context' && ['place', 'club'].includes(String(value))) result[key] = value;
+    // 동아리는 동아리·배너 ID(공개 목록의 번호)와 고정 코드만 보내고, 이름·링크 주소 등 입력값은 보내지 않는다.
+    if (
+      ['club_id', 'club_banner_id'].includes(key) &&
+      typeof value === 'number' &&
+      Number.isSafeInteger(value) &&
+      value > 0
+    )
+      result[key] = value;
+    if (['club_favorite_on', 'club_favorites_only', 'club_filter_on'].includes(key) && typeof value === 'boolean')
+      result[key] = value;
+    if (key === 'club_entry' && ['card', 'banner'].includes(String(value))) result[key] = value;
+    if (key === 'club_banner_target' && ['club', 'internal', 'external'].includes(String(value))) result[key] = value;
+    if (key === 'club_filter_group' && ['affiliation', 'field', 'recruitment_status'].includes(String(value)))
+      result[key] = value;
+    if (
+      key === 'club_filter_value' &&
+      [...CLUB_AFFILIATIONS, ...CLUB_FIELDS, ...CLUB_RECRUITMENT_STATUSES].some((option) => option.value === value)
+    )
+      result[key] = value;
+    if (key === 'club_sort' && CLUB_SORTS.some((option) => option.value === value)) result[key] = value;
+    if (key === 'club_link_area' && ['info', 'recruitment'].includes(String(value))) result[key] = value;
+    if (key === 'club_applied' && ['direct', 'pending'].includes(String(value))) result[key] = value;
+    if (key === 'club_request_type' && ['REGISTER', 'EDIT', 'RECRUITMENT'].includes(String(value))) result[key] = value;
     // 신고는 사유 코드만 보내고 사용자가 쓴 설명은 보내지 않는다.
     if (
       key === 'report_reason' &&

@@ -116,6 +116,39 @@ describe('GA 발송 경계', () => {
     expect(payload).not.toHaveProperty('email');
   });
 
+  it('동아리 이벤트는 ID·고정 코드만 보내고 동아리 오류 코드를 그대로 보존', () => {
+    location.pathname = '/clubs';
+    analytics.trackEvent('club_filter_select', {
+      club_filter_group: 'field',
+      club_filter_value: 'ACADEMIC',
+      club_filter_on: true,
+    });
+    analytics.trackEvent('club_sort_select', { club_sort: 'UNKNOWN' });
+    analytics.trackEvent('club_apply_link_click', {
+      club_id: 3,
+      club_link_area: 'recruitment',
+      url: 'https://open.kakao.com/x',
+      label: '오픈채팅',
+    });
+    analytics.trackEvent('club_edit_complete', { club_id: -1, club_applied: 'direct' });
+    analytics.trackEvent('student_verification_shown', { verification_context: 'club' });
+    analytics.trackEvent('error_shown', { error_source: 'club', code: 'CLUB409_4', status: 409 });
+    const payload = (name: string) => events().find((event) => event[1] === name)?.[2];
+    expect(payload('club_filter_select')).toMatchObject({
+      club_filter_group: 'field',
+      club_filter_value: 'ACADEMIC',
+      club_filter_on: true,
+    });
+    expect(payload('club_sort_select')).not.toHaveProperty('club_sort');
+    expect(payload('club_apply_link_click')).toMatchObject({ club_id: 3, club_link_area: 'recruitment' });
+    expect(payload('club_apply_link_click')).not.toHaveProperty('url');
+    expect(payload('club_apply_link_click')).not.toHaveProperty('label');
+    expect(payload('club_edit_complete')).toMatchObject({ club_applied: 'direct' });
+    expect(payload('club_edit_complete')).not.toHaveProperty('club_id');
+    expect(payload('student_verification_shown')).toMatchObject({ verification_context: 'club' });
+    expect(payload('error_shown')).toMatchObject({ error_source: 'club', code: 'CLUB409_4', status: 409 });
+  });
+
   it('F 확인 개수와 시작 위치·안내 사유를 보존하고 잘못된 값은 버림', () => {
     analytics.trackEvent('transcript_notice_shown', { grade_review_count: 2, notice_reason: 'both', credit_gap: 3 });
     analytics.trackEvent('start_click', { placement: 'hero' });

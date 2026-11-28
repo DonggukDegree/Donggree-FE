@@ -24,8 +24,8 @@ export default function ClubRequestEdit() {
 
   if (requestId === null) return <NotFound />;
   if (request.isPending || (clubId !== null && club.isPending)) return <Loading />;
-  if (request.isError) return <NotFound error={request.error} />;
-  if (club.isError) return <NotFound error={club.error} />;
+  if (request.isError) return <NotFound error={request.error} source="club" />;
+  if (club.isError) return <NotFound error={club.error} source="club" />;
 
   const detail = request.data;
   const canResubmit = detail.status === 'PENDING' || detail.status === 'REJECTED';
