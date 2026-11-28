@@ -188,6 +188,13 @@ const sanitizeParams = (params: Record<string, unknown>) => {
     if (key === 'mystery_round' && typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 10)
       result[key] = value;
     if (key === 'mystery_won' && typeof value === 'boolean') result[key] = value;
+    if (key === 'fence_size' && [5, 7, 10].includes(Number(value))) result[key] = Number(value);
+    if (key === 'fence_seconds' && typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 86400)
+      result[key] = value;
+    if (key === 'fence_hints' && typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 3)
+      result[key] = value;
+    if (key === 'fence_member' && typeof value === 'boolean') result[key] = value;
+    if (key === 'game_name' && ['mystery', 'fence'].includes(String(value))) result[key] = value;
     if (key === 'mystery_category' && ['DEPARTMENT', 'BUILDING', 'METHOD'].includes(String(value))) result[key] = value;
     if (
       ['credit_gap', 'achievement_rate', 'course_count'].includes(key) &&

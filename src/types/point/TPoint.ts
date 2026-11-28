@@ -7,7 +7,8 @@ export type TPointReason =
   | 'PLACE_FIRST_REVIEW'
   | 'PLACE_REVIEW'
   | 'PLACE_INFO_EDIT'
-  | 'MYSTERY_SOLVED';
+  | 'MYSTERY_SOLVED'
+  | 'FENCE_SOLVED';
 
 // GET /api/points/me. 숨김으로 회수된 적립은 합계에서 빠진다.
 export type TPointSummary = {

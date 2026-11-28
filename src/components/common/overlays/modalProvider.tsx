@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 
 import AdminConfirmModal from '@/components/admin/common/adminConfirmModal';
 import Modal from '@/components/common/overlays/modal';
+import FenceHelpModal from '@/components/fence/fenceHelpModal';
+import FenceResultModal from '@/components/fence/fenceResultModal';
 import MapOnboardingModal from '@/components/map/mapOnboardingModal';
 import StudentVerificationModal from '@/components/map/studentVerificationModal';
 import MysteryHelpModal from '@/components/mystery/mysteryHelpModal';
@@ -35,6 +37,8 @@ export default function ModalProvider() {
   if (type === 'studentVerification') return <StudentVerificationModal />;
   if (type === 'mysteryResult') return <MysteryResultModal />;
   if (type === 'mysteryHelp') return <MysteryHelpModal />;
+  if (type === 'fenceResult') return <FenceResultModal />;
+  if (type === 'fenceHelp') return <FenceHelpModal />;
   if (type === 'mapOnboarding') return <MapOnboardingModal />;
   return null;
 }

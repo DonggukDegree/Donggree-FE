@@ -1,0 +1,708 @@
+/* [울타리치기] 흰 배경·회색 점·검정 숫자·초록 울타리의 단순한 화면. 판 좌표는 칸 한 변 100 단위다. */
+:root {
+  --fence-green: #6aaa64;
+  --fence-green-deep: #4f8f4a;
+  --fence-green-soft: #edf6ec;
+  --fence-fill-from: #e3f3df;
+  --fence-fill-to: #b9e0b2;
+  --fence-dot: #c1c7cd;
+  --fence-red: #f14c2e;
+  --fence-ink: #21272a;
+  --fence-muted: #697077;
+  --fence-surface: #f2f4f8;
+  --fence-ease: cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.fence-page {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fence-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fence-title {
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.fence-subtitle {
+  margin-top: 4px;
+  word-break: keep-all;
+  text-wrap: balance;
+  font-size: 14px;
+  color: var(--fence-muted);
+}
+
+.fence-heading-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.fence-icon-button {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--fence-ink);
+  transition: background-color 0.15s;
+}
+
+.fence-icon-button:hover {
+  background: var(--fence-surface);
+}
+
+.fence-icon-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* 애플 세그먼트 컨트롤처럼 흰 손잡이가 미끄러진다. */
+.fence-sizes {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--fence-surface);
+}
+
+.fence-sizes-thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / 3);
+  border-radius: 9px;
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.08),
+    0 3px 8px rgb(0 0 0 / 0.06);
+  transition: transform 0.32s var(--fence-ease);
+}
+
+.fence-sizes button {
+  position: relative;
+  z-index: 1;
+  height: 36px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fence-muted);
+  transition: color 0.2s;
+  font-variant-numeric: tabular-nums;
+}
+
+.fence-sizes button.is-selected {
+  color: var(--fence-ink);
+}
+
+.fence-sizes button:disabled {
+  cursor: default;
+}
+
+.fence-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.fence-stopwatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--fence-ink);
+}
+
+.fence-stopwatch svg {
+  width: 18px;
+  height: 18px;
+  color: var(--fence-muted);
+}
+
+.fence-toolbar-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.fence-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--fence-surface);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fence-ink);
+  transition:
+    transform 0.12s,
+    opacity 0.15s,
+    background-color 0.15s;
+}
+
+.fence-tool svg {
+  width: 17px;
+  height: 17px;
+}
+
+.fence-tool:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.fence-tool:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.fence-tool-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--fence-green);
+  color: #fff;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+}
+
+@media (max-width: 380px) {
+  .fence-tool {
+    padding: 0 10px;
+    font-size: 13px;
+  }
+}
+
+.fence-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.fence-board {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.fence-board.is-disabled {
+  cursor: default;
+}
+
+.fence-board.is-solved {
+  animation: fence-celebrate 0.55s var(--fence-ease) 0.85s;
+}
+
+.fence-dot {
+  fill: var(--fence-dot);
+  transition: fill 0.15s;
+}
+
+.fence-dot.is-lit {
+  fill: var(--fence-green);
+}
+
+.fence-dot.is-bad {
+  fill: var(--fence-red);
+}
+
+.fence-line {
+  fill: none;
+  stroke: var(--fence-green);
+  stroke-width: 14;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  animation: fence-draw 0.14s var(--fence-ease) both;
+  transition: stroke 0.15s;
+}
+
+.fence-line.is-bad {
+  stroke: var(--fence-red);
+}
+
+.fence-cross {
+  fill: none;
+  stroke: var(--fence-dot);
+  stroke-width: 5;
+  stroke-linecap: round;
+  animation: fence-fade 0.14s ease-out both;
+}
+
+.fence-clue {
+  font-size: 52px;
+  font-weight: 600;
+  fill: var(--fence-ink);
+  transition: fill 0.2s;
+  font-variant-numeric: tabular-nums;
+}
+
+.fence-clue.is-done {
+  fill: var(--fence-dot);
+}
+
+.fence-clue.is-bad {
+  fill: var(--fence-red);
+}
+
+.fence-fill {
+  animation: fence-sweep 0.8s var(--fence-ease) both;
+}
+
+.fence-fill-shine {
+  mix-blend-mode: soft-light;
+}
+
+.fence-hint-glow {
+  stroke-width: 40;
+  stroke-linecap: round;
+  stroke: var(--fence-green);
+  opacity: 0;
+  animation: fence-glow 0.7s ease-in-out 3;
+}
+
+.fence-hint-glow--wrong {
+  stroke: var(--fence-red);
+}
+
+.fence-hint-glow--cross {
+  stroke: var(--fence-dot);
+}
+
+.fence-message {
+  min-height: 20px;
+  text-align: center;
+  color: var(--fence-green-deep);
+  font-weight: 600;
+}
+
+.fence-guest-note {
+  text-align: center;
+}
+
+/* 판을 만드는 동안 네 점이 차례로 이어지고 새싹이 자란다. */
+.fence-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgb(255 255 255 / 0.92);
+}
+
+.fence-loading-art {
+  width: 96px;
+  height: 96px;
+}
+
+.fence-loading-line {
+  stroke: var(--fence-green);
+  stroke-width: 18;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: fence-loading-draw 2.4s var(--fence-ease) infinite;
+}
+
+.fence-loading-line--2 {
+  animation-delay: 0.3s;
+}
+
+.fence-loading-line--3 {
+  animation-delay: 0.6s;
+}
+
+.fence-loading-line--4 {
+  animation-delay: 0.9s;
+}
+
+.fence-loading-dot {
+  fill: var(--fence-dot);
+  animation: fence-loading-dot 2.4s ease-in-out infinite;
+}
+
+.fence-loading-dot--2 {
+  animation-delay: 0.3s;
+}
+
+.fence-loading-dot--3 {
+  animation-delay: 0.6s;
+}
+
+.fence-loading-dot--4 {
+  animation-delay: 0.9s;
+}
+
+.fence-loading-sprout {
+  fill: var(--fence-green);
+  stroke: var(--fence-green);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transform-origin: 100px 155px;
+  animation: fence-sprout 2.4s var(--fence-ease) infinite;
+}
+
+/* 결과·게임 방법 모달 */
+.fence-dialog {
+  width: min(360px, calc(100vw - 32px));
+  max-height: 85dvh;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: #fff;
+  color: var(--fence-ink);
+  box-shadow: 0 24px 64px rgb(18 22 25 / 0.24);
+  overflow: auto;
+  animation: fence-pop 0.28s var(--fence-ease);
+}
+
+.fence-dialog-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 28px 24px 24px;
+  text-align: center;
+}
+
+.fence-dialog-heading {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fence-dialog-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--fence-muted);
+  background: var(--fence-surface);
+}
+
+.fence-result-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.fence-help-example {
+  width: 132px;
+  height: 132px;
+}
+
+.fence-help-fill {
+  fill: var(--fence-green-soft);
+}
+
+.fence-help-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  list-style: disc;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.fence-result-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.fence-result-check {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--fence-green-soft);
+  color: var(--fence-green);
+  animation: fence-pop 0.35s var(--fence-ease);
+}
+
+.fence-result-check svg {
+  width: 30px;
+  height: 30px;
+}
+
+.fence-result-check path {
+  stroke-dasharray: 1;
+  animation: fence-draw 0.45s var(--fence-ease) 0.15s both;
+}
+
+.fence-result-time {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.fence-result-time strong {
+  font-size: 32px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.fence-result-title {
+  align-self: flex-start;
+}
+
+.fence-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--fence-green-soft);
+  color: var(--fence-green-deep);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.fence-stats {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fence-stats-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.fence-stats-main div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 8px;
+  border-radius: 16px;
+  background: var(--fence-surface);
+}
+
+.fence-stats-main strong {
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.fence-stats-main span {
+  font-size: 12px;
+  color: var(--fence-muted);
+}
+
+.fence-stats-records {
+  display: flex;
+  flex-direction: column;
+}
+
+.fence-stats-records li {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.fence-stats-records li.is-current {
+  background: var(--fence-green-soft);
+}
+
+.fence-stats-records strong {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.fence-login {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--fence-surface);
+}
+
+.fence-button {
+  width: 100%;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  transition:
+    transform 0.12s,
+    filter 0.15s;
+}
+
+.fence-button:active {
+  transform: scale(0.98);
+}
+
+.fence-button--primary {
+  background: var(--fence-green);
+  color: #fff;
+}
+
+.fence-button--primary:hover {
+  filter: brightness(0.96);
+}
+
+.fence-button--soft {
+  background: var(--fence-surface);
+  color: var(--fence-ink);
+}
+
+@keyframes fence-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fence-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fence-sweep {
+  from {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0.6;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+@keyframes fence-celebrate {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.025);
+  }
+}
+
+@keyframes fence-glow {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes fence-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fence-loading-draw {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  30%,
+  80% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes fence-loading-dot {
+  0%,
+  100% {
+    fill: var(--fence-dot);
+  }
+  25%,
+  80% {
+    fill: var(--fence-green);
+  }
+}
+
+@keyframes fence-sprout {
+  0%,
+  35% {
+    transform: scale(0);
+  }
+  55%,
+  85% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fence-line,
+  .fence-cross,
+  .fence-fill,
+  .fence-board.is-solved,
+  .fence-hint-glow,
+  .fence-dialog,
+  .fence-result-check,
+  .fence-result-check path {
+    animation: none;
+  }
+
+  .fence-hint-glow {
+    opacity: 0.3;
+  }
+
+  .fence-loading-line,
+  .fence-loading-dot,
+  .fence-loading-sprout {
+    animation-duration: 6s;
+  }
+}

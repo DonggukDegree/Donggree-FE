@@ -1,6 +1,9 @@
 export const QUERY_KEYS = {
   MYSTERY_ROOT: ['mystery'] as const,
   MYSTERY_TODAY: (memberId: number | null) => ['mystery', 'today', memberId] as const,
+  // 울타리치기 통계는 로그인 회원만 있고, 계정 전환 때 섞이지 않도록 회원 ID를 키에 넣는다.
+  FENCE_ROOT: ['fence'] as const,
+  FENCE_STATISTICS: (memberId: number | null) => ['fence', 'statistics', memberId] as const,
   GET_USER_INFO: ['users', 'me'] as const,
   SCHOOL_EMAIL_VERIFICATION: ['users', 'me', 'school-email-verification'] as const,
   GET_USER_REPORTS: ['users', 'me', 'reports'] as const,

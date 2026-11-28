@@ -8,6 +8,7 @@ export const POINT_REASON_LABELS: Record<TPointReason, string> = {
   PLACE_REVIEW: '동글맵 리뷰 작성',
   PLACE_INFO_EDIT: '동글맵 장소 정보 수정',
   MYSTERY_SOLVED: '정각원의 비밀 정답 해결',
+  FENCE_SOLVED: '울타리치기 완성',
 };
 
 // 적립 내역 페이지 ? 툴팁의 적립 기준 요약. 서버 적립 기준(BE PointReason)과 같은 값이어야 한다.
@@ -18,6 +19,7 @@ export const POINT_RULES: { label: string; amount: number; note?: string }[] = [
   { label: '동글맵 리뷰 작성', amount: 100, note: '장소별 1회' },
   { label: '동글맵 장소 정보 수정', amount: 100, note: '장소별 1회' },
   { label: '정각원의 비밀 정답 해결', amount: 10, note: '하루 1회' },
+  { label: '울타리치기 완성', amount: 10, note: '하루 1회' },
 ];
 
 export const POINT_RULE_NOTE = '숨김 처리된 장소·리뷰로 받은 포인트는 회수돼요.';
